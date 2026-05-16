@@ -122,13 +122,28 @@ function ccc() {
 
 See `docs/VAULT-AUTOMATION.md` for full details.
 
-### Step 9 — Start a new project
+### Step 9 — Wire up any project (new or existing)
+
+`/sync-project` is the single entry point for all three cases:
+
 ```bash
+# New project
 mkdir ~/builds/my-app && cd ~/builds/my-app
 ccc
-# Then type: /ai-project-scaffold
-# Answer 11 questions → complete scaffold in ~10 minutes
+> /sync-project          # detects empty dir → delegates to /ai-project-scaffold
+
+# Existing project — no setup yet
+cd ~/builds/existing-app
+ccc
+> /sync-project          # detects code, no .claude/ → retrofit flow, asks bucket
+
+# Existing project — update agents to latest
+cd ~/builds/any-app
+ccc
+> /sync-project          # detects .claude/agents/ → syncs from ~/.claude/agents/
 ```
+
+It probes the directory, classifies the scenario, confirms with one question, and executes the right steps. See `docs/EXISTING-PROJECT.md` for what each path does.
 
 ---
 
@@ -177,6 +192,9 @@ claude-code-solo-builder/
 ```bash
 # Launch Claude Code (auto re-indexes vault on exit)
 ccc
+
+# First time in a project (or to update agents)
+> /sync-project                       # detect + scaffold / retrofit / sync in one command
 
 # Start every session
 > /start-session                      # re-loads CLAUDE.md + active phase + vault freshness check
