@@ -1,13 +1,14 @@
-# Swarm Orchestration — Paperclip, Teams, and Autopilot
+# Swarm Orchestration — Teams, Autopilot, and Mobile Control
 
-> How to run parallel AI workers safely, when to use each mode, and how Paperclip fits in.
+> How to run parallel AI workers safely, when to use each mode, and how to control your swarm from your phone.
 
 ---
 
 ## The Swarm Pattern
 
 ```
-                  Paperclip / Scheduler
+              External trigger / Scheduler
+              (cron job, GitHub webhook, Telegram bot)
                           │
                           ▼
                    ┌─────────────┐
@@ -29,20 +30,53 @@
                   Human (you) — final approve & merge
 ```
 
-### What Paperclip is
+### About "Paperclip / Scheduler"
 
-Paperclip is an external scheduler/orchestrator that sits above Claude Code. It can:
-- Trigger Claude Code sessions on a schedule (nightly, on git push, on CI event)
-- Route work to the right Claude Code instance based on project
-- Maintain a 24/7 fleet on a Mac Mini that accepts work via Telegram/API
-- Bridge between external event sources (GitHub webhooks, cron jobs) and Claude Code sessions
+In the playbook diagram, **"Paperclip / Scheduler"** is a **conceptual label** — it represents whatever external trigger mechanism you use to kick off a Claude Code swarm. It is NOT a specific installed tool. Concretely this means:
+- A `cron` job that runs `claude --no-interactive "/build-phase-autopilot all"` nightly
+- A GitHub Actions workflow that triggers a swarm on push to a branch
+- A Telegram bot that relays your mobile commands to the Mac Mini
+- A simple shell script you run manually
 
-For mobile control of a 24/7 fleet, also consider **Hermes Agent** (Nous Research) for Telegram-based orchestration.
+There is no "Paperclip" product to install. The diagram is showing the *layer*, not a specific tool.
 
-**What to skip:**
+### What to skip
+
 - OpenClaw (470+ security advisories Jan–Apr 2026)
 - Custom orchestrators (too much maintenance)
 - Plugin maximalism (cap at 3–5 active plugins)
+
+---
+
+## Hermes — Two Different Things
+
+"Hermes" appears in two different contexts and they are NOT the same thing:
+
+### 1. gstack's Hermes host adapter
+
+gstack compiles its skills to run inside multiple AI coding tools. `~/.claude/skills/gstack/hosts/hermes.ts` is a **host config** that translates gstack skills to work inside the **Hermes AI agent** (a separate coding assistant tool with its own CLI). If you use Hermes as your coding tool instead of Claude Code, gstack's skills still work via this adapter.
+
+This is NOT the Nous Research Hermes language model. It's a compatibility layer.
+
+### 2. Telegram-based mobile swarm control (in-progress setup)
+
+The vault at `~/Obsidian/Builds/02-Areas/Playbook/HERMES-TELEGRAM-SETUP.md` documents a setup for controlling your Mac Mini swarm from your phone via Telegram. This uses a Telegram bot (`@marky91_bot`) to:
+- Send commands to the Mac Mini (`/status`, `/deploy`, `/pause`)
+- Receive nightly portfolio digests
+- Get push notifications when background agents complete
+
+This is the "24/7 fleet on Mac Mini controlled via Telegram" concept from the playbook. Setup steps are in the vault doc.
+
+**Stack for Telegram mobile control:**
+```
+Telegram Bot (BotFather) ← your phone
+        ↓
+~/builds/_platform/deploy-scripts/send-digest.sh  (cron 9 AM)
+        ↓
+Supabase portfolio_attention view
+        ↓
+Telegram API → your CHAT_ID
+```
 
 ---
 

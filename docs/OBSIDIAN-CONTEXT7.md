@@ -4,6 +4,15 @@
 
 ---
 
+## Status: This vault is live, not aspirational
+
+The vault at `~/Obsidian/Builds/` is actively in use with the Karpathy framework. As of v2.3:
+- **9 projects indexed** in `01-Projects/` (portfolio-tracker, mcp-farm, knowledge-store, admin-nexus, markandey-in, kids-ai-app, family-expenses, fintech-project, tradingAgents)
+- **10 patterns captured** in `05-Patterns/` (ai-model-routing, per-tenant-isolation, two-stack-bridge-via-sse, child-safe-ai-pipeline, rolling-session-summary, and more)
+- **3 postmortems** in `04-Archive/` (med-tracker, open-health, medi-tracker — killed apps kept for reference)
+- **ADRs at vault root** (ADR-0009-per-tenant-minio-bucket.md and others)
+- **Git-backed** with auto-sync
+
 ## Why the Knowledge Layer Matters
 
 Without a vault, every new app starts from zero. With one:
@@ -67,34 +76,56 @@ Named for Andrej Karpathy's "LLM Wiki" pattern. These rules prevent the vault fr
 └── 05-Patterns/                        ← Patterns before they become skills
 ```
 
-### Page type templates
+### Frontmatter template (actual format used in this vault)
 
-**Entity** (a thing that exists in your system):
+Every note uses this frontmatter:
+
+```yaml
+---
+type: <entity|concept|synthesis|source|report>
+created: YYYY-MM-DD
+created_by: <human|claude|swarm-name>
+last_edited: YYYY-MM-DD
+last_edited_by: <human|claude|swarm-name>
+status: <draft|active|stale|archived>
+canonical: false
+tags: [topic1, topic2]
+related: [[note1]], [[note2]]
+---
+```
+
+**Concept** (pattern canonical across multiple apps):
+```markdown
+---
+type: concept
+created: 2026-05-16
+created_by: claude
+status: canonical
+canonical: true
+tags: [pattern, ai-routing, cost-optimisation]
+related:
+  - "[[01-Projects/portfolio-tracker/INDEX]]"
+  - "[[01-Projects/mcp-farm/INDEX]]"
+---
+# Pattern: AI Model Routing (COMPLEX / SIMPLE split)
+Route every AI call through a classifier. COMPLEX → Claude (paid). SIMPLE → Qwen local (free).
+Apps never call Anthropic/Ollama directly.
+```
+
+**Entity** (a thing in your system):
 ```markdown
 ---
 type: entity
 name: Portfolio Tracker
+created: 2026-05-16
 created_by: markandey
-last_edited_by: claude-sonnet
+status: active
+tags: [spring-boot, java, mysql, portfolio]
+related: [[01-Projects/mcp-farm/INDEX]], [[01-Projects/knowledge-store/INDEX]]
 ---
 # Portfolio Tracker
 The Spring Boot API that manages Zerodha holdings and provides AI-powered analysis.
 [[mcp-farm]] → [[knowledge-store]] → [[portfolio-tracker-frontend]]
-```
-
-**Synthesis** (a pattern discovered across multiple projects):
-```markdown
----
-type: synthesis
-name: Stripe Subscription Pattern
-created_by: claude-sonnet
-last_edited_by: markandey
----
-# Stripe Subscription Pattern
-Learned across: [[app-saas-1]], [[fintech-project]]
-Pattern: always idempotency-key on create, always handle `invoice.payment_failed` before canceling
-Wrapper at: [[_platform/billing]]
-ADR: [[ADR-0003-stripe-idempotency]]
 ```
 
 ---
