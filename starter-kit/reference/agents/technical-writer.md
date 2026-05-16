@@ -1,6 +1,7 @@
 ---
 name: technical-writer
-description: Use for README updates, runbooks, deployment guides, demo scripts, API documentation, onboarding guides, and any user/customer-facing copy. Invoke at the end of each phase to bring docs back in sync with code.
+description: Use for README updates, runbooks, deployment guides, demo scripts, API documentation, onboarding guides, and any user/customer-facing copy. Invoke at the end of each phase to bring docs back in sync with code. Invoke proactively whenever a new API surface, env var, or CLI command is added. SKIP for internal refactors with no public-facing surface change.
+model: claude-haiku-4-5-20251001
 tools: Read, Write, Edit, Grep, Glob
 ---
 

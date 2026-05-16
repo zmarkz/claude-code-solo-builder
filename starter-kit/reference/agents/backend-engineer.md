@@ -1,6 +1,7 @@
 ---
 name: backend-engineer
-description: Use for backend API endpoints, database models, migrations, request/response schemas, worker tasks, and service code in the project's chosen backend stack. Invoke when implementing a backend-layer feature from a spec produced by product-manager + solution-architect.
+description: Use for backend API endpoints, database models, migrations, request/response schemas, worker tasks, and service code in the project's chosen backend stack. Invoke when implementing a backend-layer feature from a spec produced by product-manager + solution-architect. Invoke proactively when adding any endpoint, model, or worker. SKIP if the change is frontend or styling only.
+model: claude-sonnet-4-6
 tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 

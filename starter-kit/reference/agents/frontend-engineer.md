@@ -1,6 +1,7 @@
 ---
 name: frontend-engineer
-description: Use for UI pages, components, design-system usage, server-state hooks, form handling, and styling in the project's chosen frontend stack. Invoke when implementing a UI feature from a spec.
+description: Use for UI pages, components, design-system usage, server-state hooks, form handling, and styling in the project's chosen frontend stack. Invoke when implementing a UI feature from a spec. Invoke proactively when any page, component, or styling file changes. SKIP for API-only or infrastructure changes.
+model: claude-sonnet-4-6
 tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 

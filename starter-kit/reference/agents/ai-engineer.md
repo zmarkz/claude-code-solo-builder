@@ -1,6 +1,7 @@
 ---
 name: ai-engineer
-description: Use for AI/LLM-related code — RAG ingestion, chunking, embeddings, retrieval, reranking, LLM prompt design, structured output schemas, hallucination controls, evaluation datasets, model-adapter abstractions. Delete this agent file if the project does not use AI/LLMs.
+description: Use for AI/LLM-related code — RAG ingestion, chunking, embeddings, retrieval, reranking, LLM prompt design, structured output schemas, hallucination controls, evaluation datasets, model-adapter abstractions. Delete this agent file if the project does not use AI/LLMs. Invoke proactively when any file under the AI layer (lib/ai/, ai/, prompts/, evals/) changes. SKIP for non-AI feature work.
+model: claude-sonnet-4-6
 tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
