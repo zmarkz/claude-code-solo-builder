@@ -1,0 +1,95 @@
+# CLAUDE.md — {{PROJECT_NAME}}
+
+This file is loaded by Claude Code at the start of every session. Keep it under 200 lines.
+
+## What this project is
+
+**{{PROJECT_NAME}}** — {{ONE_LINE_DESCRIPTION}}.
+
+**Target users:** {{PRIMARY_PERSONAS}}.
+
+**Primary deliverable for the first {{N}} weeks:** {{PHASE_LAST_MILESTONE_GOAL}}.
+
+## How to work in this repo
+
+1. **Read first, edit second.** Before any non-trivial change, read `PROJECT_CONTEXT.md`, `ARCHITECTURE.md`, and the relevant section of `TASKS.md`.
+2. **Work in vertical slices.** A "feature" is end-to-end: schema → API → worker → UI → test → docs. Do not stub out one layer and call it done.
+3. **Tests are mandatory.** No new code without tests.
+4. **{{DOMAIN_SPECIFIC_RULE_IF_ANY}}** — e.g., for AI products: "Citations are mandatory; outputs without citations are invalid." For regulated products: "Use 'aligned with X' not 'certified by X'." For multi-tenant: "Every table has tenant_id."
+5. **Phase gates are real.** Each phase ends with a `product-owner-reviewer` check via `/phase-review`. Do not start the next phase until the previous one has been signed off.
+
+## Subagents
+
+Use the right subagent for the job. Defined in `.claude/agents/`:
+
+- `product-manager` — scoping, user stories, acceptance criteria
+- `solution-architect` — system design, ADRs, trade-offs
+- `security-architect` — threat modeling, authz, secrets, audit log
+- `backend-engineer` — backend code, schemas, migrations, workers
+- `frontend-engineer` — frontend code (only if applicable)
+- `ai-engineer` — RAG, prompts, model adapters, evals (only if applicable)
+- `devops-engineer` — Docker, CI, IaC, observability
+- `qa-engineer` — test strategy, fixtures, adversarial cases
+- `domain-expert` — domain knowledge, rule mapping, citations
+- `technical-writer` — docs, runbooks, demo scripts
+- `product-owner-reviewer` — end-of-phase business/risk review
+
+## Slash commands
+
+In `.claude/commands/`:
+
+- `/start-session` — always run first thing in a session
+- `/plan-feature <name>` — spec a feature with PM + architect (+ security/domain if relevant)
+- `/build-feature <slug>` — implement an approved spec, vertical slice, TDD
+- `/review-security [branch|path]` — security review on the diff
+- `/run-qa [feature|phase]` — automated tests + qa-engineer review
+- `/prepare-release [staging|prod]` — pre-deploy checklist
+- `/phase-review N` — end-of-phase sign-off
+- `/start-phase-team [N]` — launch parallel agent team (v2.1.32+; bounded to early phases)
+- `/build-phase-autopilot [slugs|all]` — single-session chained autopilot (bounded scope)
+
+## Tech stack (decided)
+
+{{TECH_STACK_DECISIONS}}
+
+- Frontend: {{FRONTEND_STACK_OR_NA}}
+- Backend: {{BACKEND_STACK}}
+- Database: {{DATABASE}}
+- Queue/cache: {{QUEUE_CACHE_OR_NA}}
+- AI: {{AI_STACK_OR_NA}}
+- Object storage: {{STORAGE_OR_NA}}
+- Infra: {{INFRA_TARGET}}
+
+## Hard rules (do not break)
+
+1. {{HARD_RULE_1_E_G_DATA_RESIDENCY_OR_AUTH_REQUIRED}}
+2. **Never log or persist secrets** in code, commits, or documents. `scripts/secret-scan.sh` runs pre-commit.
+3. **Tests run on every change.** Pre-commit and CI both block merges without passing tests.
+4. **Audit log is append-only** (if applicable). Schema in `apps/api/app/db/models/audit_log.py`.
+5. {{HARD_RULE_N_DOMAIN_SPECIFIC}}
+
+## Where things live
+
+```
+apps/{{api,web,...}}    — application code
+packages/shared         — shared schemas (if monorepo)
+ai/                     — prompts, evals, RAG pipeline, model adapters (if AI)
+infra/                  — docker-compose, Terraform, k8s manifests
+compliance/             — domain/regulatory corpus (if applicable)
+docs/                   — architecture, security, product, sales docs
+tests/                  — integration tests, fixtures, sample data
+scripts/                — guardrails, quality checks, secret scans
+.claude/                — agents, slash commands, hooks, settings
+```
+
+## When stuck
+
+1. Read `DECISIONS.md` for prior architectural decisions.
+2. Read `docs/architecture/` for system diagrams.
+3. Use the `solution-architect` subagent — wider context than the default agent.
+4. If the question is domain-specific, use `domain-expert`.
+5. If still stuck, write the question in `docs/open-questions.md` and ask the human.
+
+## Current phase
+
+See `ROADMAP.md`. Phase {{CURRENT_PHASE_NUM}} ({{CURRENT_PHASE_GOAL}}) is active.

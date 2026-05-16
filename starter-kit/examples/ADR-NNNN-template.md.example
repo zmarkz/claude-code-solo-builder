@@ -1,0 +1,67 @@
+---
+adr: NNNN
+title: {{Short title in imperative voice — e.g. "Use Postgres for the write model"}}
+date: {{YYYY-MM-DD}}
+status: Proposed | Accepted | Superseded by [[ADR-MMMM]]
+deciders: {{names or agent IDs}}
+tags: [{{topic}}, {{component}}]
+---
+
+# ADR-NNNN — {{Title}}
+
+> **Save this file at:** `docs/adr/NNNN-{{kebab-case-slug}}.md` (e.g. `docs/adr/0007-use-postgres-for-write-model.md`)
+> **Numbering:** monotonic, never reused. New ADRs get the next number even if an old one is superseded.
+
+## When to write an ADR (the 3-test threshold)
+
+Write an ADR **only if all three are true**:
+
+1. **Hard to reverse** — the cost of changing your mind later is meaningful.
+2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
+3. **Result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons.
+
+If any of the three is missing, don't write an ADR. Just do the work. (Source: mattpocock/skills `grill-with-docs`.)
+
+---
+
+## Context
+
+What problem are we solving? What constraints apply? Reference [[CONTEXT.md]] terms and any earlier ADRs that informed this.
+
+Keep this to one paragraph if possible. If it's longer, your context might actually be code-or-test-able evidence — capture that separately.
+
+## Decision
+
+What we are doing. Be specific. State the decision in one sentence at the top, then expand.
+
+## Alternatives considered
+
+For each alternative we seriously evaluated:
+
+- **{{Alternative A}}** — Why it was considered. Why it was rejected.
+- **{{Alternative B}}** — Why it was considered. Why it was rejected.
+
+If you didn't seriously evaluate alternatives, this decision probably doesn't meet the 3-test threshold above — reconsider whether you need an ADR at all.
+
+## Consequences
+
+- **Positive:** what this enables / fixes / simplifies.
+- **Negative:** what this costs / locks us into / makes harder.
+- **Risks we are accepting:** known unknowns and how we'd notice if they become problems.
+
+## Related
+
+- [[CONTEXT.md]] — terms touched by this decision.
+- [[ADR-MMMM]] — prior decision this builds on or supersedes.
+- [[docs/architecture/...]] — diagrams or specs this decision drives.
+
+---
+
+## After acceptance
+
+When this ADR is accepted:
+
+1. Update `docs/adr/INDEX.md` with a one-line summary.
+2. If this ADR **supersedes** an earlier one, edit the earlier one's `status` to `Superseded by [[ADR-NNNN]]`. Don't delete it.
+3. If this ADR introduces or renames a term, update [[CONTEXT.md]].
+4. Reference this ADR in any code comment that depends on the decision (e.g. `// See ADR-0007`).

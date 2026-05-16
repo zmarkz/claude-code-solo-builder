@@ -1,0 +1,55 @@
+# {{PROJECT_NAME}}
+
+> Ubiquitous-language glossary for this project. Inspired by Eric Evans, *Domain-Driven Design*. Inspired in form by mattpocock/skills.
+>
+> **Rules of this file**:
+> - Only terms that are meaningful to domain experts (i.e. the user, customers, or business stakeholders). Not implementation details.
+> - Every term is canonical. List rejected synonyms under `*Avoid*` so the agent can challenge drift.
+> - Add to this file lazily, as terms come up in `/grill-with-docs` or `/plan-feature` sessions. Don't pre-author a full dictionary upfront.
+> - When new information contradicts an existing entry, log it in `## Flagged ambiguities`, don't overwrite.
+
+---
+
+## Language
+
+**{{TERM_1}}**:
+{{DEFINITION_1}}. {{ONE_LINE_EXAMPLE_USE}}.
+*Avoid*: {{REJECTED_SYNONYM_A}}, {{REJECTED_SYNONYM_B}}
+
+**{{TERM_2}}**:
+{{DEFINITION_2}}.
+*Avoid*: {{REJECTED_SYNONYM_C}}
+
+**{{TERM_3}}**:
+{{DEFINITION_3}}.
+
+---
+
+## Relationships
+
+- A **{{TERM_1}}** has many **{{TERM_2}}**.
+- A **{{TERM_2}}** belongs to exactly one **{{TERM_1}}**.
+- A **{{TERM_3}}** is independent of both.
+
+---
+
+## Flagged ambiguities
+
+> Resolved historical confusions. Keep these so you don't re-litigate them in 3 months.
+
+- "{{OLD_TERM}}" was previously used to mean both X and Y — resolved on {{YYYY-MM-DD}}: X is now **{{TERM_1}}**; Y is now **{{TERM_2}}**.
+
+---
+
+## How agents use this file
+
+- **`product-manager`** reads CONTEXT.md before scoping and writes all acceptance criteria in canonical terms.
+- **`solution-architect`** reads CONTEXT.md before any design review and rejects designs that introduce new ambiguity.
+- **`domain-expert`** owns this file — proposes new terms, resolves ambiguities, never deletes silently.
+- **`grill-with-docs`** sharpens this file inline as a session runs. If you don't have Matt Pocock's skill installed, the equivalent grilling protocol is embedded in `/plan-feature`'s Step 0.
+
+If the user says a term that conflicts with the glossary, agents are instructed to call it out immediately:
+
+> "Your glossary defines 'cancellation' as X, but you seem to mean Y — which is it?"
+
+That single behavior — agents pushing back on drift — is what makes this file pay for itself over multiple sessions.

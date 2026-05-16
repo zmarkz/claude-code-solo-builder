@@ -1,0 +1,76 @@
+# ROADMAP.md — {{PROJECT_NAME}}
+
+> Phases are gates. Each phase ends with a `/phase-review` from `product-owner-reviewer`. Do not begin phase N+1 until phase N is signed off.
+
+## Phase 0 — Scaffold ✅ (Completed by initial setup)
+
+**Goal:** Get the repo, agents, hooks, and planning docs in place before writing product code.
+
+Deliverables:
+- [x] Planning docs (CLAUDE.md, PROJECT_CONTEXT.md, ARCHITECTURE.md, ROADMAP.md, SECURITY_MODEL.md, TASKS.md, DECISIONS.md, README.md, HANDOFF.md)
+- [x] `.claude/` with settings, 11 subagents, 9 slash commands, hooks
+- [x] Monorepo directory skeleton
+- [x] (if regulated) Domain corpus seed
+- [x] Makefile, docker-compose.yml, .gitignore, pre-commit
+- [x] Guardrail scripts
+
+**Exit criteria:** `git init && git commit`, then `claude` runs in this folder with all agents available.
+
+---
+
+## Phase 1 — {{PHASE_1_GOAL}} (target: {{N}} days)
+
+**Goal:** {{ONE_PARAGRAPH_GOAL}}
+
+Deliverables (mirror these as tasks in `TASKS.md`):
+- {{DELIVERABLE_1}}
+- {{DELIVERABLE_2}}
+- {{DELIVERABLE_3}}
+- {{DELIVERABLE_N}}
+
+**Exit criteria:** {{TESTABLE_EXIT_CRITERIA}}
+
+`/phase-review` from `product-owner-reviewer` before Phase 2.
+
+---
+
+## Phase 2 — {{PHASE_2_GOAL}} (target: {{N}} days)
+
+[same structure]
+
+---
+
+## Phase N — Demo polish + deployment guide
+
+**Goal:** A demo you can show to a real user without apologies.
+
+Deliverables:
+- Seeded demo workspace
+- Demo script (`docs/sales/demo-script.md`)
+- Loom recording of the demo flow
+- Deployment guide
+- Optional: one-page sales sheet
+
+**Exit criteria:** Fresh-laptop user follows README → has a working demo in < 30 minutes.
+
+`/phase-review` from `product-owner-reviewer` — **this is the major-milestone mark**.
+
+---
+
+## Beyond Phase N (V1)
+
+- {{NEXT_TIER_FEATURE_1}}
+- {{NEXT_TIER_FEATURE_2}}
+
+## Beyond V1 (V2 / Enterprise)
+
+- {{ENTERPRISE_FEATURE_1}}
+- {{ENTERPRISE_FEATURE_2}}
+
+---
+
+## Notes on phase sizing
+
+- Aim for 5-10 working days per phase. Longer phases lose review density.
+- Each phase ends in a sign-off; you can't compress that.
+- If a phase blows its estimate by 50%+, run a phase-mid-review and either split or rescope.

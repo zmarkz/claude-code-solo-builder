@@ -1,0 +1,15 @@
+{
+  "model": "sonnet",
+  "effortLevel": "xhigh",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "tui": "fullscreen",
+  "theme": "dark",
+  "preferredNotifChannel": "ghostty",
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true,
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true
+  }
+}

@@ -1,0 +1,97 @@
+# Personal Standing Instructions
+
+I am a solo AI-augmented builder running a multi-app portfolio.
+
+When working in any project, follow these standing rules in addition to the per-app CLAUDE.md.
+
+---
+
+## Stack defaults (greenfield apps — ~/builds/)
+
+- Frontend: Next.js 15 + TypeScript + Tailwind + shadcn/ui
+- DB / Auth / Storage / Realtime: Supabase
+- Payments: Stripe (global), wrapped behind own interface
+- Email: Resend
+- Background jobs: Trigger.dev
+- Hosting: Vercel + Cloudflare Workers
+
+<!-- Add your legacy stack if applicable:
+## Stack defaults (legacy apps — ~/Documents/yourname/)
+- Backend: Java 23 / Spring Boot 3.2 / Maven / JPA
+- DB: MySQL 8 (business) + PostgreSQL 15 (infra)
+- Frontend: React 19 + TypeScript + Vite + TailwindCSS
+-->
+
+---
+
+## Never use
+
+- jQuery, Bootstrap, Material UI, plain CSS files
+- Express directly (use Hono if not Next.js)
+- Raw SQL strings concatenated with user input
+- localStorage for anything sensitive
+- `any` in TypeScript without an inline justifying comment
+- Direct AI API calls (always route through classifier — see AI routing pattern)
+
+## Always do
+
+- `pnpm typecheck && pnpm test` before opening a PR
+- Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`
+- Branch naming: `<type>/<short-description>`
+- Tests for any function touching money, auth, or data deletion
+- Zod schemas for all external inputs
+- Server Components by default; `"use client"` only when needed
+- API routes only when server-only secrets needed; otherwise Server Actions
+- All env vars typed (t3-env or equivalent)
+
+---
+
+## MCP servers — vault-first behavior
+
+At the START of every non-trivial task:
+1. `kg_search` the vault (`~/Obsidian/Builds/`) for related notes.
+2. For architectural decisions, also check `02-Areas/` and ADRs in `01-Projects/`.
+3. For library / external service work, also query **Context7** for fresh docs.
+4. Cite findings by `[[wikilink]]` in your response.
+
+When producing outputs:
+1. Non-trivial architectural decision → write ADR at `docs/adr/NNNN-<slug>.md`
+2. Reusable pattern → draft note for `05-Patterns/` via extract-pattern
+3. Never silently overwrite an existing vault note — propose diffs only.
+
+---
+
+## Security
+
+- Never write to `~/.ssh`, `~/.aws`, `~/.gnupg`, or any secret store.
+- `scripts/check-secrets-staged.sh` runs on every Write.
+- Tenant isolation: every multi-tenant table has `tenant_id` from day one.
+- Audit log is append-only (actor, tenant, resource, action, before/after hash).
+
+---
+
+## Skills available
+
+**Project scaffold**: `ai-project-scaffold` — scaffold a new project with 11 agents + 9 commands + 6 hooks.
+
+**Daily workflow (mattpocock)**: `grill-with-docs`, `diagnose`, `zoom-out`, `improve-codebase-architecture`, `handoff`, `caveman`
+
+**Seed skills**: `bootstrap-new-app`, `add-stripe-product`, `add-supabase-table`, `ship-landing-page`, `kill-app`
+
+<!-- Add gstack skills if installed:
+**gstack**: `/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/review`, `/ship`, `/qa`, `/browse`, `/canary`, `/benchmark`, `/codex`, `/investigate`, `/careful`, `/guard`, etc.
+-->
+
+---
+
+<!-- CUSTOMIZE: Add your project-specific routing below -->
+
+## Project registry
+
+<!-- List your active projects for routing:
+| Project | Path | Keywords |
+|---------|------|---------|
+| my-saas-app | ~/builds/my-saas-app | payments, subscriptions |
+| my-other-app | ~/builds/my-other-app | content, publishing |
+-->
+
