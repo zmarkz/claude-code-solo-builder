@@ -4,6 +4,29 @@ All notable changes to this skill, newest first. Each entry pairs with an ADR-st
 
 ---
 
+## [1.2] — 2026-05-16
+
+**Theme:** Agent quality pass — model routing, proactive trigger language, tool access bug fixes, and `/write-an-agent` skill for domain customisation.
+
+### Added
+
+- **`reference/commands/write-an-agent.md`** — New skill that interactively generates a filled-in `domain-expert.md` for any domain (interviews on regulations, terminology, sources, prohibited claims) and can also generate custom specialist agents not in the base 11 (e.g., `mobile-engineer`, `data-analyst`). Installs to project and/or user level.
+- **`model:` frontmatter on all 11 agents** — Opus for `security-architect` + `solution-architect` (high-stakes, hard-to-reverse decisions); Haiku for `product-manager` + `technical-writer` (structured output, lightweight reasoning, 10-20× cheaper); Sonnet for the remaining 7.
+- **Proactive trigger + SKIP clauses on all 9 passive agents** — `description:` fields now include "Invoke proactively when…" and "SKIP for…" language so Claude's auto-invocation logic has clear signals. Previously only `security-architect` had this.
+- **`docs/AGENTS-GUIDE.md` — Model routing table** — Documents which model runs each agent and why.
+- **`docs/AGENTS-GUIDE.md` — `/write-an-agent` section** — Explains when and how to use the new skill.
+
+### Fixed
+
+- **`security-architect` tool access bug** — Had `tools: Read, Grep, Glob, Bash` but its output format says "save to `docs/adr/NNNN.md`" — impossible without Write. Added `Write, Edit`.
+- **`product-owner-reviewer` tool access bug** — Same issue: output format says "save to `docs/phase-reviews/phase-N.md`" but had no Write access. Added `Write, Edit`.
+
+### Deferred
+
+- `ai-engineer.md` Python→TypeScript file layout fix (planned for next phase — the file currently references `.py` paths which don't match the `~/builds/` Next.js + TypeScript stack).
+
+---
+
 ## [1.1] — 2026-05-16
 
 **Theme:** Merge with `mattpocock/skills` patterns. Cribbed atomic-skill ergonomics without giving up our specialized-agent / phase-gate discipline.

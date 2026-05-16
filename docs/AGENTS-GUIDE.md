@@ -167,6 +167,26 @@ Specialized agents codify those roles' working rules. They're cheap to invoke, a
 
 ---
 
+## Model Routing per Agent
+
+Every agent now declares a `model:` field in its frontmatter. This pins the right model to the right cognitive load — saving cost on lightweight roles without compromising on high-stakes ones.
+
+| Agent | Model | Reason |
+|-------|-------|--------|
+| `security-architect` | `claude-opus-4-7` | Highest stakes — missed findings have real consequences |
+| `solution-architect` | `claude-opus-4-7` | Architecture decisions are hard to reverse |
+| `product-owner-reviewer` | `claude-sonnet-4-6` | Balanced judgment across business + technical |
+| `ai-engineer` | `claude-sonnet-4-6` | Complex but well-structured domain |
+| `qa-engineer` | `claude-sonnet-4-6` | Adversarial thinking needs depth |
+| `backend-engineer` | `claude-sonnet-4-6` | Standard implementation work |
+| `frontend-engineer` | `claude-sonnet-4-6` | Standard implementation work |
+| `devops-engineer` | `claude-sonnet-4-6` | Standard implementation work |
+| `domain-expert` | `claude-sonnet-4-6` | Domain research needs good recall |
+| `product-manager` | `claude-haiku-4-5-20251001` | Structured output, lightweight reasoning (~10-20x cheaper) |
+| `technical-writer` | `claude-haiku-4-5-20251001` | Doc formatting, low cognitive load (~10-20x cheaper) |
+
+---
+
 ## How Agents Work in Claude Code
 
 ### As subagents (within a session)
@@ -246,6 +266,27 @@ End of phase
 Documentation
   → technical-writer (README, runbook, CLAUDE.md)
 ```
+
+---
+
+## Generating Custom Agents with `/write-an-agent`
+
+The `domain-expert.md` in the base kit is a placeholder — it says "Replace this opening with your domain expertise." Use `/write-an-agent` to fill it in properly:
+
+```
+> /write-an-agent
+```
+
+The skill interviews you on:
+- Domain name and problem space
+- Applicable regulations / standards (e.g., RBI, SEBI, HIPAA, GDPR, PCI-DSS)
+- 5–10 key terms that need precise definitions
+- Authoritative sources to cite
+- Professional claims to never make
+
+It then generates a fully filled `domain-expert.md` and offers to install it at project and/or user level.
+
+`/write-an-agent` also handles **custom specialists** not in the base 11 — `mobile-engineer` (Expo/React Native), `data-analyst`, `growth-engineer`, or any narrow workflow agent.
 
 ---
 
