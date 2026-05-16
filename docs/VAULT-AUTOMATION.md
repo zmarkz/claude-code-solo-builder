@@ -125,6 +125,22 @@ Replace `/YOUR_HOME` with your actual home path (e.g., `/Users/yourname`).
 
 ---
 
+## Shell wrapper — re-index on session close
+
+The `PostToolUse` hook only fires when Claude writes vault files. For regular coding sessions, the nightly cron is the safety net — but if you want the index updated the moment you close Claude Code, add this to `~/.zshrc`:
+
+```bash
+# claude wrapper: re-index knowledge-graph after every session ends
+function cc() {
+  claude "$@"
+  bash /YOUR_HOME/builds/_platform/scripts/kg-reindex.sh
+}
+```
+
+Replace `/YOUR_HOME` with your actual home path. Then launch Claude Code with `cc` instead of `claude`. When you exit (`Cmd+C` or `:q`), the re-index runs automatically.
+
+---
+
 ## Nightly cron
 
 Add a 2 AM re-index to ensure the index is always fresh, even if no vault writes happened:
