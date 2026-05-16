@@ -11,5 +11,29 @@
   "agentPushNotifEnabled": true,
   "enabledPlugins": {
     "claude-md-management@claude-plugins-official": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /YOUR_HOME/builds/_platform/scripts/vault-session-check.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /YOUR_HOME/builds/_platform/scripts/vault-write-hook.sh"
+          }
+        ]
+      }
+    ]
   }
 }

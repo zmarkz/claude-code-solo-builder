@@ -200,18 +200,22 @@ Add to your MCP config:
 
 Test: Open Claude Code, ask about a library. It should silently use Context7.
 
-### Step 12 — Install mcpvault
+### Step 12 — Install vault-files MCP
+
+> **Note:** The `mcpvault` npm package does not exist. Use `@modelcontextprotocol/server-filesystem` (the official MCP filesystem server) instead.
 
 ```bash
-# Add to MCP config:
+# Easiest: use the Claude Code CLI
+claude mcp add --scope user vault-files -- npx -y @modelcontextprotocol/server-filesystem /Users/YOUR_USERNAME/Obsidian/Builds
+```
+
+Or add manually to your MCP config:
+```json
 {
   "mcpServers": {
-    "mcpvault": {
+    "vault-files": {
       "command": "npx",
-      "args": ["-y", "mcpvault"],
-      "env": {
-        "VAULT_PATH": "/Users/YOUR_USERNAME/Obsidian/Builds"
-      }
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/YOUR_USERNAME/Obsidian/Builds"]
     }
   }
 }

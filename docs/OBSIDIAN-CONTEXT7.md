@@ -157,18 +157,23 @@ Context7 fetches fresh library docs at query time. It knows the current Stripe A
 # You get code that actually works with today's API
 ```
 
-### 2. mcpvault (install second — takes 30 seconds)
+### 2. vault-files via @modelcontextprotocol/server-filesystem (install second — takes 30 seconds)
 
-Direct vault file access + BM25 search. No Obsidian dependency — works even when Obsidian is closed.
+Direct vault file access. No Obsidian dependency — works even when Obsidian is closed.
 
+> **Note:** The `mcpvault` npm package (previously recommended here) returns a 404 — it does not exist on the registry. Use `@modelcontextprotocol/server-filesystem` instead, which is the official MCP filesystem server.
+
+Install via Claude Code CLI (recommended):
 ```bash
+claude mcp add --scope user vault-files -- npx -y @modelcontextprotocol/server-filesystem /Users/yourname/Obsidian/Builds
+```
+
+Or add to your MCP config manually:
+```json
 {
-  "mcpvault": {
+  "vault-files": {
     "command": "npx",
-    "args": ["-y", "mcpvault"],
-    "env": {
-      "VAULT_PATH": "/Users/yourname/Obsidian/Builds"
-    }
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/yourname/Obsidian/Builds"]
   }
 }
 ```

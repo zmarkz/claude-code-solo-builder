@@ -9,6 +9,7 @@ You are starting a new session on this project. Before doing anything else:
 3. Skim `DECISIONS.md` for any ADR from the last 7 days.
 4. Run `bash scripts/session-start.sh` — it prints the current phase, key env flags, and whether there are uncommitted changes.
 5. Check `docs/phase-reviews/` for the latest review and any "must-fix" items still open.
+6. Check vault freshness: look for `~/Obsidian/Builds/01-Projects/<project-name>/INDEX.md`. If it doesn't exist or was last edited >7 days ago, note this and recommend running `/vault-update` before the session ends.
 
 Then briefly report (≤ 10 lines):
 
