@@ -16,6 +16,14 @@ All notable changes to this skill, newest first. Each entry pairs with an ADR-st
 - **`docs/AGENTS-GUIDE.md` — Model routing table** — Documents which model runs each agent and why.
 - **`docs/AGENTS-GUIDE.md` — `/write-an-agent` section** — Explains when and how to use the new skill.
 
+### Added (continued)
+
+- **`reference/commands/sync-project.md`** — Single entry-point command unifying all three project onboarding flows. Probes cwd, classifies as NEW / SYNC / RETROFIT, confirms with the user, executes the right subset of steps. Replaces the need to know which manual procedure to run.
+  - **NEW** → delegates to `/ai-project-scaffold`
+  - **SYNC** → overwrites `.claude/agents/` from `~/.claude/agents/`; optionally syncs commands; offers `/write-an-agent`
+  - **RETROFIT** → asks project bucket (active-build / validate / stabilize / keep-as-is); installs the correct agent/command/hook/doc subset; runs `/vault-update`
+- **`docs/EXISTING-PROJECT.md`** — Added TL;DR section at top pointing to `/sync-project`.
+
 ### Fixed
 
 - **`security-architect` tool access bug** — Had `tools: Read, Grep, Glob, Bash` but its output format says "save to `docs/adr/NNNN.md`" — impossible without Write. Added `Write, Edit`.

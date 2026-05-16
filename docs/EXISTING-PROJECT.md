@@ -4,6 +4,16 @@
 
 ---
 
+## TL;DR — just run `/sync-project`
+
+From any project directory:
+```
+> /sync-project
+```
+It probes the directory, detects whether this is a new project, an existing project needing a retrofit, or an existing project that just needs agents updated — then executes the right steps and asks only what it must. The rest of this doc explains what it does under the hood.
+
+---
+
 ## The Core Principle: Don't Rebuild, Retrofit
 
 The scaffold is a one-time generator for new projects. For existing projects, you retrofit the parts that add value — selectively, without disrupting what works.
