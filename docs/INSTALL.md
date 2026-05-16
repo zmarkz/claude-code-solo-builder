@@ -279,13 +279,35 @@ ollama run qwen2.5-coder:14b "What is 2+2?"
 
 ---
 
-## Phase 6 — First Project (10 minutes)
+## Phase 6 — Shell wrapper (2 minutes)
 
-### Step 15 — Start a new project with the scaffold
+### Step 15 — Add the `cc` launcher to `~/.zshrc`
+
+This replaces your normal Claude Code launch command. When you close a session, the knowledge-graph automatically re-indexes.
+
+```bash
+cat >> ~/.zshrc << 'EOF'
+
+# claude wrapper: re-index knowledge-graph after every session ends
+function cc() {
+  caffeinate -s claude --dangerously-skip-permissions "$@"
+  bash /YOUR_HOME/builds/_platform/scripts/kg-reindex.sh
+}
+EOF
+source ~/.zshrc
+```
+
+Replace `/YOUR_HOME` with your home path and adjust the `claude` flags to match how you normally launch it. From now on use `cc` instead of `claude`.
+
+---
+
+## Phase 7 — First Project (10 minutes)
+
+### Step 16 — Start a new project with the scaffold
 
 ```bash
 mkdir ~/builds/my-first-app && cd ~/builds/my-first-app
-claude
+cc
 ```
 
 In Claude Code:
