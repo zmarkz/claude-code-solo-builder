@@ -239,22 +239,64 @@ The result: code that follows your patterns AND uses the current API. Neither va
 
 ## Ingesting Existing Projects into the Vault
 
-If you have existing projects, use the **Obsidian Ingestion Procedure** from the playbook (Part C).
+Two levels depending on how thorough you want to be.
 
-For each existing project, create a note in `01-Projects/<project-name>/`:
+### Quick index — `/vault-update` (5 minutes per project)
 
-1. **PRD.md** — What problem does it solve? For whom?
-2. **ARCHITECTURE.md** — Key technical decisions (copy from code, not from memory)
-3. **ADR-001-stack.md** — Why this stack? (retrospective is fine)
-4. **BUILD-LOG.md** — Key events, pivots, what failed, what succeeded
-5. **STATUS.md** — Current bucket: `ACTIVE-BUILD | VALIDATE | STABILIZE | KEEP-AS-IS | DEAD`
+The fastest path. Navigate to the project directory, open Claude Code, and run:
 
-Minimum viable note if you're in a hurry:
+```
+> /vault-update
+```
+
+Claude reads the project's `CLAUDE.md`, `ROADMAP.md`, and recent git log, writes `~/Obsidian/Builds/01-Projects/<project-name>/INDEX.md`, and triggers a knowledge-graph re-index. One command per project.
+
+For a batch import across all projects in `~/builds/`:
+
+```bash
+for dir in ~/builds/*/; do
+  project=$(basename "$dir")
+  echo "--- indexing $project ---"
+  cd "$dir"
+  cc -p "/vault-update"
+done
+```
+
+### Full import — five files per project (20 minutes per project)
+
+For projects you want deeply queryable — past decisions, patterns, and failures all findable:
+
+```
+> /vault-update
+> Now create a full vault import for this project:
+  - 01-Projects/<name>/PRD.md — what it does, who uses it
+  - 01-Projects/<name>/ARCHITECTURE.md — key technical decisions (read from code, not memory)
+  - 01-Projects/<name>/ADR-001-stack.md — why this stack (retrospective is fine)
+  - 01-Projects/<name>/BUILD-LOG.md — key events, pivots, what failed, what succeeded
+  - 01-Projects/<name>/STATUS.md — current bucket: ACTIVE-BUILD / VALIDATE / STABILIZE / KEEP-AS-IS / DEAD
+```
+
+Claude reads the actual codebase and generates all five files. The `PostToolUse` hook triggers a re-index automatically after each write.
+
+### Re-index only (no new notes needed)
+
+If vault notes already exist and you just need to rebuild the index:
+
+```bash
+bash ~/builds/_platform/scripts/kg-reindex.sh
+```
+
+The index is just a derived SQLite/vector cache — you can always nuke and rebuild it. What matters is that the vault notes exist and are accurate.
+
+### Minimum viable note (if you're in a hurry)
+
+At minimum, create one note per project. A shallow index is infinitely more useful than no index:
+
 ```markdown
 ---
 type: entity
 name: <project-name>
-status: <bucket>
+status: <ACTIVE-BUILD|VALIDATE|STABILIZE|KEEP-AS-IS|DEAD>
 last_edited_by: markandey
 ---
 # <project-name>
@@ -262,7 +304,7 @@ One paragraph: what it does, who uses it, current state.
 [[Link to stack decisions if any]]
 ```
 
-Do at least the minimum note for every project. A shallow index is infinitely more useful than no index.
+Do this for every project before anything else. Run `/vault-update` to have Claude generate it automatically from the codebase.
 
 ---
 
