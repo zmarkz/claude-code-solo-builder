@@ -101,10 +101,31 @@ cp settings/CLAUDE.md.template ~/.claude/CLAUDE.md
 # Edit: fill in your stack, your projects, your non-negotiables
 ```
 
-### Step 8 — Start a new project
+### Step 8 — Install the `ccc` launcher
+
+`ccc` wraps your normal Claude Code launch command and auto-re-indexes the knowledge-graph when you close the session.
+
+**fish shell:**
+```bash
+# Copy and edit — replace /YOUR_HOME with your actual home path
+cp starter-kit/platform-scripts/ccc.fish ~/.config/fish/functions/ccc.fish
+# Edit the file to replace /YOUR_HOME and adjust launch flags
+```
+
+**zsh / bash** — add to `~/.zshrc`:
+```bash
+function ccc() {
+  caffeinate -s claude --dangerously-skip-permissions "$@"
+  bash /YOUR_HOME/builds/_platform/scripts/kg-reindex.sh
+}
+```
+
+See `docs/VAULT-AUTOMATION.md` for full details.
+
+### Step 9 — Start a new project
 ```bash
 mkdir ~/builds/my-app && cd ~/builds/my-app
-claude
+ccc
 # Then type: /ai-project-scaffold
 # Answer 11 questions → complete scaffold in ~10 minutes
 ```
@@ -118,27 +139,33 @@ claude-code-solo-builder/
 ├── README.md                         ← You are here
 ├── PLAYBOOK.md                       ← The full 16-part operating manual
 ├── docs/
-│   ├── INSTALL.md                    ← Detailed installation guide
+│   ├── INSTALL.md                    ← Detailed installation guide (start here)
+│   ├── VAULT-AUTOMATION.md           ← Auto-indexing: hooks, ccc wrapper, cron
 │   ├── TOKEN-EFFICIENCY.md           ← 85%+ cost savings strategies
-│   ├── OBSIDIAN-CONTEXT7.md          ← Knowledge vault + MCP setup
+│   ├── OBSIDIAN-CONTEXT7.md          ← Knowledge vault + MCP setup + project ingestion
 │   ├── AI-ROUTING.md                 ← Model routing pattern (COMPLEX vs SIMPLE)
 │   ├── NEW-PROJECT.md                ← How to scaffold a new project
 │   ├── EXISTING-PROJECT.md           ← Retrofitting existing projects
 │   ├── AGENTS-GUIDE.md               ← The 11 specialist agents explained
 │   ├── SKILLS-ECOSYSTEM.md           ← Skills: gstack + mattpocock + custom
-│   ├── SWARM-ORCHESTRATION.md        ← Paperclip, parallel teams, autopilot
+│   ├── SWARM-ORCHESTRATION.md        ← Parallel teams, autopilot, swarm patterns
 │   ├── SETTINGS-AND-THEMES.md        ← Claude Code config, dark theme, hooks
 │   └── COMPARISON-mattpocock.md      ← Best-of-both hybrid analysis
 ├── starter-kit/                      ← The ai-project-scaffold skill
 │   ├── SKILL.md                      ← Skill specification (invoke with /ai-project-scaffold)
 │   ├── CHANGELOG.md                  ← Version history
 │   ├── examples/                     ← Template files for generated docs
+│   ├── platform-scripts/             ← Automation scripts (copy to ~/builds/_platform/scripts/)
+│   │   ├── kg-reindex.sh             ← Rebuild knowledge-graph index
+│   │   ├── vault-session-check.sh    ← SessionStart hook: vault freshness check
+│   │   ├── vault-write-hook.sh       ← PostToolUse hook: auto re-index on vault write
+│   │   └── ccc.fish                  ← Fish shell launcher (re-index on session close)
 │   └── reference/
 │       ├── agents/                   ← 11 specialist subagent definitions
-│       ├── commands/                 ← 9 slash commands
+│       ├── commands/                 ← 10 slash commands (incl. /vault-update)
 │       └── scripts/                  ← 6 guardrail hook scripts
 └── settings/
-    ├── settings.json.template        ← Production-grade Claude Code settings
+    ├── settings.json.template        ← Claude Code settings with hooks wired
     ├── settings.local.json.template  ← Per-machine permission allowlist template
     └── CLAUDE.md.template            ← Personal L1 standing instructions template
 ```
@@ -148,8 +175,11 @@ claude-code-solo-builder/
 ## The Daily Workflow
 
 ```bash
+# Launch Claude Code (auto re-indexes vault on exit)
+ccc
+
 # Start every session
-> /start-session                      # re-loads CLAUDE.md + active phase
+> /start-session                      # re-loads CLAUDE.md + active phase + vault freshness check
 
 # Before every change
 > /grill-with-docs <vague idea>       # sharpens CONTEXT.md, avoids misalignment
@@ -164,6 +194,7 @@ claude-code-solo-builder/
 > /diagnose                          # structured debug: reproduce → minimize → fix
 
 # End of session
+> /vault-update                      # write/update vault INDEX.md + trigger re-index
 > /handoff                           # human-readable doc for tomorrow
 
 # Weekly
