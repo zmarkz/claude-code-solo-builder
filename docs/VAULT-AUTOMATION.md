@@ -129,6 +129,7 @@ Replace `/YOUR_HOME` with your actual home path (e.g., `/Users/yourname`).
 
 The `PostToolUse` hook only fires when Claude writes vault files. For regular coding sessions, the nightly cron is the safety net — but if you want the index updated the moment you close Claude Code, add this to `~/.zshrc`:
 
+**zsh / bash** — add to `~/.zshrc` or `~/.bashrc`:
 ```bash
 # claude wrapper: re-index knowledge-graph after every session ends
 function ccc() {
@@ -137,7 +138,15 @@ function ccc() {
 }
 ```
 
-Replace `/YOUR_HOME` with your actual home path. Adjust the `claude` invocation flags to match how you normally launch Claude Code. Then use `ccc` instead of your usual launch command. When you exit (`Cmd+C` or `:q`), the re-index runs automatically.
+**fish** — create `~/.config/fish/functions/ccc.fish`:
+```fish
+function ccc --description "Launch Claude Code and re-index knowledge-graph on exit"
+    caffeinate -s claude --dangerously-skip-permissions $argv
+    bash /YOUR_HOME/builds/_platform/scripts/kg-reindex.sh
+end
+```
+
+Replace `/YOUR_HOME` with your actual home path. Fish picks up the function file automatically — no source needed. Then use `ccc` instead of your usual launch command.
 
 ---
 

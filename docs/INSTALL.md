@@ -285,6 +285,7 @@ ollama run qwen2.5-coder:14b "What is 2+2?"
 
 This replaces your normal Claude Code launch command. When you close a session, the knowledge-graph automatically re-indexes.
 
+**zsh / bash** — add to `~/.zshrc` or `~/.bashrc`:
 ```bash
 cat >> ~/.zshrc << 'EOF'
 
@@ -297,7 +298,18 @@ EOF
 source ~/.zshrc
 ```
 
-Replace `/YOUR_HOME` with your home path and adjust the `claude` flags to match how you normally launch it. From now on use `ccc` instead of `claude`.
+**fish** — create a function file (picked up automatically, no source needed):
+```bash
+mkdir -p ~/.config/fish/functions
+cat > ~/.config/fish/functions/ccc.fish << 'EOF'
+function ccc --description "Launch Claude Code and re-index knowledge-graph on exit"
+    caffeinate -s claude --dangerously-skip-permissions $argv
+    bash /YOUR_HOME/builds/_platform/scripts/kg-reindex.sh
+end
+EOF
+```
+
+Replace `/YOUR_HOME` with your home path. From now on use `ccc` instead of your usual Claude Code launch command.
 
 ---
 
