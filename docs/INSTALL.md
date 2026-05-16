@@ -289,7 +289,7 @@ This replaces your normal Claude Code launch command. When you close a session, 
 cat >> ~/.zshrc << 'EOF'
 
 # claude wrapper: re-index knowledge-graph after every session ends
-function cc() {
+function ccc() {
   caffeinate -s claude --dangerously-skip-permissions "$@"
   bash /YOUR_HOME/builds/_platform/scripts/kg-reindex.sh
 }
@@ -297,7 +297,7 @@ EOF
 source ~/.zshrc
 ```
 
-Replace `/YOUR_HOME` with your home path and adjust the `claude` flags to match how you normally launch it. From now on use `cc` instead of `claude`.
+Replace `/YOUR_HOME` with your home path and adjust the `claude` flags to match how you normally launch it. From now on use `ccc` instead of `claude`.
 
 ---
 

@@ -131,13 +131,13 @@ The `PostToolUse` hook only fires when Claude writes vault files. For regular co
 
 ```bash
 # claude wrapper: re-index knowledge-graph after every session ends
-function cc() {
+function ccc() {
   caffeinate -s claude --dangerously-skip-permissions "$@"
   bash /YOUR_HOME/builds/_platform/scripts/kg-reindex.sh
 }
 ```
 
-Replace `/YOUR_HOME` with your actual home path. Adjust the `claude` invocation flags to match how you normally launch Claude Code. Then use `cc` instead of your usual launch command. When you exit (`Cmd+C` or `:q`), the re-index runs automatically.
+Replace `/YOUR_HOME` with your actual home path. Adjust the `claude` invocation flags to match how you normally launch Claude Code. Then use `ccc` instead of your usual launch command. When you exit (`Cmd+C` or `:q`), the re-index runs automatically.
 
 ---
 

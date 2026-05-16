@@ -258,7 +258,7 @@ for dir in ~/builds/*/; do
   project=$(basename "$dir")
   echo "--- indexing $project ---"
   cd "$dir"
-  cc -p "/vault-update"
+  ccc -p "/vault-update"
 done
 ```
 
