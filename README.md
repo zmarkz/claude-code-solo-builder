@@ -165,7 +165,8 @@ claude-code-solo-builder/
 │   ├── SKILLS-ECOSYSTEM.md           ← Skills: gstack + mattpocock + custom
 │   ├── SWARM-ORCHESTRATION.md        ← Parallel teams, autopilot, swarm patterns
 │   ├── SETTINGS-AND-THEMES.md        ← Claude Code config, dark theme, hooks
-│   └── COMPARISON-mattpocock.md      ← Best-of-both hybrid analysis
+│   ├── COMPARISON-mattpocock.md      ← Best-of-both hybrid analysis
+│   └── COMPARISON-karpathy.md        ← Karpathy CLAUDE.md benchmark + what we adopted
 ├── starter-kit/                      ← The ai-project-scaffold skill
 │   ├── SKILL.md                      ← Skill specification (invoke with /ai-project-scaffold)
 │   ├── CHANGELOG.md                  ← Version history
@@ -179,6 +180,10 @@ claude-code-solo-builder/
 │       ├── agents/                   ← 11 specialist subagent definitions
 │       ├── commands/                 ← 10 slash commands (incl. /vault-update)
 │       └── scripts/                  ← 6 guardrail hook scripts
+├── skills/
+│   └── sync-skills/                  ← /sync-skills command (install to ~/.claude/skills/sync-skills/)
+│       ├── SKILL.md                  ← Skill workflow: auto-discover + sync all third-party sources
+│       └── sources.json              ← Registry of tracked sources (gstack, mattpocock, Karpathy, MCPs)
 └── settings/
     ├── settings.json.template        ← Claude Code settings with hooks wired
     ├── settings.local.json.template  ← Per-machine permission allowlist template
@@ -217,6 +222,9 @@ ccc
 
 # Weekly
 > /improve-codebase-architecture     # catch drift before it becomes a rewrite
+
+# Monthly
+> /sync-skills                       # pull latest gstack, mattpocock, Karpathy — apply best changes
 
 # End of phase
 > /phase-review N                    # product-owner review + human sign-off
