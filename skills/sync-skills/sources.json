@@ -65,6 +65,14 @@
       "package_json": "~/builds/_knowledge-graph/package.json",
       "auto_apply": false,
       "note": "Our own code — update by pulling ~/builds/_knowledge-graph and re-indexing."
+    },
+    {
+      "id": "openai-codex",
+      "name": "@openai/codex CLI",
+      "type": "npm-package",
+      "description": "OpenAI Codex CLI — adversarial code review and second-opinion tool",
+      "package": "@openai/codex",
+      "auto_apply": false
     }
   ]
 }
