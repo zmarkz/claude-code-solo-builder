@@ -119,6 +119,26 @@ Key gstack skills you'll use most:
 - `/plan-ceo-review` — CEO-mode scope review
 - `/plan-eng-review` — engineering architecture review
 
+### Step 6b — Install /sync-skills (optional)
+
+`/sync-skills` keeps your tools current: gstack, mattpocock/skills, and the Karpathy CLAUDE.md baseline. Run it monthly.
+
+```bash
+# Install to user-level skills
+mkdir -p ~/.claude/skills/sync-skills
+cp -r skills/sync-skills/* ~/.claude/skills/sync-skills/
+
+# Verify sources.json is present — the skill blocks without it
+ls ~/.claude/skills/sync-skills/sources.json
+```
+
+`sources.json` ships pre-configured for gstack, mattpocock/skills, and the Karpathy CLAUDE.md URL. Edit it to add or remove sources before the first run.
+
+```bash
+# First run (establishes baseline — no changes applied yet)
+# Inside Claude Code: /sync-skills
+```
+
 ---
 
 ## Phase 3 — Obsidian Vault Setup (20 minutes)
