@@ -17,6 +17,19 @@ SOURCES_FILE=~/.claude/skills/sync-skills/sources.json
 STATE_FILE=~/.claude/sync-skills/state/last-sync.json
 REPORT_FILE=~/Obsidian/Builds/02-Areas/Sync-Reports/$SYNC_DATE.md
 
+# Hard prerequisite — sources.json must exist
+if [ ! -f "$SOURCES_FILE" ]; then
+  echo "BLOCKED: sources.json not found at $SOURCES_FILE"
+  echo "Create it first — see the 'Adding a New Source' section at the bottom of this skill."
+  exit 1
+fi
+
+# Validate it parses
+if ! jq empty "$SOURCES_FILE" 2>/dev/null; then
+  echo "BLOCKED: sources.json is not valid JSON. Fix it before running /sync-skills."
+  exit 1
+fi
+
 # Load last sync info
 if [ -f "$STATE_FILE" ]; then
   LAST_RUN=$(jq -r '.last_run // "never"' "$STATE_FILE" 2>/dev/null || echo "never")
@@ -46,7 +59,10 @@ echo "--- Skills in ~/.claude/skills/ ---"
 ls -la ~/.claude/skills/ 2>/dev/null
 
 # 2. Check each skill dir for update mechanism
+# nullglob prevents literal '*' expansion when dir is empty (bash); zsh handles it natively
+shopt -s nullglob 2>/dev/null || setopt NULL_GLOB 2>/dev/null || true
 for dir in ~/.claude/skills/*/; do
+  [ -d "$dir" ] || continue  # skip if glob produced no matches
   name=$(basename "$dir")
   [ "$name" = "sync-skills" ] && continue  # skip self
   
@@ -168,8 +184,21 @@ If new commits exist: show the commit list and changed files, then ask:
 > - B) Show me the full diff first
 > - C) Skip this time
 
-If A: `git -C ~/.agents/skills pull` — then list all changed/added SKILL.md files
-If B: run `git -C ~/.agents/skills diff HEAD origin/main` — then ask A/C
+If A:
+```bash
+# Dirty check — do not pull over uncommitted changes
+if ! git -C ~/.agents/skills diff --quiet 2>/dev/null; then
+  echo "WARNING: ~/.agents/skills has uncommitted changes — skipping pull to avoid data loss."
+  echo "Commit or stash changes manually, then re-run /sync-skills."
+else
+  CURRENT_BRANCH=$(git -C ~/.agents/skills branch --show-current 2>/dev/null || echo "main")
+  git -C ~/.agents/skills pull --ff-only origin "$CURRENT_BRANCH" 2>&1 || \
+    echo "WARN: pull --ff-only failed (diverged history?). Run manually: cd ~/.agents/skills && git pull"
+fi
+```
+Then list all changed/added SKILL.md files with `git diff --name-only HEAD~1 HEAD 2>/dev/null`.
+
+If B: run `git -C ~/.agents/skills diff HEAD origin/$(git -C ~/.agents/skills branch --show-current 2>/dev/null || echo main)` — then ask A/C
 If C: log as SKIPPED
 
 ---
@@ -210,9 +239,22 @@ For each `NEW` or `CHANGED` item, ask:
 > - B) Skip — keep our current version
 > - C) Adopt with modification — I'll edit after
 
-Apply accepted changes to `~/.claude/CLAUDE.md` (insert into the `## Behavioral Principles` section, preserving our additions).
+Before writing any change to `~/.claude/CLAUDE.md`:
+```bash
+cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.bak-"$SYNC_DATE"
+echo "Backup created: ~/.claude/CLAUDE.md.bak-$SYNC_DATE"
+```
 
-Save fetched content to cache file.
+Then apply the accepted change by inserting or replacing the specific line(s) within the `## Behavioral Principles` section only. Do NOT rewrite the entire file — use the Edit tool targeting the exact old string. If the section does not exist in CLAUDE.md, append a new `## Behavioral Principles` block at the end.
+
+Save fetched content to cache file:
+```bash
+cp /dev/stdin "$KARPATHY_CACHE" < <(cat <<'EOF'
+<fetched content>
+EOF
+)
+# or write via Write tool — either is fine; the important thing is it replaces the old cache atomically
+```
 
 ---
 
@@ -233,7 +275,15 @@ Ask:
 > - B) Add to sources.json for future syncs only
 > - C) Ignore this source
 
-If A or B: append an entry to `~/.claude/skills/sync-skills/sources.json` and run git fetch to get current state.
+If A or B: add the entry to `~/.claude/skills/sync-skills/sources.json` using jq so the file stays valid JSON:
+```bash
+NEW_ENTRY='{"id":"<id>","name":"<name>","type":"git-repo","description":"<desc>","local_path":"<path>","auto_apply":false}'
+cp "$SOURCES_FILE" "$SOURCES_FILE.bak-$SYNC_DATE"
+jq --argjson entry "$NEW_ENTRY" '.sources += [$entry]' "$SOURCES_FILE" > "$SOURCES_FILE.tmp" \
+  && mv "$SOURCES_FILE.tmp" "$SOURCES_FILE" \
+  || { echo "ERROR: failed to update sources.json — backup at $SOURCES_FILE.bak-$SYNC_DATE"; }
+```
+If A: also run `git -C "<local_path>" fetch origin 2>&1` to establish the remote baseline.
 
 ---
 
@@ -243,37 +293,61 @@ For each MCP found in settings.json / settings.local.json:
 
 ```bash
 echo "=== MCP Assessment ==="
-# For each MCP, check if the command path exists and is executable
-jq -r '.mcpServers | to_entries[] | "\(.key)|\(.value.command // "")"' ~/.claude/settings.json 2>/dev/null | while IFS='|' read name cmd; do
-  if [ -n "$cmd" ]; then
-    if [ -f "$cmd" ]; then
-      echo "MCP $name: command exists at $cmd"
-      # Check if it's in a git repo
+
+# Merge both settings files — read each, combine mcpServers keys
+for SETTINGS_F in ~/.claude/settings.json ~/.claude/settings.local.json; do
+  [ -f "$SETTINGS_F" ] || continue
+  jq -r --arg src "$SETTINGS_F" '
+    .mcpServers // {} | to_entries[] |
+    "\($src)|\(.key)|\(.value.command // "")|\(.value.url // "")"
+  ' "$SETTINGS_F" 2>/dev/null
+done | while IFS='|' read settings_src name cmd url; do
+  if [ -n "$url" ]; then
+    # URL-based MCP — cannot check binary; just report it
+    echo "MCP $name [url]: $url (from $settings_src) — cannot verify binary"
+    continue
+  fi
+  if [ -z "$cmd" ]; then
+    echo "MCP $name: no command or url defined (from $settings_src)"
+    continue
+  fi
+
+  # cmd may be an absolute path OR a PATH command (npx, node, uvx, python3, etc.)
+  if [[ "$cmd" == /* ]]; then
+    # Absolute path — check it exists and is executable
+    if [ -x "$cmd" ]; then
+      echo "MCP $name: OK (absolute path $cmd)"
       MCP_DIR=$(dirname "$cmd")
       if git -C "$MCP_DIR" rev-parse --git-dir >/dev/null 2>&1; then
         echo "  -> git repo: $(git -C "$MCP_DIR" remote get-url origin 2>/dev/null)"
         echo "  -> last commit: $(git -C "$MCP_DIR" log --oneline -1 2>/dev/null)"
       fi
+    elif [ -f "$cmd" ]; then
+      echo "MCP $name: WARNING — exists but not executable: $cmd"
     else
-      echo "MCP $name: WARNING — command not found at $cmd"
+      echo "MCP $name: WARNING — file not found: $cmd"
+    fi
+  else
+    # PATH-based command (npx, node, uvx, python3, etc.)
+    if command -v "$cmd" >/dev/null 2>&1; then
+      echo "MCP $name: OK (PATH command: $cmd)"
+    else
+      echo "MCP $name: WARNING — command not on PATH: $cmd"
     fi
   fi
 done
 ```
 
-Report: list all MCPs with their status (healthy / missing command / updateable via git).
-For MCPs with git remotes and new commits: offer to add to sources.json.
+Report: list all MCPs with their status (healthy / not-executable / missing / url-based / PATH command).
+For MCPs with absolute-path git repos that have new upstream commits: offer to add to sources.json tracking.
 
 ---
 
 ## Step 7 — Write Sync Report
 
-```bash
-cat > "$REPORT_FILE" << 'REPORT_EOF'
-REPORT_EOF
-```
+Write a complete markdown report to `~/Obsidian/Builds/02-Areas/Sync-Reports/$SYNC_DATE.md` using the Write tool (do NOT use a shell heredoc — the empty-heredoc pattern silently truncates any existing same-day report before the content is ready).
 
-Write a complete markdown report to `~/Obsidian/Builds/02-Areas/Sync-Reports/$SYNC_DATE.md`:
+If the file already exists (same-day re-run), append a `## Re-run — <SYNC_TS>` section rather than overwriting.
 
 ```markdown
 # Sync Report — <SYNC_TS>
@@ -319,38 +393,53 @@ Recommended: run /sync-skills monthly or after any major tool update.
 
 ## Step 8 — Persist State
 
+Collect the actual status strings from each step (the values you recorded in Steps 2–4), then write:
+
 ```bash
-# Write last-sync.json
-cat > ~/.gstack/sync-state/last-sync.json << EOF
+# GSTACK_STATUS, MATT_STATUS, KARPATHY_STATUS must be set to the actual outcomes
+# from Steps 2, 3, 4 respectively before running this block.
+# Valid values: UPGRADED | UP_TO_DATE | SKIPPED | BASELINE_SAVED | CHANGED | ERROR
+
+mkdir -p ~/.claude/sync-skills/state  # ensure dir exists (created in Step 0, but be safe)
+cat > "$STATE_FILE" << EOF
 {
   "last_run": "$SYNC_TS",
   "results": {
-    "gstack": "<status>",
-    "mattpocock-skills": "<status>",
-    "karpathy-claude": "<status>"
+    "gstack": "$GSTACK_STATUS",
+    "mattpocock-skills": "$MATT_STATUS",
+    "karpathy-claude": "$KARPATHY_STATUS"
   }
 }
 EOF
-echo "State saved."
+if [ $? -eq 0 ]; then
+  echo "State saved to $STATE_FILE"
+else
+  echo "WARNING: failed to write state file — next run will show last_run=never"
+fi
 ```
 
 ---
 
 ## Step 9 — Final Summary
 
-Print a clean terminal summary:
+Print a clean terminal summary using ONLY the actual results from Steps 2–6. Do NOT copy the example below — substitute real values. The example shows the format, not the content.
 
 ```
 === /sync-skills Complete ===
 
 Source                   Status           Detail
 ------------------------------------------------------------
-gstack                   UPGRADED         1.39.1.0 → 1.39.2.0
-mattpocock/skills        UP_TO_DATE       —
-Karpathy CLAUDE.md       BASELINE_SAVED   First run — diff next time
-<discovered sources>     UNTRACKED        2 found, 1 added to tracking
+gstack                   <$GSTACK_STATUS>  <old ver → new ver, or current ver>
+mattpocock/skills        <$MATT_STATUS>   <N new commits pulled, or up-to-date, or skipped>
+Karpathy CLAUDE.md       <$KARPATHY_STATUS> <N principles assessed, or baseline saved>
+<each UNTRACKED source>  UNTRACKED        <added to tracking / ignored>
+<each MCP>               <OK / WARNING>   <detail>
 
-Report: ~/Obsidian/Builds/02-Areas/Sync-Reports/<date>.md
+Changes written:
+  ~/.claude/CLAUDE.md    <"N lines added/changed" or "no changes">
+  sources.json           <"N sources added" or "unchanged">
+
+Report: ~/Obsidian/Builds/02-Areas/Sync-Reports/<SYNC_DATE>.md
 
 Run again any time with /sync-skills
 ```
