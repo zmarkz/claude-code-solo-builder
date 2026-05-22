@@ -20,6 +20,12 @@ Workflow:
 
    The grilling phase ends when you and the user agree the design tree has no unresolved branches. Capture the resolved understanding in a one-paragraph summary you'll hand to the PM in Step 2.
 
+0.5. **Design system check (UI features only).** If the feature has any user-visible UI:
+   - Check if `DESIGN.md` exists at the project root.
+   - If **not found**: tell the user — "This feature has UI but no DESIGN.md exists. I recommend running `/design-consultation` first to lock in typography, color, spacing, and layout decisions so all UI built from here is consistent. Options: (a) run `/design-consultation` now, (b) proceed without one, (c) skip for this feature." Wait for their choice before continuing.
+   - If **found**: read the first 50 lines — note the aesthetic direction, type scale, and palette. You'll pass these to the architect and `plan-design-review` later.
+   - If a **Figma URL** appears in `PROJECT_CONTEXT.md` or `CONTEXT.md`: flag it — "Figma file found. The frontend-engineer will use Figma MCP to read the design directly during implementation."
+
 1. **Read context first.** `PROJECT_CONTEXT.md`, `CONTEXT.md`, the active phase in `ROADMAP.md`, the relevant section of `TASKS.md`, and the latest few files in `docs/adr/`.
 
 2. **Launch `product-manager` subagent.** Hand it the grilling summary from Step 0. Ask it to produce the vertical-slice scoping document using the template in its system prompt:
@@ -37,6 +43,8 @@ Workflow:
    - Trust boundaries crossed.
    - Trade-offs.
    - Decision + ADR draft if needed.
+
+3.5. **Design plan review (UI features only).** If the spec has any user-visible UI, invoke `/plan-design-review`. It rates each design dimension 0–10, explains what a 10 looks like, and rewrites the plan to get there. Incorporate the output into the spec before proceeding. Skip for backend-only or worker-only features.
 
 4. **If `security-architect` review is warranted** (auth, tenancy, storage, model call, or new endpoint), launch it next.
 

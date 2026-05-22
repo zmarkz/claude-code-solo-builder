@@ -80,12 +80,22 @@ Specialized agents codify those roles' working rules. They're cheap to invoke, a
 **When to invoke:** UI pages, components, styling, server-state hooks, forms.
 
 **What it does differently:**
+- **Reads `DESIGN.md` before any implementation** — it is the design source of truth
+- Blocks on missing DESIGN.md for non-trivial UI surfaces — prompts `/design-consultation`
+- Invokes `frontend-design` skill for aesthetic direction on new pages/major components
+- Uses Figma MCP `get_design_context` when a Figma URL is in project context
 - Server Components by default, `"use client"` only when genuinely needed
 - Reads existing component patterns before creating new ones
 - No new UI primitives if shadcn/ui has it
-- Always includes loading and error states
+- Always includes all four render states: loading skeleton, empty, error, success
+- Rejects generic AI defaults (Inter font, purple gradients, flat layouts) — DESIGN.md or `frontend-design` output overrides
 
 **Invoke when:** Implementing UI features from a spec.
+
+**Design pipeline this agent follows:**
+1. Check DESIGN.md → invoke `frontend-design` for aesthetic brief → build → `/design-review` exit gate
+
+**After any UI implementation:** suggests `/design-review` before marking the task done.
 
 ### 6. ai-engineer
 

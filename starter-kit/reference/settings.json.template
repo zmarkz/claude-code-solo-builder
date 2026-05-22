@@ -100,6 +100,12 @@
         "hooks": [
           { "type": "command", "command": "bash scripts/run-quality-checks.sh --changed-only" }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash scripts/design-lint.sh --changed-only" }
+        ]
       }
     ],
     "PreCompact": [

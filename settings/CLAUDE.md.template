@@ -78,6 +78,15 @@ When producing outputs:
 
 **Seed skills**: `bootstrap-new-app`, `add-stripe-product`, `add-supabase-table`, `ship-landing-page`, `kill-app`
 
+**Frontend Design** (invoke in this order for any new UI):
+- `/design-feature <name>` — **single entry point**: full design→build→review cycle in one command
+- `/design-consultation` — establish `DESIGN.md` (once per project, before first UI work)
+- `/frontend-design` — distinctive, non-generic aesthetic direction (per new page/major component)
+- `/plan-design-review` — critique design plans before implementation (runs inside `/plan-feature`)
+- `/design-review` — visual QA on live implementation (runs inside `/build-feature`, before ship)
+- `/design-shotgun` — explore multiple aesthetic variants when direction is unclear
+- `/design-html` — production HTML/CSS for standalone artifacts
+
 <!-- Add gstack skills if installed:
 **gstack**: `/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/review`, `/ship`, `/qa`, `/browse`, `/canary`, `/benchmark`, `/codex`, `/investigate`, `/careful`, `/guard`, etc.
 -->
