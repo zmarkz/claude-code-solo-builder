@@ -107,6 +107,60 @@ Full SEO skill suite: `/seo`, `/seo-audit`, `/seo-plan`, `/seo-content`, `/seo-t
 
 ---
 
+## Layer 1.5 — Frontend Design Cluster
+
+A dedicated design pipeline integrated into the solo builder workflow. These skills form a chain — invoke them in order for any new UI surface.
+
+### The pipeline (invoke in this order)
+
+| Step | Skill | When | Output |
+|------|-------|------|--------|
+| 1 | `/design-consultation` | Once per project, before first UI | `DESIGN.md` — typography, color, spacing, motion |
+| 2 | `/frontend-design` | Each new page or major component | Aesthetic direction brief (bold, non-generic) |
+| 3 | `/design-shotgun` | When you want options before committing | Multiple variants → user picks one |
+| 4 | `/plan-design-review` | After architect review, before implementation | 0–10 scores per dimension, plan rewritten to reach higher |
+| 5 | `/design-html` | Standalone artifacts needing production HTML/CSS | Zero-dep HTML output with Pretext patterns |
+| 6 | `/design-review` | After implementation, before ship | Screenshot → find issues → atomic fixes → before/after |
+
+### When NOT to invoke each
+
+| Skill | Skip when |
+|-------|-----------|
+| `/design-consultation` | `DESIGN.md` already exists — update it instead |
+| `/frontend-design` | Minor change: adding a single field, fixing a label, bug fix |
+| `/design-shotgun` | Direction is already clear from DESIGN.md |
+| `/plan-design-review` | Backend-only or worker-only features with no UI |
+| `/design-html` | Using a framework (React/Next.js) — use `/frontend-design` instead |
+| `/design-review` | The change is a typo fix or non-visual patch |
+
+### Single entry point: `/design-feature`
+
+Use `/design-feature <name>` as the one command that orchestrates the full cycle (Stages 1–6 above) without having to manually chain skills. It:
+1. Checks/creates `DESIGN.md`
+2. Invokes `frontend-design` for aesthetic direction
+3. Offers `design-shotgun` for variant exploration
+4. Runs `plan-design-review` on the brief
+5. Delegates to `/build-feature` with design context loaded
+6. Exits via `/design-review`
+
+### Automatic triggers (no manual invocation needed)
+
+| Trigger | How |
+|---------|-----|
+| Any UI file written | `design-lint.sh` PostToolUse hook — reminds dev to run `/design-review` |
+| `plan-feature` with UI | Step 0.5 checks for DESIGN.md, Step 3.5 runs `plan-design-review` |
+| `build-feature` Step 7 | Pre-loads DESIGN.md, invokes `frontend-design`, exits via `design-review` |
+| `frontend-engineer` agent | Now reads DESIGN.md and knows when to invoke `frontend-design` |
+
+### Recommended additional skill
+
+`ui-ux-pro-max` (community, `nextlevelbuilder/ui-ux-pro-max-skill`) — 97 color palettes, 57 font pairings, 50+ UI styles, 25 chart types. Install as a reference palette library alongside `frontend-design`:
+```bash
+npx skills@latest add nextlevelbuilder/ui-ux-pro-max-skill
+```
+
+---
+
 ## Layer 2 — mattpocock/skills (Atomic Daily Workflow)
 
 Install:

@@ -39,7 +39,22 @@ Each test responds to what you learned from the previous cycle. You catch design
 4. **Service** — Business logic. **Apply TDD tracer-bullet cycles** (above): one failing test → minimal impl → next failing test. Each test focuses on one observable behavior. Don't draft all tests upfront.
 5. **Router** — API endpoint with the proper authorization decorator and audit-log entry. **Same tracer-bullet rule** for integration tests: one integration test → impl → next.
 6. **Worker** — Async task if the feature needs background work. Test with a stub broker. Tracer-bullet cycles.
-7. **UI** — Data-fetching hook, page/component, form (if any). Add an end-to-end test (one tracer bullet for happy path, then one per critical edge case).
+7. **UI** — Data-fetching hook, page/component, form (if any).
+
+   **Before writing a single line of UI code:**
+
+   a. **Read `DESIGN.md`** if it exists. Every visual decision must align with it: fonts, palette, spacing scale, motion style, component patterns.
+   b. **New page or major component?** Invoke the `frontend-design` skill with: (1) the feature's user story from the spec, (2) any DESIGN.md constraints. Its output is the aesthetic brief — implement to match it, not to invent. For minor additions (single field, label change), skip this step.
+   c. **Figma URL in spec or context?** Use Figma MCP `get_design_context` to read the exact layout. Build from the real design, not a reconstruction.
+
+   **Build sequence** (same tracer-bullet TDD rule as other layers):
+   - Data-fetching hook → component → loading skeleton → empty state → error state → test (happy path) → test (edge cases).
+   - Never ship a component without all four render states: loading, empty, error, success.
+
+   **After implementing:**
+
+   d. Invoke `/design-review` on the new page/component. It screenshots, finds visual inconsistencies, spacing errors, AI-slop patterns, and fixes them atomically with before/after comparison. Do not mark the UI step done until `/design-review` has run and its fixes are committed.
+   e. Verify accessibility: keyboard navigation works, all interactive elements have labels, focus rings are visible, color contrast meets WCAG AA.
 8. **Docs** — Update README if user-facing; update API docs if endpoint is new; update relevant `docs/` page. If the feature introduced a new domain term, update `CONTEXT.md` (canonical glossary).
 
 After each layer, run `make quality` (lint + typecheck + tests + security). Don't proceed to the next layer if it's red. Don't refactor while RED inside a tracer-bullet cycle either — first get to GREEN, then refactor with the green tests as your safety net.

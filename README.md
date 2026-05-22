@@ -177,9 +177,9 @@ claude-code-solo-builder/
 │   │   ├── vault-write-hook.sh       ← PostToolUse hook: auto re-index on vault write
 │   │   └── ccc.fish                  ← Fish shell launcher (re-index on session close)
 │   └── reference/
-│       ├── agents/                   ← 11 specialist subagent definitions
-│       ├── commands/                 ← 10 slash commands (incl. /vault-update)
-│       └── scripts/                  ← 6 guardrail hook scripts
+│       ├── agents/                   ← 11 specialist subagent definitions (incl. upgraded frontend-engineer)
+│       ├── commands/                 ← 11 slash commands (incl. /design-feature)
+│       └── scripts/                  ← 7 guardrail hook scripts (incl. design-lint.sh)
 ├── skills/
 │   └── sync-skills/                  ← /sync-skills command (install to ~/.claude/skills/sync-skills/)
 │       ├── SKILL.md                  ← Skill workflow: auto-discover + sync all third-party sources
@@ -209,9 +209,15 @@ ccc
 
 # Plan a feature
 > /plan-feature <name>                # PM + architect + security spec
+                                      # (auto: checks DESIGN.md, runs /plan-design-review for UI)
 
 # Build it
 > /build-feature <slug>              # vertical-slice TDD
+                                      # (auto: frontend-design brief + /design-review exit gate for UI)
+
+# Build UI specifically — full design-first cycle
+> /design-consultation               # ONCE per project — establishes DESIGN.md
+> /design-feature <name>             # design→build→review in one command (replaces /build-feature for UI)
 
 # When something breaks
 > /diagnose                          # structured debug: reproduce → minimize → fix
