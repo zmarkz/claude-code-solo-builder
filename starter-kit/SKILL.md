@@ -62,14 +62,20 @@ Copy these from this skill's `reference/` directory into the target project, wit
 | Source | Destination |
 |--------|-------------|
 | `reference/agents/*.md` (11 files) | `<project>/.claude/agents/` |
-| `reference/commands/*.md` (9 files) | `<project>/.claude/commands/` |
-| `reference/scripts/*.sh` (6 files) | `<project>/scripts/` |
+| `reference/commands/*.md` (14 files) | `<project>/.claude/commands/` |
+| `reference/scripts/*.sh` (9 files) | `<project>/scripts/` |
 | `reference/settings.json.template` | `<project>/.claude/settings.json` |
 | `reference/.gitignore.template` | `<project>/.gitignore` |
 | `reference/.editorconfig.template` | `<project>/.editorconfig` |
 | `reference/.env.example.template` | `<project>/.env.example` |
 
 Then, customize `.claude/settings.json` based on the user's answers (delete the `ai-engineer` agent reference if not an AI project; set env vars appropriate to the deploy target). Make all scripts executable: `chmod +x <project>/scripts/*.sh`.
+
+**After generating `TASKS.md` (Step 4), generate the durable-loop substrate:** run
+`bash <project>/scripts/tasks-sync.sh` once to produce `<project>/tasks.json` from `TASKS.md`.
+This is what `/orchestrate-loops` (Mode 3 durable parallel loops) reads; `guard-file-domain.sh` is
+already wired as a no-op hook (it activates only when a durable leaf sets `LEAF_DOMAIN_GLOBS`). See
+`docs/SWARM-ORCHESTRATION.md`.
 
 ### Step 4 — Generate the planning docs
 
@@ -163,7 +169,7 @@ Per Claude Code docs, only `tools`, `model`, and the body are honored when used 
 
 ### Pattern 6 — Hooks for safety, not for cleverness
 
-The 6 scripts wire to SessionStart, PreToolUse (Bash, Write, Edit), PostToolUse (Write, Edit), and PreCompact hooks. Their purpose is to fail loudly and early. Don't make them do anything fancy; clarity beats elegance.
+The hook scripts wire to SessionStart, PreToolUse (Bash, Write, Edit), PostToolUse (Write, Edit), and PreCompact hooks. Their purpose is to fail loudly and early. Don't make them do anything fancy; clarity beats elegance. Includes `guard-file-domain.sh` (PreToolUse Write/Edit) — a no-op in normal sessions that enforces a durable leaf's file-domain boundary when `LEAF_DOMAIN_GLOBS` is set.
 
 ### Pattern 7 — Context-window management is part of the structure
 
@@ -172,10 +178,13 @@ The 6 scripts wire to SessionStart, PreToolUse (Bash, Write, Edit), PostToolUse 
 - `PreCompact` hook → `session-snapshot.sh` dumps state to `docs/session-snapshots/` before compaction.
 - Together these let "continuous Claude Code engagement" survive multi-week timelines.
 
-### Pattern 8 — Two parallelism modes, both bounded
+### Pattern 8 — Three parallelism modes, all bounded
 
 - `/build-phase-autopilot` runs plan→build→commit for the listed Phase 1 slugs sequentially, single-session. Skips spec-approval and per-commit review; **does NOT skip phase review**.
-- `/start-phase-team` launches an agent team (experimental Claude Code feature, requires v2.1.32+) of 3-5 teammates working in parallel across non-overlapping file domains. Higher token cost; faster wall-clock time.
+- `/start-phase-team` launches an agent team (experimental Claude Code feature, requires v2.1.32+) of 3-5 teammates working in parallel across non-overlapping file domains. Interactive; higher token cost; faster wall-clock.
+- `/orchestrate-loops` is the **durable, headless** variant: one background worktree leaf per `tasks.json` domain, attempt-capped + timeout-bounded, file-domain enforced by `guard-file-domain.sh`, integrated by a reviewer. For large/overnight builds you won't babysit. See `docs/SWARM-ORCHESTRATION.md`.
+
+All three stop at the human phase-review gate; none self-approves.
 
 Both have allowlists that refuse to run outside Phase 1 by default. To extend to other phases, the user adds an explicit ADR.
 

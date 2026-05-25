@@ -12,7 +12,7 @@
 This repository is the **complete, shareable setup** that lets a solo developer run like a 10-person team using Claude Code. It includes:
 
 - **The Playbook** — a 16-part operating manual covering mental model, AI swarm patterns, knowledge vault, portfolio management, and daily cadences
-- **The Starter Kit** — a Claude Code skill that scaffolds any new project with 11 agents, 9 slash commands, 6 safety hooks, and all planning docs in ~10 minutes
+- **The Starter Kit** — a Claude Code skill that scaffolds any new project with 11 agents, 14 slash commands, 9 guardrail scripts, and all planning docs in ~10 minutes
 - **The Knowledge Stack** — Obsidian vault + Context7 + knowledge-graph MCP working together to ground every AI call in your prior decisions
 - **Token Efficiency Guide** — how to get 85%+ cost savings through model routing, context management, and vault-first queries
 - **Settings & Agents** — production-grade Claude Code settings, 11 specialist subagents, 9 workflow commands, and guardrail scripts
@@ -163,7 +163,7 @@ claude-code-solo-builder/
 │   ├── EXISTING-PROJECT.md           ← Retrofitting existing projects
 │   ├── AGENTS-GUIDE.md               ← The 11 specialist agents explained
 │   ├── SKILLS-ECOSYSTEM.md           ← Skills: gstack + mattpocock + custom
-│   ├── SWARM-ORCHESTRATION.md        ← Parallel teams, autopilot, swarm patterns
+│   ├── SWARM-ORCHESTRATION.md        ← 3 parallelism modes (teams, autopilot, durable loops), durability + domain enforcement
 │   ├── SETTINGS-AND-THEMES.md        ← Claude Code config, dark theme, hooks
 │   ├── COMPARISON-mattpocock.md      ← Best-of-both hybrid analysis
 │   └── COMPARISON-karpathy.md        ← Karpathy CLAUDE.md benchmark + what we adopted

@@ -1,8 +1,8 @@
-# The Solo AI-Augmented Builder's Playbook — Final v2.3
+# The Solo AI-Augmented Builder's Playbook — Final v2.4
 
 **An operating manual for building, consolidating, and compounding a multi-app portfolio single-handedly with AI agents.**
 
-Version 2.3 — May 2026
+Version 2.4 — May 2026
 Author: Markandey (with Claude as co-author)
 Status: living document — edit as you learn
 
@@ -10,6 +10,7 @@ Status: living document — edit as you learn
 
 ## Changelog
 
+- **v2.4 (May 2026)** — Durability + domain-enforcement layer for parallel agent loops. Adds a third parallelism mode `/orchestrate-loops` (durable, headless, background worktree leaves), a `tasks.json` substrate (`scripts/tasks-sync.sh`), a `guard-file-domain.sh` PreToolUse hook that *enforces* per-leaf file domains (previously a prose instruction), per-loop-role model routing, and a per-workstream fleet status line for the digest. Detail in `docs/SWARM-ORCHESTRATION.md` (Modes + Durability & Recovery + Domain Enforcement) and `docs/AI-ROUTING.md`. **Mechanism, not spine** — no new Part; the framework already forbids custom orchestrators, so this is glue over native Claude Code primitives (background `Agent` worktrees, `Monitor`, `ScheduleWakeup`, FleetView), not a new platform.
 - **v2.3 (May 2026)** — Refinement after full Part C ingestion (9 projects indexed). Adds: two-stack reality (3.9), AI model routing as mandatory pattern (3.10), bucket transition rules (B.2a), cross-stack integration contracts (Part 8), personal-utility carve-out for kill criteria (Part 5), no-landing-page anti-pattern (#14 in Part 12), empty-folder smell rule (4.5). Inline updates to Parts 3.3, 3.5, 4.3, 5, 7, and Part C.6. No spine changes. Evidence at `02-Areas/Playbook/refinement-2026-05-16.md`.
 - **v2.2 (May 2026)** — Merged in patterns from `mattpocock/skills` (82k-star community reference). New first-class doc `CONTEXT.md` (DDD ubiquitous-language glossary, distinct from `PROJECT_CONTEXT.md`). Per-file ADRs at `docs/adr/NNNN-<slug>.md` (replaces the single `DECISIONS.md`) with the 3-test threshold (hard-to-reverse + surprising-without-context + result-of-real-trade-off). `/plan-feature` gained an embedded grilling phase (Step 0) before PM scoping. `/build-feature` gained the TDD anti-pattern callout (vertical tracer-bullet cycles per layer, never horizontal test-batching). Dual-residency installation pattern documented (also install kit components at user level so upstream improvements propagate). Recommended user-level companion skills from `mattpocock/skills`: `grill-with-docs`, `diagnose`, `zoom-out`, `improve-codebase-architecture`, `handoff`. See `COMPARISON-mattpocock-vs-ours.md` for the rationale.
 - **v2.1 (May 2026)** — Corrected Part A after reading the real `_starter-kit/` contents. The kit is a Claude Code scaffold-generator skill called `ai-project-scaffold` (11 agents + 9 slash commands + 6 hook scripts + 9 planning docs), not a Next.js code template.

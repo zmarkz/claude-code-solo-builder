@@ -80,7 +80,7 @@ Telegram API → your CHAT_ID
 
 ---
 
-## Two Parallelism Modes
+## Three Parallelism Modes
 
 ### Mode 1 — `/start-phase-team` (Parallel Teammates)
 
@@ -145,6 +145,75 @@ Runs plan→build→commit for a list of feature slugs, one after another in a s
 # Builds auth-signup → commits → builds auth-login → commits → builds user-profile → commits
 # → halts at /phase-review 1
 ```
+
+### Mode 3 — `/orchestrate-loops` (Durable Parallel Loops)
+
+The **headless, overnight** sibling of Mode 1. Spawns one background, worktree-isolated agent per
+independent file-domain, each a durable loop (attempt-capped, timeout-bounded), integrated by a
+reviewer. Built entirely on **native Claude Code primitives** — `Agent(isolation:"worktree",
+run_in_background:true)`, `Monitor`, `ScheduleWakeup`, FleetView. There is no custom orchestrator
+to install (see "What to skip" above); as of Claude Code v2.1.150 the natives cover what a
+hand-rolled loop runner like Ralph would have provided.
+
+**Use when:**
+- The build is large enough to fan out *and* you will not babysit it (overnight / AFK).
+- You want recovery (retries, timeouts, stuck-detection) so one flaky task doesn't burn the run.
+
+**How it works:**
+1. `tasks.json` (generated from `TASKS.md` by `scripts/tasks-sync.sh`) is the resumable queue.
+2. The orchestrator selects tasks whose `depends_on` are satisfied and groups them by
+   **non-overlapping `domain_globs`**.
+3. Each independent domain becomes a background worktree leaf with `LEAF_DOMAIN_GLOBS` set; the
+   `guard-file-domain.sh` hook blocks any write outside that domain.
+4. Each leaf loops: implement → `make quality` → commit → update `tasks.json`; retries up to 3×,
+   then flips the task to `needs-human` and moves on.
+5. The orchestrator holds only `tasks.json` status + one-paragraph leaf summaries — **never worker
+   transcripts** — so its window stays lean. Reviewer integrates; human signs the phase gate.
+
+**Cost:** Medium-high (parallel contexts), controlled by per-loop-role model routing — see
+`docs/AI-ROUTING.md`. You pay Opus rates only for the orchestrator and reviewer; leaves run on
+Sonnet (feature work) or Haiku/local (grind).
+
+**Why a third mode?** Mode 1 is interactive (you're at the keyboard, in-process teammates, no
+session resumption); Mode 2 is sequential. Neither is *durable-headless*. Mode 3 fills that gap.
+
+---
+
+## Durability & Recovery (Mode 3)
+
+The framework long *named* the parallel-loop failure modes (see "Common Failure Modes" below) but
+left recovery to the operator. Mode 3 mechanizes it. These knobs live in the leaf contract
+(`commands/orchestrate-loops.md`) and `tasks.json`, not in any external tool:
+
+| Knob | Default | What it buys |
+|------|---------|--------------|
+| **Per-task attempt cap** | 3 retries | A flaky task retries, then flips to `needs-human` and the loop moves on — it never grinds the night away on one task. Counter persists in `tasks.json.attempts` (survives re-sync). |
+| **Agent timeout** | per leaf | A wedged leaf is terminated, not left hanging; its task keeps its `attempts` for the next run. |
+| **Stuck-detection** | no-output threshold | A leaf producing no output past the threshold is treated as wedged. |
+| **Wall-clock runtime ceiling** | 4h | Stops launching new leaves past the cap; in-flight leaves finish; the run reports. The cost/safety brake on an overnight run. |
+| **Spend cap → page** | per run | On cap or any `needs-human` flip, the Telegram digest pages you. |
+
+**The substrate — `tasks.json`.** Generated from `TASKS.md` by `scripts/tasks-sync.sh`:
+
+```json
+{ "id": "auth-signup", "phase": "1", "title": "Build auth signup",
+  "status": "todo", "domain_globs": ["apps/api/auth/**"],
+  "depends_on": [], "attempts": 0, "acceptance": "User can register…" }
+```
+
+`status` is sourced from `TASKS.md` markers (`[ ]`=todo, `[~]`=in_progress, `[x]`=done,
+`[!]`=needs-human); `attempts` is runtime state preserved across re-syncs. Add `@domain:`,
+`@needs:`, `@id:` tags to a `TASKS.md` line to populate globs/deps/id (see the script header).
+
+## Domain Enforcement (Mode 3)
+
+Mode 1 says "assign exclusive ownership per file/directory before spawning" — but that was a
+*prose instruction*, trivially violated by a wandering agent. Mode 3 **enforces** it:
+`scripts/guard-file-domain.sh` is a `PreToolUse(Write|Edit)` hook that reads the leaf's
+`LEAF_DOMAIN_GLOBS` and **blocks any write outside them** (exit 2), exactly like
+`guard-dangerous-command.sh` blocks a dangerous shell command. It is a **no-op** when no domain is
+set, so it never interferes with ordinary interactive sessions. This is the price of admission for
+parallel writes within one repo — refuse to run Mode 3 without it wired.
 
 ---
 
@@ -214,7 +283,8 @@ tmux new-session -d -s swarm
 
 | Situation | Mode |
 |-----------|------|
-| 3+ independent features, time pressure | `/start-phase-team` |
+| 3+ independent features, time pressure, you're at the keyboard | `/start-phase-team` |
+| Many independent domains, large/overnight, AFK (durable) | `/orchestrate-loops` |
 | Sequential features, token economy | `/build-phase-autopilot` |
 | Single focused feature | Manual session |
 | Scheduled nightly jobs (cleanup, reports) | Paperclip / cron trigger |
@@ -237,7 +307,7 @@ The goal isn't to prevent AI from working — it's to keep decision-making under
 
 ## Common Failure Modes
 
-**File domain overlap:** Two workers modifying the same file → conflicts on merge. Assign exclusive ownership per file/directory before spawning.
+**File domain overlap:** Two workers modifying the same file → conflicts on merge. Assign exclusive ownership per file/directory before spawning. In Mode 3 this is **enforced** by `guard-file-domain.sh` (see "Domain Enforcement"), not left to discipline.
 
 **Context too large for Team Lead:** If the phase has >10 features, decompose into sub-phases first. Team Lead with a 100K+ context window planning 15 features produces mediocre decompositions.
 
@@ -247,4 +317,4 @@ The goal isn't to prevent AI from working — it's to keep decision-making under
 
 ---
 
-*See also: `docs/AGENTS-GUIDE.md` for agent roles, `starter-kit/reference/commands/start-phase-team.md` for the command implementation.*
+*See also: `docs/AGENTS-GUIDE.md` for agent roles; `docs/AI-ROUTING.md` for per-loop-role model routing; `starter-kit/reference/commands/start-phase-team.md` and `orchestrate-loops.md` for the command implementations; `scripts/tasks-sync.sh` + `guard-file-domain.sh` for the Mode 3 substrate and enforcement.*

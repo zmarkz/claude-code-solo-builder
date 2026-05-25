@@ -292,6 +292,26 @@ SIMPLE: summarize, extract, count, format, list
 
 ---
 
+## Loop-Role Model Routing (developer harness — distinct from the above)
+
+Everything above routes **product** AI calls (your app's features, via the Agent Farm). This
+section is a *different axis*: which model each **swarm role** uses when you build software with
+Claude Code (Modes 1–3 in `docs/SWARM-ORCHESTRATION.md`). It keeps the parallel-loop token
+multiplier in check — you pay Opus rates only for the two roles that are *not* parallelized.
+
+| Loop role | Model | Why |
+|---|---|---|
+| Orchestrator (decompose, DAG, integrate decisions) | Opus 4.7 | Judgment-heavy, low token volume |
+| Reviewer / integrator | Opus 4.7 | Quality gate + cross-leaf contract tests |
+| Feature leaf (build a slice) | Sonnet 4.6 | The throughput workhorse — most leaves |
+| Grind leaf (migrations, boilerplate, renames) | Haiku 4.5 / local Qwen | High volume, low judgment → near-zero cost |
+
+In `/orchestrate-loops`, the orchestrator sets each leaf's model by this table based on the task's
+nature. Since most leaves are Sonnet and grind leaves are local/Haiku, a wide overnight fan-out
+stays affordable while the expensive Opus roles run singly.
+
+---
+
 ## Cost Monitoring and Logging
 
 Log every routing decision:

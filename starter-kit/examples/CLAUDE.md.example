@@ -47,6 +47,7 @@ In `.claude/commands/`:
 - `/phase-review N` — end-of-phase sign-off
 - `/start-phase-team [N]` — launch parallel agent team (v2.1.32+; bounded to early phases)
 - `/build-phase-autopilot [slugs|all]` — single-session chained autopilot (bounded scope)
+- `/orchestrate-loops [N]` — durable headless parallel loops (Mode 3): one background worktree leaf per `tasks.json` domain, attempt-capped, file-domain enforced. For large/overnight builds. Run `scripts/tasks-sync.sh` first. Loop-role model routing in `docs/AI-ROUTING.md`.
 
 ## Tech stack (decided)
 

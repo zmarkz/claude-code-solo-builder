@@ -156,6 +156,24 @@ cp ~/.claude/skills/ai-project-scaffold/reference/settings.json.template .claude
 # Edit: set your actual allow list for this project
 ```
 
+#### Step 6 — (ACTIVE-BUILD only) Enable durable parallel loops
+
+To run `/orchestrate-loops` (Mode 3 — durable, headless parallel builds), add the substrate +
+enforcement hook:
+
+```bash
+cp ~/.claude/commands/orchestrate-loops.md .claude/commands/
+cp ~/.claude/skills/ai-project-scaffold/reference/scripts/guard-file-domain.sh scripts/
+cp ~/.claude/skills/ai-project-scaffold/reference/scripts/tasks-sync.sh scripts/
+chmod +x scripts/*.sh
+# Wire guard-file-domain into .claude/settings.json PreToolUse(Write|Edit) — see settings.json.template.
+# Then tag TASKS.md lines with @domain: globs and generate the queue:
+bash scripts/tasks-sync.sh
+```
+
+`guard-file-domain.sh` is a no-op until a durable leaf sets `LEAF_DOMAIN_GLOBS`, so it won't affect
+your normal sessions. See `docs/SWARM-ORCHESTRATION.md` for the full Mode 3 flow.
+
 #### Step 6 — Ingest into vault
 
 Create `~/Obsidian/Builds/01-Projects/<project-name>/STATUS.md`:
