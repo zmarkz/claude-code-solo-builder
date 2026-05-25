@@ -1,6 +1,6 @@
 ---
 name: ai-project-scaffold
-description: Use when starting a new software project that will be built with Claude Code. Generates a complete project scaffold — planning docs (CLAUDE.md, PROJECT_CONTEXT.md, ARCHITECTURE.md, ROADMAP.md, SECURITY_MODEL.md, TASKS.md, DECISIONS.md, README.md, HANDOFF.md), `.claude/` config with permissions/hooks/11-subagent team/9 slash commands, monorepo skeleton, Makefile, docker-compose, pre-commit hooks, and 6 guardrail scripts. Establishes phase-gated, vertical-slice, test-mandatory development with human review checkpoints. Invoke when the user says "start a new project," "scaffold a project," "bootstrap with Claude Code best practices," or when the working directory is empty / near-empty and they describe a build.
+description: Use when starting a new software project that will be built with Claude Code. Generates a complete project scaffold — planning docs (CLAUDE.md, PROJECT_CONTEXT.md, ARCHITECTURE.md, ROADMAP.md, SECURITY_MODEL.md, TASKS.md, DECISIONS.md, README.md, HANDOFF.md), `.claude/` config with permissions/hooks/11-subagent team/14 slash commands, monorepo skeleton, Makefile, docker-compose, pre-commit hooks, and 9 guardrail scripts. Establishes phase-gated, vertical-slice, test-mandatory development with human review checkpoints. Invoke when the user says "start a new project," "scaffold a project," "bootstrap with Claude Code best practices," or when the working directory is empty / near-empty and they describe a build.
 ---
 
 # AI Project Scaffold — Skill
