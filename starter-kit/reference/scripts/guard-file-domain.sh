@@ -30,7 +30,11 @@ try:
     d = json.loads(sys.stdin.read() or "{}")
 except Exception:
     print(""); sys.exit(0)
-print(d.get("file_path", "") if isinstance(d, dict) else "")
+if not isinstance(d, dict):
+    print(""); sys.exit(0)
+# Claude Code nests the path under tool_input (Write/Edit/MultiEdit); fall back to top-level.
+ti = d.get("tool_input") or {}
+print(ti.get("file_path") or ti.get("path") or d.get("file_path", ""))
 ' 2>/dev/null || true)
 
 [ -z "$FILE_PATH" ] && exit 0

@@ -11,7 +11,19 @@ set -euo pipefail
 # Claude Code sends the tool input as JSON on stdin.
 # For a Bash tool the field is `command`.
 INPUT="${1:-$(cat 2>/dev/null || true)}"
-CMD=$(printf '%s' "$INPUT" | python3 -c 'import json,sys; d=json.loads(sys.stdin.read() or "{}"); print(d.get("command", "") if isinstance(d, dict) else "")' 2>/dev/null || echo "$INPUT")
+CMD=$(printf '%s' "$INPUT" | python3 -c '
+import json, sys
+raw = sys.stdin.read()
+try:
+    d = json.loads(raw or "{}")
+except Exception:
+    sys.exit(1)              # not JSON (raw arg) -> bash fallback uses $INPUT
+if not isinstance(d, dict):
+    sys.exit(1)
+# Claude Code nests the command under tool_input; fall back to top-level.
+ti = d.get("tool_input") if isinstance(d.get("tool_input"), dict) else {}
+print(ti.get("command") or d.get("command", ""))
+' 2>/dev/null || echo "$INPUT")
 
 CMD_NORMALIZED=$(printf '%s' "$CMD" | tr -s ' \t\n' ' ')
 
