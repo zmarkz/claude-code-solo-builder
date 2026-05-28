@@ -301,14 +301,32 @@ multiplier in check — you pay Opus rates only for the two roles that are *not*
 
 | Loop role | Model | Why |
 |---|---|---|
-| Orchestrator (decompose, DAG, integrate decisions) | Opus 4.7 | Judgment-heavy, low token volume |
-| Reviewer / integrator | Opus 4.7 | Quality gate + cross-leaf contract tests |
+| Orchestrator (decompose, DAG, integrate decisions) | Opus 4.8 | Judgment-heavy, low token volume |
+| Reviewer / integrator | Opus 4.8 | Quality gate + cross-leaf contract tests |
 | Feature leaf (build a slice) | Sonnet 4.6 | The throughput workhorse — most leaves |
 | Grind leaf (migrations, boilerplate, renames) | Haiku 4.5 / local Qwen | High volume, low judgment → near-zero cost |
 
 In `/orchestrate-loops`, the orchestrator sets each leaf's model by this table based on the task's
 nature. Since most leaves are Sonnet and grind leaves are local/Haiku, a wide overnight fan-out
 stays affordable while the expensive Opus roles run singly.
+
+### Fast mode changes the Opus calculus (Opus 4.8)
+
+The split above — "Opus only for orchestrator/reviewer, Sonnet for the bulk" — was designed when
+Opus was the *slow, expensive* tier and pushing implementation onto Sonnet bought real wall-clock.
+**Opus 4.8 fast mode** (toggle with `/fast`, or per-agent where supported) gives Opus-class
+reasoning at much higher throughput **without downgrading the model** — it stays Opus, just faster.
+That weakens the original justification for the Sonnet split:
+
+- **Interactive driving, orchestrator, reviewer** → Opus 4.8 **with fast mode on** is now the
+  sensible default. You no longer pay the old latency tax for Opus judgment.
+- **Feature leaves** → still Sonnet 4.6 by default for token economy on wide fan-outs; promote a
+  leaf to Opus 4.8 (fast) when the slice is genuinely judgment-heavy (auth, money, schema design).
+- **Grind leaves** → unchanged: Haiku 4.5 / local Qwen.
+
+This is the *developer-harness* axis only. It does **not** change the product routing above
+(`classifyQuery` → Sonnet vs local Qwen), which is about your app's runtime AI calls and stays as
+is. Keep the two axes separate.
 
 ---
 

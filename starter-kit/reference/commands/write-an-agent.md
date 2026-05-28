@@ -125,7 +125,7 @@ Never write or accept these phrasings:
 ---
 name: <role-name>
 description: <responsibilities summary>. Invoke proactively when <trigger conditions>. SKIP for <anti-trigger conditions>.
-model: <claude-opus-4-7 | claude-sonnet-4-6 | claude-haiku-4-5-20251001>
+model: <claude-opus-4-8 | claude-sonnet-4-6 | claude-haiku-4-5-20251001>
 tools: <Read, Write, Edit, Grep, Glob, Bash, WebFetch — select only what's needed>
 ---
 

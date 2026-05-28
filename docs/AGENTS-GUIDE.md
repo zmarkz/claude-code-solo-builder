@@ -183,8 +183,8 @@ Every agent now declares a `model:` field in its frontmatter. This pins the righ
 
 | Agent | Model | Reason |
 |-------|-------|--------|
-| `security-architect` | `claude-opus-4-7` | Highest stakes — missed findings have real consequences |
-| `solution-architect` | `claude-opus-4-7` | Architecture decisions are hard to reverse |
+| `security-architect` | `claude-opus-4-8` | Highest stakes — missed findings have real consequences |
+| `solution-architect` | `claude-opus-4-8` | Architecture decisions are hard to reverse |
 | `product-owner-reviewer` | `claude-sonnet-4-6` | Balanced judgment across business + technical |
 | `ai-engineer` | `claude-sonnet-4-6` | Complex but well-structured domain |
 | `qa-engineer` | `claude-sonnet-4-6` | Adversarial thinking needs depth |

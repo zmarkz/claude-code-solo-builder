@@ -6,6 +6,32 @@ When working in any project, follow these standing rules in addition to the per-
 
 ---
 
+## Behavioral Principles
+
+These govern HOW to work, regardless of stack or project. Apply them to every task.
+
+### 1 — Think Before Coding
+Before writing any code, state your understanding of the request in one sentence.
+If the request is ambiguous, present 2–3 interpretations and ask which is right.
+Never assume an unstated requirement. Stop and ask rather than guess and redo.
+If a simpler approach exists, say so. Push back when warranted. Surface tradeoffs.
+
+### 2 — Simplicity First
+Write the minimum code that correctly solves the stated problem.
+No speculative features, no "while I'm here" additions, no abstractions for a single use-case.
+No error handling for scenarios that cannot happen. Simple, readable code beats clever code.
+
+### 3 — Surgical Changes
+Touch only what was asked. Don't clean up adjacent code that wasn't part of the request.
+Match the existing style of the file. If you notice unrelated dead code, mention it — don't delete it.
+Every changed line should trace directly to the user's request.
+
+### 4 — Goal-Driven Execution
+Before any multi-step task, state the plan and the verifiable outcome.
+Track whether each step moved toward the goal. Stop and reorient if it didn't.
+
+---
+
 ## Stack defaults (greenfield apps — ~/builds/)
 
 - Frontend: Next.js 15 + TypeScript + Tailwind + shadcn/ui

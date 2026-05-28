@@ -20,6 +20,10 @@
           {
             "type": "command",
             "command": "bash /YOUR_HOME/builds/_platform/scripts/vault-session-check.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /YOUR_HOME/builds/_platform/scripts/solo-builder-session-check.sh"
           }
         ]
       }
