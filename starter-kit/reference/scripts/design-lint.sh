@@ -5,11 +5,25 @@
 
 set -euo pipefail
 
+# PostToolUse sends the tool payload as JSON on stdin; path is under tool_input.file_path.
+INPUT=$(cat 2>/dev/null || true)
 CHANGED_FILE="${CLAUDE_TOOL_FILE:-}"
+if [[ -z "$CHANGED_FILE" && -n "$INPUT" ]]; then
+  CHANGED_FILE=$(printf '%s' "$INPUT" | python3 -c '
+import json, sys
+try:
+    d = json.loads(sys.stdin.read() or "{}")
+except Exception:
+    sys.exit(0)
+if isinstance(d, dict):
+    ti = d.get("tool_input") if isinstance(d.get("tool_input"), dict) else {}
+    print(ti.get("file_path") or d.get("file_path", ""))
+' 2>/dev/null || true)
+fi
 
-# If called with --changed-only and no env var, try to infer from args
-if [[ "${1:-}" == "--changed-only" ]]; then
-  CHANGED_FILE="${CLAUDE_TOOL_FILE:-${2:-}}"
+# arg form: --changed-only <file>
+if [[ "${1:-}" == "--changed-only" && -z "$CHANGED_FILE" ]]; then
+  CHANGED_FILE="${2:-}"
 fi
 
 # Only fire for UI-layer files

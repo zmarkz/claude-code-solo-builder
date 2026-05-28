@@ -18,11 +18,20 @@ try:
     d = json.loads(sys.stdin.read() or "{}")
 except Exception:
     print(""); sys.exit(0)
+if not isinstance(d, dict):
+    print(""); sys.exit(0)
+# Claude Code nests Write content / Edit new_string under tool_input; fall back to top-level.
+ti = d.get("tool_input") if isinstance(d.get("tool_input"), dict) else {}
 parts = []
-for k in ("content", "new_string"):
-    v = d.get(k)
-    if isinstance(v, str):
-        parts.append(v)
+for src in (ti, d):
+    for k in ("content", "new_string"):
+        v = src.get(k)
+        if isinstance(v, str):
+            parts.append(v)
+# MultiEdit: edits[].new_string
+for e in (ti.get("edits") or []):
+    if isinstance(e, dict) and isinstance(e.get("new_string"), str):
+        parts.append(e["new_string"])
 print("\n".join(parts))
 ' 2>/dev/null || true)
 
