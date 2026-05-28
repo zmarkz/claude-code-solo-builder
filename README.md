@@ -178,8 +178,8 @@ claude-code-solo-builder/
 │   │   └── ccc.fish                  ← Fish shell launcher (re-index on session close)
 │   └── reference/
 │       ├── agents/                   ← 11 specialist subagent definitions (incl. upgraded frontend-engineer)
-│       ├── commands/                 ← 11 slash commands (incl. /design-feature)
-│       └── scripts/                  ← 7 guardrail hook scripts (incl. design-lint.sh)
+│       ├── commands/                 ← 14 slash commands (incl. /design-feature)
+│       └── scripts/                  ← 9 guardrail hook scripts (incl. design-lint.sh)
 ├── skills/
 │   └── sync-skills/                  ← /sync-skills command (install to ~/.claude/skills/sync-skills/)
 │       ├── SKILL.md                  ← Skill workflow: auto-discover + sync all third-party sources

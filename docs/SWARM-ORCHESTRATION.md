@@ -12,7 +12,7 @@
                           │
                           ▼
                    ┌─────────────┐
-                   │ Team Lead   │  (Opus 4.7 — planning, decomposition)
+                   │ Team Lead   │  (Opus 4.8 — planning, decomposition)
                    └──────┬──────┘
                           │ decomposes into DAG
         ┌─────────────────┼─────────────────┐
@@ -24,7 +24,7 @@
         └────────────────┼────────────────┘
                          ▼
                    ┌─────────────┐
-                   │ Reviewer    │  (Opus 4.7 — quality gate)
+                   │ Reviewer    │  (Opus 4.8 — quality gate)
                    └──────┬──────┘
                           ▼
                   Human (you) — final approve & merge
@@ -103,10 +103,10 @@ Launches 3-5 agents working simultaneously in non-overlapping file domains.
 ```
 
 **How it works:**
-1. Team Lead (Opus 4.7) decomposes the phase into independent sub-tasks
+1. Team Lead (Opus 4.8) decomposes the phase into independent sub-tasks
 2. Each worker gets exclusive ownership of specific files/directories
 3. Workers run in parallel with separate git worktrees (no conflicts)
-4. Reviewer (Opus 4.7) gates each worker's output before merge
+4. Reviewer (Opus 4.8) gates each worker's output before merge
 5. Human approves the final merge
 
 **Example team assignment:**
@@ -177,6 +177,42 @@ Sonnet (feature work) or Haiku/local (grind).
 **Why a third mode?** Mode 1 is interactive (you're at the keyboard, in-process teammates, no
 session resumption); Mode 2 is sequential. Neither is *durable-headless*. Mode 3 fills that gap.
 
+### Two substrates for Mode 3 — prefer `Workflow()`
+
+There are two ways to drive the durable fan-out. They produce the same shape (one leaf per
+file-domain, reviewer integrates, human signs the gate) but differ in *who runs the control loop*:
+
+**(A) `Workflow()` script — the deterministic substrate (recommended default).** The harness ships
+a first-class orchestration tool: a JavaScript `Workflow()` script whose `pipeline()` / `parallel()`
+primitives fan work out across agents in *code*, not in an LLM's head. For "partition `tasks.json`
+into a domain DAG and run leaves," this is a near-perfect fit and strictly better than a model-driven
+loop on the axes that matter for an overnight run:
+
+| Property | `Workflow()` script | Orchestrator-agent loop (B) |
+|---|---|---|
+| Control flow | Deterministic JS (`pipeline`, `parallel`, `for`) | An Opus agent decides each step |
+| Concurrency cap | Automatic — `min(16, cores−2)` | Hand-set; easy to under/over-shoot |
+| Resume after crash/edit | Built in — `resumeFromRunId` replays the unchanged prefix from cache, re-runs only failed/edited leaves | Hand-rolled via the `attempts` counter |
+| Per-leaf structured result | `schema:` validates each leaf's return (retries on mismatch) | Parsed from prose summaries |
+| Worktree isolation | `isolation: 'worktree'` per agent | Manual `git worktree add` |
+| Token cost of orchestration | ~0 (it's code) | You pay Opus for every control-flow decision |
+| Shared spend ceiling | `budget` is shared across all leaves | Tracked manually |
+
+The `attempt-cap / timeout / domain-glob` contract below still applies — encode it *in the script*
+(e.g. wrap each leaf in a retry loop, set `isolation:'worktree'`, pass `LEAF_DOMAIN_GLOBS` in the
+agent prompt so `guard-file-domain.sh` still enforces the boundary). `/orchestrate-loops` authors and
+runs this script for you. Note: `Workflow()` requires explicit user opt-in (the word "workflow" in
+the request, or ultracode) — the command surfaces that.
+
+**(B) Background-agent loop — the manual fallback.** The original Mode 3: the orchestrator agent
+itself spawns `Agent(isolation:"worktree", run_in_background:true)` leaves and polls them via
+`Monitor` / `ScheduleWakeup`. Use it when you can't opt into `Workflow()`, when the DAG must be
+re-planned *during* the run based on leaf results (genuinely dynamic decomposition), or for a
+one-off you don't want to script. It costs Opus tokens on control flow and has no free resume.
+
+**Rule of thumb:** static task list → **(A) Workflow()**. Decomposition that must adapt mid-run →
+(B). Both stop at the human phase gate; neither self-approves.
+
 ---
 
 ## Durability & Recovery (Mode 3)
@@ -238,7 +274,7 @@ git worktree remove ../worktrees/worker-a
 
 ## The Reviewer Role
 
-The Reviewer agent (Opus 4.7) applies:
+The Reviewer agent (Opus 4.8) applies:
 1. Security-architect checklist (any auth/storage/LLM changes)
 2. QA-engineer adversarial catalog (edge cases, permissions)
 3. Code style consistency (follows CONTEXT.md ubiquitous language)
@@ -268,6 +304,36 @@ npm install -g @anthropic-ai/claude-code
 tmux new-session -d -s swarm
 # Workers attach to this session from any device
 ```
+
+### Concurrency tuning — match the fan-out to your cores
+
+The harness automatically caps concurrent agents at **`min(16, logical_cores − 2)`** (the −2 leaves
+headroom for the main loop and the OS). So the right fan-out width is a property of your machine,
+not a guess. Check it:
+
+```bash
+sysctl -n hw.logicalcpu        # logical cores
+python3 -c "import os;print('cap =', min(16, os.cpu_count()-2))"
+```
+
+| Machine | Logical cores | Effective cap |
+|---|---|---|
+| Mac Mini **M4 Pro** | 14 | **12** |
+| MacBook Air M2 | 8 | 6 |
+| Mac Studio M2 Ultra | 24 | 16 (hard ceiling) |
+
+On the M4 Pro that's **~12 leaves in flight**, not the conservative "start with 2" the command once
+defaulted to — that used ~17% of the machine. With `Workflow()` you don't set this at all; the tool
+enforces the cap and queues the rest. With the manual background-agent loop, size your batch to the
+cap above.
+
+**Two more harness realities that change overnight runs:**
+- **No poll-burn.** When a background agent or `Workflow()` finishes, the harness *re-invokes you
+  automatically* — you don't spend tokens looping "are we done yet?". Use `ScheduleWakeup` only as a
+  long fallback heartbeat (1200 s+), never as a tight poll.
+- **Thermals.** A sustained 12-wide fan-out will run the M4 Pro hot for hours. Keep it ventilated;
+  `caffeinate -dimsu` prevents sleep but not throttling. If you see leaves slow down late in a run,
+  that's thermal throttling, not the model.
 
 **Remote access stack:**
 - Tailscale (zero-config VPN between devices)

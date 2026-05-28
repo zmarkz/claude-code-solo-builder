@@ -1,7 +1,7 @@
 ---
 name: solution-architect
 description: Use for system design decisions, ADRs, evaluating trade-offs between technologies, sketching component diagrams, and reviewing whether a proposed change fits the existing architecture. Invoke before any change that crosses service boundaries or introduces a new technology. SKIP for single-file changes within an established pattern that requires no new ADR.
-model: claude-opus-4-7
+model: claude-opus-4-8
 tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 

@@ -11,9 +11,10 @@ attempt caps, timeouts, and stuck-detection, while the orchestrator's own contex
 lean (it holds `tasks.json` + one-paragraph leaf summaries — never worker transcripts).
 
 > Doctrine reminder (`docs/SWARM-ORCHESTRATION.md`): we do **not** build or install a custom
-> orchestrator. This command is glue over native primitives — `Agent(isolation:"worktree",
-> run_in_background:true)`, `Monitor`, `ScheduleWakeup`, FleetView. Nothing here self-approves a
-> phase; the human gate is non-negotiable.
+> orchestrator. This command is glue over native primitives — the `Workflow()` tool
+> (`pipeline()`/`parallel()`, auto-resume, shared budget) as the preferred substrate, falling back
+> to `Agent(isolation:"worktree", run_in_background:true)` + `Monitor` + `ScheduleWakeup` for
+> dynamic decomposition. Nothing here self-approves a phase; the human gate is non-negotiable.
 
 ## Preflight (fix and re-run if any fails)
 
@@ -35,11 +36,24 @@ lean (it holds `tasks.json` + one-paragraph leaf summaries — never worker tran
 2. Group selected tasks by **non-overlapping `domain_globs`**. Two tasks may run in parallel only
    if their globs do not intersect. A task with empty `domain_globs` is **not eligible** for
    parallel runs — either give it globs in `TASKS.md` + re-sync, or run it via `/build-feature`.
-3. Cap concurrency at a small number of leaves (start with **2**; raise only after the thresholds
-   in `docs/SWARM-ORCHESTRATION.md` are validated). Remaining eligible domains queue behind the
-   first batch.
+3. Concurrency is bounded by the harness at **`min(16, cores−2)`** (≈12 on an M4 Pro — see
+   `docs/SWARM-ORCHESTRATION.md` › *Concurrency tuning*). With the `Workflow()` substrate you do
+   **not** set this — the tool enforces the cap and queues the overflow. With the manual loop, size
+   the batch to that cap. Remaining eligible domains queue behind the first batch.
 
-## Spawn one durable leaf per domain
+## Choose the substrate
+
+- **Static task list (default) → use `Workflow()`.** Author a script that reads `tasks.json`,
+  groups by non-overlapping `domain_globs`, and runs leaves with `pipeline()` (per-leaf:
+  implement → `make quality` → commit) under `parallel()` for independent domains. Give each leaf
+  `isolation:'worktree'`, a result `schema:` (so a leaf's summary is validated, not parsed from
+  prose), and pass `LEAF_DOMAIN_GLOBS` in its prompt so `guard-file-domain.sh` still enforces the
+  boundary. Encode the attempt-cap (retry loop), timeout, and 4h ceiling in the script. Resume a
+  killed run with `resumeFromRunId` — unchanged leaves replay from cache. `Workflow()` needs
+  explicit opt-in, so tell the user it's running as a workflow.
+- **Decomposition must adapt mid-run → use the manual background-agent loop** described next.
+
+## Spawn one durable leaf per domain (manual fallback substrate)
 
 For each independent domain, launch a **background, worktree-isolated** agent:
 

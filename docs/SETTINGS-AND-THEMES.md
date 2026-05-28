@@ -31,9 +31,25 @@ The recommended global settings:
 
 | Setting | Value | Why |
 |---------|-------|-----|
-| `model` | `"sonnet"` | Sonnet 4.6 is the baseline — upgrade to opus for planning, downgrade to haiku for repetitive tasks |
+| `model` | `"sonnet"` | Sonnet 4.6 is a fine cost baseline — but see the note below: with **Opus 4.8 fast mode**, `"opus"` is now viable as the daily driver. Downgrade to haiku for repetitive tasks |
 | `effortLevel` | `"xhigh"` | Maximum reasoning depth. Worth the cost for real work. |
 | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` | `"1"` | Enables `/start-phase-team` parallel agent teams (requires Claude Code v2.1.32+) |
+
+### Model choice under Opus 4.8 + fast mode
+
+The old advice — "Sonnet baseline, upgrade to Opus only for planning" — assumed Opus was the slow,
+expensive tier. **Opus 4.8 fast mode** (toggle with `/fast`) delivers Opus-class reasoning at much
+higher throughput *without* downgrading the model, which changes the default:
+
+- **Daily driver / interactive / planning / review** → `"opus"` with `/fast` on. You no longer eat a
+  latency penalty for Opus judgment, so there's little reason to sit on Sonnet for hands-on work.
+- **Wide parallel fan-outs (Mode 3 leaves)** → keep most leaves on Sonnet 4.6 for token economy;
+  promote judgment-heavy slices (auth, money, schema) to Opus 4.8.
+- **Repetitive grind** → Haiku 4.5 / local Qwen, unchanged.
+
+Fast mode is a runtime toggle, not a `settings.json` key — `/fast` flips it per session (supported on
+Opus 4.8/4.7/4.6). See `docs/AI-ROUTING.md` › *Fast mode changes the Opus calculus* for the
+per-loop-role table.
 | `tui` | `"fullscreen"` | Full terminal UI — better for long sessions than inline mode |
 | `theme` | `"dark"` | Dark theme — reduces eye strain in long sessions |
 | `preferredNotifChannel` | `"ghostty"` | Ghostty terminal for notifications. Change to `"iterm"` or `"terminal"` for your setup |
