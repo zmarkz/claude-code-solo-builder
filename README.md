@@ -3,7 +3,7 @@
 > An operating system for solo developers building a multi-app portfolio with AI agents.
 > Token-efficient, vault-grounded, security-first, and compounding over time.
 
-**Version 2.3 — May 2026**
+**Version 2.4 — June 2026**
 
 ---
 
@@ -239,6 +239,24 @@ ccc
 
 ---
 
+## Workflow Recipes (parallel, profile-aware)
+
+Saved `Workflow()` recipes in `.claude/workflows/` fan work across many agents for jobs too big for one context — committed and shipped with every project (propagated like agents and commands). Each auto-registers as a `/<name>` slash command and is **profile-aware**: pass `args.mode` = `best` (default — max quality + speed) or `saver` (token-optimised), or flip the whole session with `/mode best|saver`.
+
+| Recipe | `/command` | Quality pattern | Use for |
+|--------|-----------|-----------------|---------|
+| `exhaustive-review` | `/review-exhaustive` | diverse lenses + adversarial verify | deep multi-lens review of the current diff |
+| `codebase-map` | `/map-codebase` | multi-modal sweep + completeness critic | understand an unfamiliar repo |
+| `security-sweep` | `/audit-security` | loop-until-dry + adversarial verify | whole-repo security audit |
+| `design-panel` | *(by name)* | judge panel | choose between design approaches → ADR draft |
+| `safe-migration` | *(by name)* | worktree-isolated transform → verify | one big codemod (never self-merges) |
+| `release-readiness` | *(by name)* | parallel lenses + completeness critic | pre-release go/no-go gate |
+| `fast-dag-build` | *(by name)* | DAG fan-out + self-verify + review lane | build a multi-domain feature, quality-first |
+
+On Max plans the binding constraint is the weekly Opus cap, not token cost — so even Best keeps bulk leaves (skeptics, grind) on Sonnet/Haiku to preserve it. See `starter-kit/reference/workflows/README.md` and `docs/SWARM-ORCHESTRATION.md`.
+
+---
+
 ## Token Efficiency at a Glance
 
 | Strategy | Savings |
@@ -303,4 +321,4 @@ MIT — use freely, adapt to your context, share improvements.
 
 ---
 
-*Built by [Markandey Singh](https://markandey.in) with Claude as co-author. v2.3, May 2026.*
+*Built by [Markandey Singh](https://markandey.in) with Claude as co-author. v2.4, June 2026.*
