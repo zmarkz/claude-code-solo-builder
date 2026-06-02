@@ -11,7 +11,7 @@
 
 This repository is the **complete, shareable setup** that lets a solo developer run like a 10-person team using Claude Code. It includes:
 
-- **The Playbook** — a 16-part operating manual covering mental model, AI swarm patterns, knowledge vault, portfolio management, and daily cadences
+- **The Playbook** — a 13-part operating manual covering mental model, AI swarm patterns, knowledge vault, portfolio management, and daily cadences
 - **The Starter Kit** — a Claude Code skill that scaffolds any new project with 11 agents, 18 slash commands, 7 workflow recipes, 9 guardrail scripts, and all planning docs in ~10 minutes
 - **The Knowledge Stack** — Obsidian vault + Context7 + knowledge-graph MCP working together to ground every AI call in your prior decisions
 - **Token Efficiency Guide** — how to get 85%+ cost savings through model routing, context management, and vault-first queries
@@ -63,15 +63,14 @@ git clone https://github.com/zmarkz/claude-code-solo-builder.git
 cd claude-code-solo-builder
 ```
 
-### Step 2 — Install the starter kit skill (user-level)
+### Step 2 — Install into your live Claude Code setup (`~/.claude`)
 ```bash
-mkdir -p ~/.claude/skills ~/.claude/agents ~/.claude/commands
-cp -r starter-kit ~/.claude/skills/ai-project-scaffold
-
-# Dual-residency: install components at user level too (improvements propagate)
-cp starter-kit/reference/agents/*.md ~/.claude/agents/
-cp starter-kit/reference/commands/*.md ~/.claude/commands/
+make install     # idempotent — safe to re-run after every `git pull`
 ```
+This syncs the scaffold skill, all 11 agents, 18 commands, 7 workflow recipes, and the platform
+scripts into `~/.claude` (and `~/builds/_platform/scripts`). It deliberately does **not** touch your
+`~/.claude/settings.json` or `~/.claude/CLAUDE.md` — those stay yours (Steps 5 and 7). Run
+`make check` any time for a read-only, content-based drift report.
 
 ### Step 3 — Install gstack
 ```bash
@@ -152,9 +151,12 @@ It probes the directory, classifies the scenario, confirms with one question, an
 ```
 claude-code-solo-builder/
 ├── README.md                         ← You are here
-├── PLAYBOOK.md                       ← The full 16-part operating manual
+├── PLAYBOOK.md                       ← The full 13-part operating manual
+├── install.sh                        ← Propagate repo → ~/.claude (run after every git pull)
+├── Makefile                          ← make install (sync) · make check (drift report)
 ├── docs/
 │   ├── INSTALL.md                    ← Detailed installation guide (start here)
+│   ├── BEST-PRACTICES.md             ← Daily operating discipline (propagation, profiles, recipes)
 │   ├── VAULT-AUTOMATION.md           ← Auto-indexing: hooks, ccc wrapper, cron
 │   ├── TOKEN-EFFICIENCY.md           ← 85%+ cost savings strategies
 │   ├── OBSIDIAN-CONTEXT7.md          ← Knowledge vault + MCP setup + project ingestion
@@ -163,10 +165,11 @@ claude-code-solo-builder/
 │   ├── EXISTING-PROJECT.md           ← Retrofitting existing projects
 │   ├── AGENTS-GUIDE.md               ← The 11 specialist agents explained
 │   ├── SKILLS-ECOSYSTEM.md           ← Skills: gstack + mattpocock + custom
-│   ├── SWARM-ORCHESTRATION.md        ← 3 parallelism modes (teams, autopilot, durable loops), durability + domain enforcement
+│   ├── SWARM-ORCHESTRATION.md        ← 3 parallelism modes + the saved recipe library, durability + domain enforcement
 │   ├── SETTINGS-AND-THEMES.md        ← Claude Code config, dark theme, hooks
 │   ├── COMPARISON-mattpocock.md      ← Best-of-both hybrid analysis
-│   └── COMPARISON-karpathy.md        ← Karpathy CLAUDE.md benchmark + what we adopted
+│   ├── COMPARISON-karpathy.md        ← Karpathy CLAUDE.md benchmark + what we adopted
+│   └── adr/                          ← ADRs (0001 Workflow substrate · 0002 recipe library)
 ├── starter-kit/                      ← The ai-project-scaffold skill
 │   ├── SKILL.md                      ← Skill specification (invoke with /ai-project-scaffold)
 │   ├── CHANGELOG.md                  ← Version history
@@ -175,12 +178,15 @@ claude-code-solo-builder/
 │   │   ├── kg-reindex.sh             ← Rebuild knowledge-graph index
 │   │   ├── vault-session-check.sh    ← SessionStart hook: vault freshness check
 │   │   ├── vault-write-hook.sh       ← PostToolUse hook: auto re-index on vault write
+│   │   ├── solo-builder-session-check.sh ← SessionStart hook: repo→~/.claude drift reminder
+│   │   ├── fleet-status.sh           ← Status snapshot across ~/builds projects
 │   │   └── ccc.fish                  ← Fish shell launcher (re-index on session close)
 │   └── reference/
 │       ├── agents/                   ← 11 specialist subagent definitions (incl. upgraded frontend-engineer)
 │       ├── commands/                 ← 18 slash commands (incl. /design-feature, /mode, /review-exhaustive)
 │       ├── workflows/                ← 7 profile-aware Workflow() recipes (incl. fast-dag-build, exhaustive-review)
-│       └── scripts/                  ← 9 guardrail hook scripts (incl. design-lint.sh)
+│       ├── scripts/                  ← 9 guardrail hook scripts (incl. design-lint.sh)
+│       └── settings.json.template    ← Per-project Claude Code settings (all guardrails wired)
 ├── skills/
 │   └── sync-skills/                  ← /sync-skills command (install to ~/.claude/skills/sync-skills/)
 │       ├── SKILL.md                  ← Skill workflow: auto-discover + sync all third-party sources
