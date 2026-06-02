@@ -20,10 +20,13 @@ export const meta = {
   ],
 }
 
-const MODE = (args && args.mode) || 'best'
+let A = args // name-invocation delivers args as a JSON string; normalize to an object
+if (typeof A === 'string') { try { A = JSON.parse(A) } catch (e) { A = {} } }
+if (!A || typeof A !== 'object') A = {}
+const MODE = A.mode || 'best'
 const SAVER = MODE === 'saver'
-const PROBLEM = (args && args.problem) || ''
-const CONTEXT = (args && args.context) || ''
+const PROBLEM = A.problem || ''
+const CONTEXT = A.context || ''
 const N = SAVER ? 2 : 4
 const ANGLES = ['the simplest thing that could work', 'the most robust / scalable design', 'the fastest to ship safely', 'the most different, first-principles approach']
 const JUDGES = SAVER ? ['solution-architect', 'qa-engineer'] : ['solution-architect', 'security-architect', 'qa-engineer', 'product-manager']

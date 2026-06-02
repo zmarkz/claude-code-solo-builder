@@ -21,9 +21,12 @@ export const meta = {
   ],
 }
 
-const MODE = (args && args.mode) || 'best'
+let A = args // name-invocation delivers args as a JSON string; normalize to an object
+if (typeof A === 'string') { try { A = JSON.parse(A) } catch (e) { A = {} } }
+if (!A || typeof A !== 'object') A = {}
+const MODE = A.mode || 'best'
 const SAVER = MODE === 'saver'
-const REPO = (args && args.repoPath) || '.'
+const REPO = A.repoPath || '.'
 
 const CLASSES = [
   { key: 'authz', agent: 'security-architect', model: 'claude-opus-4-8', desc: 'authentication, authorization, tenant isolation, privilege escalation, IDOR' },

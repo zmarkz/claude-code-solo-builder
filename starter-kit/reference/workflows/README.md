@@ -62,6 +62,15 @@ script — not a shipped third profile.
    - ▲ **No filesystem, shell, or env access from the script.** Agents read/write/run commands; the
      script only coordinates. So **all configuration arrives via `args`** — never read a file, env var,
      or `process.cwd()`. Default a repo path to `'.'` and pass it into agent prompts.
+   - ▲ **`args` arrives as a JSON _string_ on name-invocation** (verified), not an object. Always
+     normalize at the top before reading fields, or `args.mode`/`args.problem` will silently be
+     `undefined`:
+     ```js
+     let A = args
+     if (typeof A === 'string') { try { A = JSON.parse(A) } catch (e) { A = {} } }
+     if (!A || typeof A !== 'object') A = {}
+     const MODE = A.mode || 'best'   // then read everything off A, never raw `args`
+     ```
    - Default to `pipeline()`; use a `parallel()` barrier only when a stage needs all prior results.
    - Pass a `schema` to `agent()` for validated structured returns; pin `model`/`agentType` per stage.
 3. Validate: `node --check <file>.js`, then confirm it lists in `/workflows` (the runtime parses `meta`
