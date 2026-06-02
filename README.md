@@ -3,7 +3,7 @@
 > An operating system for solo developers building a multi-app portfolio with AI agents.
 > Token-efficient, vault-grounded, security-first, and compounding over time.
 
-**Version 2.4 — June 2026**
+**Version 2.5 — June 2026**
 
 ---
 
@@ -327,4 +327,4 @@ MIT — use freely, adapt to your context, share improvements.
 
 ---
 
-*Built by [Markandey Singh](https://markandey.in) with Claude as co-author. v2.4, June 2026.*
+*Built by [Markandey Singh](https://markandey.in) with Claude as co-author. v2.5, June 2026.*
