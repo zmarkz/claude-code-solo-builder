@@ -3,7 +3,7 @@
 > An operating system for solo developers building a multi-app portfolio with AI agents.
 > Token-efficient, vault-grounded, security-first, and compounding over time.
 
-**Version 2.3 — May 2026**
+**Version 2.4 — June 2026**
 
 ---
 
@@ -12,10 +12,10 @@
 This repository is the **complete, shareable setup** that lets a solo developer run like a 10-person team using Claude Code. It includes:
 
 - **The Playbook** — a 16-part operating manual covering mental model, AI swarm patterns, knowledge vault, portfolio management, and daily cadences
-- **The Starter Kit** — a Claude Code skill that scaffolds any new project with 11 agents, 14 slash commands, 9 guardrail scripts, and all planning docs in ~10 minutes
+- **The Starter Kit** — a Claude Code skill that scaffolds any new project with 11 agents, 18 slash commands, 7 workflow recipes, 9 guardrail scripts, and all planning docs in ~10 minutes
 - **The Knowledge Stack** — Obsidian vault + Context7 + knowledge-graph MCP working together to ground every AI call in your prior decisions
 - **Token Efficiency Guide** — how to get 85%+ cost savings through model routing, context management, and vault-first queries
-- **Settings & Agents** — production-grade Claude Code settings, 11 specialist subagents, 9 workflow commands, and guardrail scripts
+- **Settings & Agents** — production-grade Claude Code settings, 11 specialist subagents, 18 slash commands, 7 profile-aware workflow recipes, and guardrail scripts
 - **Comparison with mattpocock/skills** — the best-of-both hybrid workflow
 
 ## The Core Insight
@@ -178,7 +178,8 @@ claude-code-solo-builder/
 │   │   └── ccc.fish                  ← Fish shell launcher (re-index on session close)
 │   └── reference/
 │       ├── agents/                   ← 11 specialist subagent definitions (incl. upgraded frontend-engineer)
-│       ├── commands/                 ← 14 slash commands (incl. /design-feature)
+│       ├── commands/                 ← 18 slash commands (incl. /design-feature, /mode, /review-exhaustive)
+│       ├── workflows/                ← 7 profile-aware Workflow() recipes (incl. fast-dag-build, exhaustive-review)
 │       └── scripts/                  ← 9 guardrail hook scripts (incl. design-lint.sh)
 ├── skills/
 │   └── sync-skills/                  ← /sync-skills command (install to ~/.claude/skills/sync-skills/)
@@ -235,6 +236,24 @@ ccc
 # End of phase
 > /phase-review N                    # product-owner review + human sign-off
 ```
+
+---
+
+## Workflow Recipes (parallel, profile-aware)
+
+Saved `Workflow()` recipes in `.claude/workflows/` fan work across many agents for jobs too big for one context — committed and shipped with every project (propagated like agents and commands). Each auto-registers as a `/<name>` slash command and is **profile-aware**: pass `args.mode` = `best` (default — max quality + speed) or `saver` (token-optimised), or flip the whole session with `/mode best|saver`.
+
+| Recipe | `/command` | Quality pattern | Use for |
+|--------|-----------|-----------------|---------|
+| `exhaustive-review` | `/review-exhaustive` | diverse lenses + adversarial verify | deep multi-lens review of the current diff |
+| `codebase-map` | `/map-codebase` | multi-modal sweep + completeness critic | understand an unfamiliar repo |
+| `security-sweep` | `/audit-security` | loop-until-dry + adversarial verify | whole-repo security audit |
+| `design-panel` | *(by name)* | judge panel | choose between design approaches → ADR draft |
+| `safe-migration` | *(by name)* | worktree-isolated transform → verify | one big codemod (never self-merges) |
+| `release-readiness` | *(by name)* | parallel lenses + completeness critic | pre-release go/no-go gate |
+| `fast-dag-build` | *(by name)* | DAG fan-out + self-verify + review lane | build a multi-domain feature, quality-first |
+
+On Max plans the binding constraint is the weekly Opus cap, not token cost — so even Best keeps bulk leaves (skeptics, grind) on Sonnet/Haiku to preserve it. See `starter-kit/reference/workflows/README.md` and `docs/SWARM-ORCHESTRATION.md`.
 
 ---
 
@@ -302,4 +321,4 @@ MIT — use freely, adapt to your context, share improvements.
 
 ---
 
-*Built by [Markandey Singh](https://markandey.in) with Claude as co-author. v2.3, May 2026.*
+*Built by [Markandey Singh](https://markandey.in) with Claude as co-author. v2.4, June 2026.*

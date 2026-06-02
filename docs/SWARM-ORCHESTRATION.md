@@ -213,6 +213,29 @@ one-off you don't want to script. It costs Opus tokens on control flow and has n
 **Rule of thumb:** static task list → **(A) Workflow()**. Decomposition that must adapt mid-run →
 (B). Both stop at the human phase gate; neither self-approves.
 
+### Saved recipes (the committed Workflow assets)
+
+The `Workflow()` substrate above is authored at runtime by `/orchestrate-loops`. The kit ALSO ships a
+committed library of reusable recipes in `.claude/workflows/` (propagated like agents/commands) so the
+common shapes need not be re-authored each run. Seven recipes, each profile-aware (`args.mode` = `best`
+default / `saver`) and auto-registered as `/<name>`:
+
+| Recipe | Writes? | Shape |
+|---|---|---|
+| `exhaustive-review` | no | diverse lenses → adversarial verify → synthesize |
+| `codebase-map` | no | multi-modal readers → synthesize → completeness critic |
+| `security-sweep` | no | loop-until-dry hunters → adversarial verify → OWASP map |
+| `design-panel` | no | N proposers → judge panel → ADR draft |
+| `safe-migration` | **yes** | discover → worktree-isolated transform → reviewer → human hand-off |
+| `release-readiness` | no | parallel lenses → completeness critic → go/no-go |
+| `fast-dag-build` | **yes** | Wave 0 → Wave 1 fan-out → review lane → QA → final verdict |
+
+**`safe-migration` is the reusable, generic form of the Mode-3 substrate** that ADR 0001 prescribed but
+left un-committed: it reuses this section's safety contract (non-overlapping `domain_globs`,
+`isolation:'worktree'`, attempt cap, `guard-file-domain.sh`, human gate) for the common "one big
+codemod" case — where `/orchestrate-loops` instead authors a bespoke script per phase from `tasks.json`.
+See `starter-kit/reference/workflows/README.md` and ADR 0002.
+
 ---
 
 ## Durability & Recovery (Mode 3)

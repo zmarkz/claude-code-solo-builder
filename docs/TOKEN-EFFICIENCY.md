@@ -16,6 +16,26 @@ This guide fixes all three.
 
 ---
 
+## On Max plans: the weekly cap is the budget, not the token
+
+> **If you're on a Claude Max plan (e.g. Max 20x), read this first.** You pay a flat subscription, not
+> per token — so the strategies below split into two buckets:
+>
+> - **Product-runtime AI** — your *app's own* API calls (Strategy 1, Strategy 10). Still real money.
+>   Keep the frugality: classify → route 93% to local Qwen, etc.
+> - **The harness** — how *you* drive Claude Code (which model your sessions and swarm roles use). Token
+>   cost is **not** your constraint here; the **weekly Opus sub-cap** is — drain it mid-week and you get
+>   silently downgraded to Sonnet. Reframe the harness goal as *"spend the weekly Opus cap on judgment,
+>   not grind."* Lean **into** wide workflows/parallelization (that's what the 20x headroom buys);
+>   reserve Opus for planning, synthesis, and final review; run bulk leaves (skeptics, mechanical grind)
+>   on Sonnet/Haiku to make the cap last; cap any fan-out with the workflow `budget`.
+>
+> This split is exactly the **Best** profile (`/mode best`, the default) vs **Saver** (`/mode saver`) —
+> see `docs/BEST-PRACTICES.md` §7. Strategies 2, 6, 7 below apply to the harness bucket; the rest mostly
+> to product-runtime.
+
+---
+
 ## Strategy 1 — AI Model Routing (85% savings)
 
 The single largest optimization. **Never send every query to Claude** — classify first.
