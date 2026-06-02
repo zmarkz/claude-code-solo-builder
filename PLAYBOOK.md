@@ -1,8 +1,8 @@
-# The Solo AI-Augmented Builder's Playbook — Final v2.4
+# The Solo AI-Augmented Builder's Playbook — Final v2.5
 
 **An operating manual for building, consolidating, and compounding a multi-app portfolio single-handedly with AI agents.**
 
-Version 2.4 — May 2026
+Version 2.5 — June 2026
 Author: Markandey (with Claude as co-author)
 Status: living document — edit as you learn
 
@@ -10,6 +10,7 @@ Status: living document — edit as you learn
 
 ## Changelog
 
+- **v2.5 (June 2026)** — Profile-aware Dynamic Workflow recipe library. Adds a committed `.claude/workflows/` library of 7 `Workflow()` recipes (`exhaustive-review`, `codebase-map`, `security-sweep`, `design-panel`, `safe-migration`, `release-readiness`, `fast-dag-build`), 4 wrapper commands (`/review-exhaustive`, `/audit-security`, `/map-codebase`, `/mode`), and a Best/Saver execution profile (`args.mode`, default Best) tuned so the weekly Opus cap — not token cost — is the constraint. Recipes propagate via `install.sh` → `~/.claude/workflows/`, `/sync-project`, and the scaffold skill, and auto-register as `/<name>`. Detail in `starter-kit/reference/workflows/README.md`, `docs/BEST-PRACTICES.md` §6–7, and `docs/adr/0002-workflow-recipe-library.md`. **Mechanism, not spine** — no new Part.
 - **v2.4 (May 2026)** — Durability + domain-enforcement layer for parallel agent loops. Adds a third parallelism mode `/orchestrate-loops` (durable, headless, background worktree leaves), a `tasks.json` substrate (`scripts/tasks-sync.sh`), a `guard-file-domain.sh` PreToolUse hook that *enforces* per-leaf file domains (previously a prose instruction), per-loop-role model routing, and a per-workstream fleet status line for the digest. Detail in `docs/SWARM-ORCHESTRATION.md` (Modes + Durability & Recovery + Domain Enforcement) and `docs/AI-ROUTING.md`. **Mechanism, not spine** — no new Part; the framework already forbids custom orchestrators, so this is glue over native Claude Code primitives (background `Agent` worktrees, `Monitor`, `ScheduleWakeup`, FleetView), not a new platform.
 - **v2.3 (May 2026)** — Refinement after full Part C ingestion (9 projects indexed). Adds: two-stack reality (3.9), AI model routing as mandatory pattern (3.10), bucket transition rules (B.2a), cross-stack integration contracts (Part 8), personal-utility carve-out for kill criteria (Part 5), no-landing-page anti-pattern (#14 in Part 12), empty-folder smell rule (4.5). Inline updates to Parts 3.3, 3.5, 4.3, 5, 7, and Part C.6. No spine changes. Evidence at `02-Areas/Playbook/refinement-2026-05-16.md`.
 - **v2.2 (May 2026)** — Merged in patterns from `mattpocock/skills` (82k-star community reference). New first-class doc `CONTEXT.md` (DDD ubiquitous-language glossary, distinct from `PROJECT_CONTEXT.md`). Per-file ADRs at `docs/adr/NNNN-<slug>.md` (replaces the single `DECISIONS.md`) with the 3-test threshold (hard-to-reverse + surprising-without-context + result-of-real-trade-off). `/plan-feature` gained an embedded grilling phase (Step 0) before PM scoping. `/build-feature` gained the TDD anti-pattern callout (vertical tracer-bullet cycles per layer, never horizontal test-batching). Dual-residency installation pattern documented (also install kit components at user level so upstream improvements propagate). Recommended user-level companion skills from `mattpocock/skills`: `grill-with-docs`, `diagnose`, `zoom-out`, `improve-codebase-architecture`, `handoff`. See `COMPARISON-mattpocock-vs-ours.md` for the rationale.
@@ -717,7 +718,7 @@ For non-fintech: ignore all of this and ship faster.
 The kit is **not** a Next.js code template. It's a **scaffold-generator skill** for Claude Code. You install it once at user level (`~/.claude/skills/ai-project-scaffold/`), then in any empty directory you say *"scaffold a new project"* and the skill:
 
 1. Asks ~11 questions (project name, tech-stack profile, security profile, AI involvement, multi-tenancy, deployment target, Phase 1 tasks).
-2. Copies a fixed `reference/` payload (11 agents + 9 slash commands + 6 hook scripts + settings template + .gitignore + .editorconfig + .env.example).
+2. Copies a fixed `reference/` payload (11 agents + 18 slash commands + 7 workflow recipes + 9 hook scripts + a per-project `settings.json` template).
 3. Generates 9 planning docs from your answers (`CLAUDE.md`, `PROJECT_CONTEXT.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `SECURITY_MODEL.md`, `TASKS.md`, `DECISIONS.md`, `README.md`, `HANDOFF.md`).
 4. Generates a stack-appropriate monorepo skeleton (`apps/`, `packages/`, `ai/`, `infra/`, `compliance/`, `docs/`, `tests/`, `scripts/`).
 5. Generates toolchain files (`Makefile`, `docker-compose.yml`, `.pre-commit-config.yaml`).
@@ -726,7 +727,7 @@ The kit is **not** a Next.js code template. It's a **scaffold-generator skill** 
 
 It's stack-agnostic: `python-fullstack`, `node-fullstack`, `python-api-only`, `node-api-only`, `data-pipeline`, `cli-tool`, `library`, `ai-rag`, or `custom`. The discipline is constant; the stack flexes.
 
-## A.2 The 8 patterns it enforces (load-bearing)
+## A.2 The 9 patterns it enforces (load-bearing)
 
 1. **Phase gates with human checkpoints.** Every phase ends with `/phase-review N`. `product-owner-reviewer` agent produces a one-page exec summary at `docs/phase-reviews/phase-N.md`. The human signs. No autopilot can self-approve a phase.
 
@@ -738,11 +739,13 @@ It's stack-agnostic: `python-fullstack`, `node-fullstack`, `python-api-only`, `n
 
 5. **Subagents double as agent-team teammates** (Claude Code v2.1.32+). The 11 subagents work two ways: as in-session subagents spawned via Task tool, OR as teammate types when `/start-phase-team` spawns a parallel team.
 
-6. **Hooks for safety, not cleverness.** 6 scripts wire to SessionStart, PreToolUse (Bash, Write, Edit), PostToolUse (Write, Edit), and PreCompact. Fail loud, fail early.
+6. **Hooks for safety, not cleverness.** 9 scripts wire to SessionStart, PreToolUse (Bash, Write, Edit), PostToolUse (Write, Edit), and PreCompact — including `guard-file-domain.sh` (enforces a durable leaf's file domain) and `design-lint.sh`. Fail loud, fail early.
 
 7. **Context-window management is part of the structure.** `CLAUDE.md` ≤ 200 lines (loaded every session). `/start-session` re-loads phase + tasks. `PreCompact` hook → `session-snapshot.sh` dumps state to `docs/session-snapshots/` before compaction.
 
-8. **Two bounded parallelism modes.** `/build-phase-autopilot` (single-session chained, sequential) and `/start-phase-team` (parallel teammates, v2.1.32+). Both default to Phase 1 only; extending to later phases requires an ADR.
+8. **Three bounded parallelism modes.** `/build-phase-autopilot` (single-session chained, sequential), `/start-phase-team` (parallel teammates, v2.1.32+), and `/orchestrate-loops` (durable, headless background worktree leaves). All default to Phase 1 only; extending to later phases requires an ADR.
+
+9. **A committed `Workflow()` recipe library.** `reference/workflows/*.js` — 7 profile-aware Dynamic Workflow recipes that fan work across many agents for jobs too big for one context. Each auto-registers as `/<name>` and reads `args.mode` (Best default / Saver). See A.4a.
 
 ## A.3 The 11 subagents (`reference/agents/*.md`)
 
@@ -762,7 +765,7 @@ Each agent has `name`, `description`, `tools` frontmatter + a body that's both a
 | `technical-writer` | Docs, runbooks, demo scripts, voice per audience |
 | `product-owner-reviewer` | End-of-phase exec review, demoability check, go/no-go |
 
-## A.4 The 9 slash commands (`reference/commands/*.md`)
+## A.4 The 18 slash commands (`reference/commands/*.md`)
 
 | Command | Purpose |
 |---------|---------|
@@ -775,8 +778,33 @@ Each agent has `name`, `description`, `tools` frontmatter + a body that's both a
 | `/phase-review N` | End-of-phase gate via `product-owner-reviewer`. Saves one-pager to `docs/phase-reviews/phase-N.md`. Human signs. |
 | `/start-phase-team [N]` | Spawn parallel agent team (v2.1.32+). Preflight checks, non-overlapping file domains, security reviewer veto. Default Phase 1 only. |
 | `/build-phase-autopilot <slugs\|all>` | Bounded sequential autopilot — plan→auto-approve→build→commit per slug. Skips spec-approval + per-commit review. **Never** skips phase review. Logs to `docs/autopilot-runs/`. |
+| `/orchestrate-loops [N]` | Mode 3 — durable, headless parallel loops: one background worktree leaf per file-domain, attempt-capped, reviewer-integrated. `Workflow()` substrate. Default Phase 1 only. |
+| `/design-feature <name>` | Design-first UI cycle (design → build → review) in one command. |
+| `/sync-project` | Wire the current project into the setup — detects new / retrofit / sync. |
+| `/vault-update` | Refresh the Obsidian vault INDEX.md + trigger knowledge-graph re-index. |
+| `/write-an-agent` | Generate a domain-expert agent from a description. |
+| `/mode best\|saver` | Set the session execution profile that the workflow recipes read via `args.mode`. |
+| `/review-exhaustive` | Deep multi-lens diff review (runs the `exhaustive-review` workflow). |
+| `/audit-security` | Whole-repo security audit (runs the `security-sweep` workflow). |
+| `/map-codebase` | Architecture brief of the repo (runs the `codebase-map` workflow). |
 
-## A.5 The 6 hook scripts (`reference/scripts/*.sh`)
+## A.4a The 7 workflow recipes (`reference/workflows/*.js`)
+
+Saved `Workflow()` scripts that fan work across many parallel agents — committed, shipped with every scaffold, and auto-registered as `/<name>`. Each is **profile-aware**: `args.mode` = `best` (default — max quality + speed) or `saver` (token-optimised), switchable with `/mode`. The runtime has no fs/env access, so all config arrives via `args`.
+
+| Recipe | Quality pattern | Writes? |
+|--------|-----------------|---------|
+| `exhaustive-review` | diverse lenses + adversarial verify | no |
+| `codebase-map` | multi-modal sweep + completeness critic | no |
+| `security-sweep` | loop-until-dry + adversarial verify | no |
+| `design-panel` | judge panel → ADR draft | no |
+| `safe-migration` | worktree-isolated transform → verify (never self-merges) | yes |
+| `release-readiness` | parallel lenses + completeness critic → go/no-go | no |
+| `fast-dag-build` | Wave 0 → wide self-verifying impl → review lane → QA → final verdict | yes |
+
+On Max plans the binding constraint is the weekly Opus cap, not token cost — so even Best keeps bulk leaves (skeptics, grind) on Sonnet/Haiku to preserve it. See `reference/workflows/README.md` and `docs/adr/0002-workflow-recipe-library.md`.
+
+## A.5 The 9 hook scripts (`reference/scripts/*.sh`)
 
 | Script | Hook | What it does |
 |--------|------|--------------|
@@ -786,6 +814,9 @@ Each agent has `name`, `description`, `tools` frontmatter + a body that's both a
 | `secret-scan.sh` | pre-commit + CI | Full repo / staged / diff scan via gitleaks + custom patterns |
 | `run-quality-checks.sh` | PostToolUse(Write\|Edit) + `make quality` | ruff + black + eslint + prettier + mypy + tsc + pytest + vitest + secret-scan (lenient about missing app dirs) |
 | `session-snapshot.sh` | PreCompact | Dump branch/HEAD/uncommitted/recent-commits/active-phase/in-progress-tasks/recent-ADRs to `docs/session-snapshots/<ts>.md` |
+| `guard-file-domain.sh` | PreToolUse(Write\|Edit) | No-op normally; when a durable leaf sets `LEAF_DOMAIN_GLOBS`, blocks any write outside that domain (the enforcement behind Mode 3 parallel writes) |
+| `design-lint.sh` | PostToolUse(Write\|Edit) | Design-system lint on UI writes |
+| `tasks-sync.sh` | utility | Generate `tasks.json` (the durable-loop queue) from `TASKS.md` |
 
 ## A.6 Settings template (`reference/settings.json.template`)
 
@@ -795,7 +826,7 @@ Three security perimeters: `deny` (no override), `ask` (human prompted), `allow`
 - **ask**: `rm -rf *`, `docker system prune`, `alembic downgrade`, `psql -c "DROP*`, write `.env`, write Dockerfiles, write terraform
 - **allow**: `make *`, `pnpm *`, `uv *`, `pytest *`, `alembic upgrade head`, `docker compose *`, `git status/diff/log/add/commit/branch/checkout`, `gh pr *`
 
-Plus: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` env, `teammateMode: in-process`, and the 6 hooks wired to their stages.
+Plus: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` env, `teammateMode: in-process`, and the 9 hook scripts wired to their stages.
 
 > **Customize per project — don't loosen without an ADR.** Add project-specific env vars (region flags, policy gates) to the env block.
 
