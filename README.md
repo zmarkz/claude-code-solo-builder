@@ -12,10 +12,10 @@
 This repository is the **complete, shareable setup** that lets a solo developer run like a 10-person team using Claude Code. It includes:
 
 - **The Playbook** — a 16-part operating manual covering mental model, AI swarm patterns, knowledge vault, portfolio management, and daily cadences
-- **The Starter Kit** — a Claude Code skill that scaffolds any new project with 11 agents, 14 slash commands, 9 guardrail scripts, and all planning docs in ~10 minutes
+- **The Starter Kit** — a Claude Code skill that scaffolds any new project with 11 agents, 18 slash commands, 7 workflow recipes, 9 guardrail scripts, and all planning docs in ~10 minutes
 - **The Knowledge Stack** — Obsidian vault + Context7 + knowledge-graph MCP working together to ground every AI call in your prior decisions
 - **Token Efficiency Guide** — how to get 85%+ cost savings through model routing, context management, and vault-first queries
-- **Settings & Agents** — production-grade Claude Code settings, 11 specialist subagents, 9 workflow commands, and guardrail scripts
+- **Settings & Agents** — production-grade Claude Code settings, 11 specialist subagents, 18 slash commands, 7 profile-aware workflow recipes, and guardrail scripts
 - **Comparison with mattpocock/skills** — the best-of-both hybrid workflow
 
 ## The Core Insight
@@ -178,7 +178,8 @@ claude-code-solo-builder/
 │   │   └── ccc.fish                  ← Fish shell launcher (re-index on session close)
 │   └── reference/
 │       ├── agents/                   ← 11 specialist subagent definitions (incl. upgraded frontend-engineer)
-│       ├── commands/                 ← 14 slash commands (incl. /design-feature)
+│       ├── commands/                 ← 18 slash commands (incl. /design-feature, /mode, /review-exhaustive)
+│       ├── workflows/                ← 7 profile-aware Workflow() recipes (incl. fast-dag-build, exhaustive-review)
 │       └── scripts/                  ← 9 guardrail hook scripts (incl. design-lint.sh)
 ├── skills/
 │   └── sync-skills/                  ← /sync-skills command (install to ~/.claude/skills/sync-skills/)

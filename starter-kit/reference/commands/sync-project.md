@@ -71,6 +71,15 @@ Ask: "Also sync commands from `~/.claude/commands/`? (`all` / list specific name
 - Specific names → copy only those files
 - `no` → skip
 
+**3b-2.5. Offer workflow-recipe sync**
+
+Ask: "Also sync workflow recipes from `~/.claude/workflows/`? (`yes` / `no`)"
+
+- `yes` → `mkdir -p .claude/workflows && cp ~/.claude/workflows/*.js .claude/workflows/`
+  (Back up any project-local recipe of the same name first — a project recipe overrides the
+  user-level one; don't clobber a deliberate override.)
+- `no` → skip
+
 **3b-3. Offer domain-expert fill-in**
 
 Ask: "Run `/write-an-agent` to fill in `domain-expert.md` for this project's domain? (`yes` / `skip`)"
@@ -100,7 +109,7 @@ Wait for their answer, then apply the matching procedure below.
 ### active-build — full retrofit
 
 ```bash
-mkdir -p .claude/agents .claude/commands scripts docs/adr
+mkdir -p .claude/agents .claude/commands .claude/workflows scripts docs/adr
 ```
 
 **Agents — all 11:**
@@ -116,6 +125,13 @@ cp ~/.claude/commands/build-feature.md .claude/commands/
 cp ~/.claude/commands/review-security.md .claude/commands/
 cp ~/.claude/commands/phase-review.md .claude/commands/
 ```
+
+**Workflow recipes — all of them:**
+```bash
+cp ~/.claude/workflows/*.js .claude/workflows/ 2>/dev/null
+```
+(If the project already has a tuned local recipe of the same name, back it up first — a project
+`.claude/workflows/` recipe overrides the user-level one, so don't clobber a deliberate override.)
 
 **Hooks — 2 core:**
 ```bash
@@ -288,6 +304,7 @@ Bucket:    <active-build | validate | stabilize | keep-as-is | n/a>
 
 Agents installed:        <N> — <names>
 Commands installed:      <list or "none">
+Workflows installed:     <list or "none">
 Hooks installed:         <list or "none">
 Planning docs created:   <list or "none">
 Vault:                   <created | updated | skipped>

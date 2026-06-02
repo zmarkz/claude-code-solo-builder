@@ -98,7 +98,7 @@ When producing outputs:
 
 ## Skills available
 
-**Project scaffold**: `ai-project-scaffold` — scaffold a new project with 11 agents + 9 commands + 6 hooks.
+**Project scaffold**: `ai-project-scaffold` — scaffold a new project with 11 agents + 18 commands + 7 workflow recipes + 9 hook scripts.
 
 **Daily workflow (mattpocock)**: `grill-with-docs`, `diagnose`, `zoom-out`, `improve-codebase-architecture`, `handoff`, `caveman`
 
@@ -116,6 +116,33 @@ When producing outputs:
 <!-- Add gstack skills if installed:
 **gstack**: `/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/review`, `/ship`, `/qa`, `/browse`, `/canary`, `/benchmark`, `/codex`, `/investigate`, `/careful`, `/guard`, etc.
 -->
+
+---
+
+## When to use what
+
+| Situation | Reach for |
+| :-- | :-- |
+| Quick, single-context task | Just do it in the main thread |
+| A side task that would flood context (search, logs, one file's analysis) | A **subagent** (`.claude/agents/`) |
+| A repeated checklist / procedure you paste often | A **slash command** (`.claude/commands/`) |
+| A job needing many agents, branching, or cross-checking (deep review, audit, migration, multi-angle design) | A **saved Workflow recipe** (`.claude/workflows/`) |
+
+## Dynamic Workflows — house policy
+
+Saved `Workflow()` recipes live in `.claude/workflows/` and auto-register as `/<name>`. The kit ships
+seven: `exhaustive-review`, `codebase-map`, `security-sweep`, `design-panel`, `safe-migration`,
+`release-readiness`, `fast-dag-build`.
+
+- **Two profiles, default Best.** Every recipe reads `args.mode` (`best` default / `saver`). `best` =
+  max quality+speed (wide fan-out, 5 Sonnet skeptics/finding, Opus synthesis); `saver` = token-optimised
+  (narrow fan-out, Haiku skeptics, Sonnet synthesis). Switch with `/mode best|saver`. On Max plans token
+  cost isn't the constraint — the **weekly Opus cap** is — so even Best keeps bulk leaves (skeptics,
+  grind) on Sonnet/Haiku to preserve it.
+- **Opt-in & costly.** Workflows run only on the word "workflow", `/effort ultracode`, or running a
+  saved recipe, and cost meaningfully more tokens than a normal turn — scope first.
+- **Authoring rule.** `export const meta = {…}` must be a pure literal; recipes are plain JS with **no
+  filesystem/shell/env access** (all config via `args`). See `.claude/workflows/README.md`.
 
 ---
 

@@ -79,3 +79,45 @@ ccc                      # launch (caffeinate + re-index vault on exit)
 /phase-review N          # end of phase: product-owner gate + human signature
 git pull && make install # whenever the toolkit repo changed
 ```
+
+---
+
+## 6. Workflow recipes
+
+Saved `Workflow()` recipes in `.claude/workflows/` (committed, propagated like agents/commands). Reach
+for one when a job needs many agents or cross-checking. The kit ships seven:
+
+| Reach for | Instead of | When |
+|---|---|---|
+| `/review-exhaustive` (`exhaustive-review`) | `/review-security` | deep multi-lens diff review with adversarial verify; `/review-security` stays the fast single-agent pass |
+| `/audit-security` (`security-sweep`) | `/review-security` | whole-repo periodic audit (loop-until-dry) vs fast per-diff |
+| `/map-codebase` (`codebase-map`) | reading 20 files serially | understand an unfamiliar repo |
+| `design-panel` | a one-shot design | choosing between approaches → ADR draft (feeds `/plan-feature`) |
+| `safe-migration` | hand-editing N files | one big codemod (worktree-isolated; never self-merges) |
+| `release-readiness` | serial `/run-qa` + `/review-security` | parallel pre-release go/no-go gate |
+| `fast-dag-build` | a sequential build | multi-domain feature build, quality-first |
+
+- **Recipe vs one-off vs command.** A *saved recipe* is a repeatable, shareable workflow; a *one-off
+  workflow* (say "workflow …") is a throwaway script Claude writes; a *slash command* is a prompt
+  template with no fan-out. Use the recipe when the shape repeats.
+- **Cost.** Workflows cost meaningfully more tokens than a normal turn — scope before a wide run; the
+  per-recipe `budget` caps spend.
+- **Propagation.** Recipes flow repo → `~/.claude/workflows/` (`make install`) → each project
+  (`/sync-project`, or the scaffold for new projects) — same discipline as agents. Never hand-edit the
+  copies; edit the repo and `make install`.
+
+---
+
+## 7. Operating profiles — Best (default) vs Saver
+
+Two profiles, switchable with `/mode best|saver`; every recipe reads `args.mode` and scales accordingly.
+
+- **Best (default)** — max quality + speed. Opus on judgment (planning, synthesis, final review),
+  `/fast` for interactive turns, wide parallel fan-out, 5 Sonnet skeptics per finding. Speed comes from
+  *structure* — fan-out, streaming `pipeline()`s, worktrees — not from spending the Opus cap.
+- **Saver** — token-optimised: Sonnet default, narrow fan-out, Haiku skeptics, `/caveman` on.
+- **The real constraint on Max 20x is the weekly Opus sub-cap, not token cost** (see
+  `docs/TOKEN-EFFICIENCY.md`). So even Best routes bulk leaves (skeptics, mechanical grind) to
+  Sonnet/Haiku — to preserve the cap, not to save money.
+- **`/fast` is for interactive work, not big fan-outs** — it ~2.5×'s speed at ~2× usage; burning that
+  across a 12-wide overnight run drains the Opus cap fast.

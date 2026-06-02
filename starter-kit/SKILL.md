@@ -1,6 +1,6 @@
 ---
 name: ai-project-scaffold
-description: Use when starting a new software project that will be built with Claude Code. Generates a complete project scaffold — planning docs (CLAUDE.md, PROJECT_CONTEXT.md, ARCHITECTURE.md, ROADMAP.md, SECURITY_MODEL.md, TASKS.md, DECISIONS.md, README.md, HANDOFF.md), `.claude/` config with permissions/hooks/11-subagent team/14 slash commands, monorepo skeleton, Makefile, docker-compose, pre-commit hooks, and 9 guardrail scripts. Establishes phase-gated, vertical-slice, test-mandatory development with human review checkpoints. Invoke when the user says "start a new project," "scaffold a project," "bootstrap with Claude Code best practices," or when the working directory is empty / near-empty and they describe a build.
+description: Use when starting a new software project that will be built with Claude Code. Generates a complete project scaffold — planning docs (CLAUDE.md, PROJECT_CONTEXT.md, ARCHITECTURE.md, ROADMAP.md, SECURITY_MODEL.md, TASKS.md, DECISIONS.md, README.md, HANDOFF.md), `.claude/` config with permissions/hooks/11-subagent team/18 slash commands/7 workflow recipes, monorepo skeleton, Makefile, docker-compose, pre-commit hooks, and 9 guardrail scripts. Establishes phase-gated, vertical-slice, test-mandatory development with human review checkpoints. Invoke when the user says "start a new project," "scaffold a project," "bootstrap with Claude Code best practices," or when the working directory is empty / near-empty and they describe a build.
 ---
 
 # AI Project Scaffold — Skill
@@ -62,7 +62,8 @@ Copy these from this skill's `reference/` directory into the target project, wit
 | Source | Destination |
 |--------|-------------|
 | `reference/agents/*.md` (11 files) | `<project>/.claude/agents/` |
-| `reference/commands/*.md` (14 files) | `<project>/.claude/commands/` |
+| `reference/commands/*.md` (18 files) | `<project>/.claude/commands/` |
+| `reference/workflows/*.js` (7 recipes) | `<project>/.claude/workflows/` |
 | `reference/scripts/*.sh` (9 files) | `<project>/scripts/` |
 | `reference/settings.json.template` | `<project>/.claude/settings.json` |
 | `reference/.gitignore.template` | `<project>/.gitignore` |
@@ -126,6 +127,7 @@ Run a verification pass:
 4. `wc -l CLAUDE.md` — must be ≤ 200.
 5. **(v1.1)** `test -f CONTEXT.md` — must exist (DDD glossary).
 6. **(v1.1)** `test -d docs/adr && test -f docs/adr/INDEX.md` — must exist (per-file ADR layout, replaces `DECISIONS.md`).
+7. **(v1.2)** `for f in .claude/workflows/*.js; do node --check "$f" || echo "FAIL: $f"; done` — no FAILs (the 7 workflow recipes are valid JS). Each also loads only if its `export const meta = {…}` is a pure literal.
 
 If any check fails, fix it before reporting completion.
 
@@ -133,7 +135,7 @@ If any check fails, fix it before reporting completion.
 
 Print a summary:
 
-- File count by category (planning docs, agents, commands, scripts, infra).
+- File count by category (planning docs, agents, commands, workflow recipes, scripts, infra).
 - Total directories created.
 - The first 5 commands the user should run (`chmod +x scripts/*.sh`, `git init`, `git commit`, `claude`, `/start-session`).
 - Where the scaffold's HANDOFF.md is (with the full installation steps).
@@ -187,6 +189,10 @@ The hook scripts wire to SessionStart, PreToolUse (Bash, Write, Edit), PostToolU
 All three stop at the human phase-review gate; none self-approves.
 
 Both have allowlists that refuse to run outside Phase 1 by default. To extend to other phases, the user adds an explicit ADR.
+
+### Pattern 9 — A committed library of reusable Workflow recipes
+
+`reference/workflows/*.js` are saved Dynamic Workflows that ship with every scaffold (and propagate via `~/.claude/workflows/`). Each is **profile-aware** (`args.mode` = `best` default / `saver`), auto-registers as `/<name>`, and encodes a quality pattern (adversarial verify, judge panel, loop-until-dry, multi-modal sweep). The kit ships seven: `exhaustive-review`, `codebase-map`, `security-sweep`, `design-panel`, `safe-migration`, `release-readiness`, `fast-dag-build`. The runtime has no fs/env access, so recipes take all config via `args`. See `reference/workflows/README.md`.
 
 ## Pitfalls to avoid
 

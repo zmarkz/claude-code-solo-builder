@@ -328,6 +328,13 @@ The agents in `starter-kit/reference/agents/` are generic. After scaffolding a p
 - GDPR: right-to-erasure must be implementable (no immutable event logs without GDPR exemption)
 ```
 
+**Naming and splitting domain experts.** `domain-expert.md` is a placeholder — **rename it** to your
+actual domain (`fintech-expert.md`, `health-expert.md`, `legal-expert.md`, …). A mature project often
+grows *several* named specialists rather than one generic expert — e.g. a compliance expert, a
+platform-infra expert, an audit/observability expert — each with a sharp `description:` so Claude
+auto-delegates correctly. The 11-agent roster is the floor, not the ceiling: add named experts as the
+domain demands. (Agent `name:` values double as the `agentType` the workflow recipes route to.)
+
 ---
 
 *See also: `starter-kit/reference/agents/` for the actual agent definitions, `docs/SWARM-ORCHESTRATION.md` for parallel execution patterns.*

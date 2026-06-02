@@ -58,9 +58,11 @@ sync "scaffold-skill" "$REPO/starter-kit" "$DEST/skills/ai-project-scaffold" 1 -
 # 2. sync-skills command (we own it; prune cruft like old .bak files).
 sync "sync-skills" "$REPO/skills/sync-skills" "$DEST/skills/sync-skills" 1
 
-# 3. Builder agents + commands (shared dirs — additive, never delete seo-*/third-party files).
+# 3. Builder agents + commands + workflow recipes (shared dirs — additive, never delete
+#    seo-*/third-party files; exclude the human-only workflows README from the synced runtime dir).
 sync "agents" "$REPO/starter-kit/reference/agents" "$DEST/agents" 0
 sync "commands" "$REPO/starter-kit/reference/commands" "$DEST/commands" 0
+sync "workflows" "$REPO/starter-kit/reference/workflows" "$DEST/workflows" 0 --exclude 'README.md'
 
 # 4. Platform automation scripts (shared dir — additive).
 sync "platform-scripts" "$REPO/starter-kit/platform-scripts" "$PLATFORM" 0
