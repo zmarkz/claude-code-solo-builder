@@ -31,7 +31,7 @@ const N = SAVER ? 2 : 4
 const ANGLES = ['the simplest thing that could work', 'the most robust / scalable design', 'the fastest to ship safely', 'the most different, first-principles approach']
 const JUDGES = SAVER ? ['solution-architect', 'qa-engineer'] : ['solution-architect', 'security-architect', 'qa-engineer', 'product-manager']
 const RUBRIC = ['fit', 'simplicity', 'risk', 'reversibility', 'effort']
-const SYNTH_MODEL = SAVER ? 'sonnet' : 'opus'
+const SYNTH_MODEL = 'sonnet'  // v3.2: Sonnet 5 is near-Opus — synthesis is not a gate lane (ADR 0005)
 
 if (!PROBLEM) {
   log('design-panel: no args.problem provided — nothing to design.')
@@ -76,7 +76,7 @@ phase('Propose')
 log(`design-panel [${MODE}]: ${N} proposers → ${JUDGES.length} judges`)
 const proposals = (await parallel(Array.from({ length: N }, (_, i) => () => agent(
   `${HEAD}\n\nPropose a complete design from this angle: **${ANGLES[i % ANGLES.length]}**. Do not hedge toward other angles — commit to this one so the panel sees genuinely different options. Return: name, summary, the approach in detail, tradeoffs, risks, effort (S/M/L/XL).`,
-  { label: `propose#${i}`, phase: 'Propose', agentType: 'solution-architect', model: SAVER ? 'sonnet' : 'opus', schema: PROPOSAL_SCHEMA },
+  { label: `propose#${i}`, phase: 'Propose', agentType: 'solution-architect', model: 'sonnet', schema: PROPOSAL_SCHEMA },
 )))).filter(Boolean)
 
 if (proposals.length < 2) {

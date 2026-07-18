@@ -69,7 +69,7 @@ phase('Discover')
 log(`safe-migration [${MODE}]: discovering sites for "${TASK}"`)
 const discovery = await agent(
   `Repo root: ${REPO}. Migration task: ${TASK}\n\nFind every site affected and group them into domains with NON-OVERLAPPING file globs (two domains' globs must not intersect — that is what lets them run as parallel worktree leaves safely). For each domain: id, globs, sites (specific files), and a note. Do not edit anything.`,
-  { label: 'discover', phase: 'Discover', agentType: 'solution-architect', model: SAVER ? 'sonnet' : 'opus', schema: DISCOVERY_SCHEMA },
+  { label: 'discover', phase: 'Discover', agentType: 'solution-architect', model: 'sonnet', schema: DISCOVERY_SCHEMA },
 )
 const domains = (discovery && discovery.domains) || []
 if (!domains.length) {

@@ -27,13 +27,12 @@
     },
     {
       "id": "mattpocock-skills",
-      "name": "mattpocock/skills",
-      "type": "manual-install",
-      "description": "Session-layer atomic workflow skills (diagnose, grill-with-docs, handoff, etc.). Upstream now ships as a Claude Code plugin — prefer the plugin install going forward.",
-      "local_path": "~/.agents/skills",
-      "symlink_target": "~/.claude/skills",
+      "name": "mattpocock/skills (plugin)",
+      "type": "plugin-marketplace",
+      "plugin": "mattpocock-skills@mattpocock",
+      "description": "Session-layer atomic workflow skills (diagnosing-bugs, grill-with-docs, handoff, writing-great-skills, to-spec/to-tickets, etc.), installed via the official plugin marketplace.",
       "auto_apply": false,
-      "note": "Installed as a manual copy (no git). Upstream has moved to plugin-marketplace distribution: `claude plugin marketplace add mattpocock/skills`. Migrate when consolidating skills."
+      "note": "Migrated from manual copy 2026-07-19 (old copy archived at ~/.agents/skills-archived-2026-07-19; `caveman` kept as a frozen local skill — upstream deleted it). Update via `claude plugin update mattpocock-skills`."
     },
     {
       "id": "karpathy-claude",

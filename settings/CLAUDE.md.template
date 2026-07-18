@@ -107,7 +107,17 @@ When producing outputs:
 
 **Project scaffold**: `ai-project-scaffold` — scaffold a new project with 11 agents + 18 commands + 7 workflow recipes + 9 hook scripts.
 
-**Daily workflow (mattpocock)**: `grill-with-docs`, `diagnose`, `improve-codebase-architecture`, `handoff`, `caveman`
+**Daily workflow (mattpocock plugin)**: `grill-with-docs`, `diagnosing-bugs`, `improve-codebase-architecture`, `handoff` (+ `caveman` — frozen local copy, upstream deleted it)
+
+## Skill routing (which suite wins per job)
+
+| Job | Canonical skill | Not |
+| :-- | :-- | :-- |
+| TDD, debugging process, plans | superpowers (`test-driven-development`, `systematic-debugging`, `writing-plans`) | mattpocock `tdd`/`diagnosing-bugs` (use for quick solo passes) |
+| Ship / QA / browse / investigate | gstack (`/ship`, `/qa`, `/browse`, `/investigate`) | — |
+| Project lifecycle (scaffold, phases, reviews, RAG, ADRs) | solo-builder kit (`/plan-feature`, `/build-feature`, `/phase-review`, `/rag-init`, `/write-adr`, `/extract-pattern`) | — |
+| Skill authoring | `skill-creator` plugin | `writing-great-skills` (reference reading) |
+| Code review | `/review-exhaustive` (deep) or pr-review-toolkit (PR-shaped) | gstack `/review` (quick) |
 
 **Seed skills**: `bootstrap-new-app`, `add-stripe-product`, `add-supabase-table`, `ship-landing-page`, `kill-app`
 
