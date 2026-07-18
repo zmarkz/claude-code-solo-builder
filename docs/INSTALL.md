@@ -182,6 +182,10 @@ ollama serve &
 ollama pull qwen2.5-coder:14b   # Primary local model
 ollama pull nomic-embed-text     # For RAG embeddings
 
+# Local RAG module (per-project semantic code search — docs/LOCAL-RAG.md)
+uv tool install leann-core --with leann
+claude mcp add --scope user leann-server -- leann_mcp
+
 # Test
 ollama run qwen2.5-coder:14b "What is 2+2?"
 ```

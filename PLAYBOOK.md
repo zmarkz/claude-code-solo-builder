@@ -569,15 +569,18 @@ _platform/
 
 Each component has a matching note in `05-Patterns/` describing *why* and *when*. Code lives in the platform repo; doctrine lives in the vault.
 
-### Why the vault replaces a vector DB
+### The knowledge stack — four layers, one owner each
 
-- Human-editable in any markdown editor.
-- Survives any tool change (just `.md` files).
-- Combines vector search, full-text, and graph traversal via `obra/knowledge-graph`.
-- Wikilinks encode relationships explicitly, not just semantically.
-- You can read your knowledge without an LLM in the loop.
+| Layer | Store | Owns | Maintenance |
+|---|---|---|---|
+| 1. Session memory | Native `MEMORY.md` / Auto Memory | Cross-session facts, preferences, corrections | Zero — the platform consolidates automatically. **Stop hand-maintaining these in the vault.** |
+| 2. Curated doctrine | Vault + graph MCP (optional module, `VAULT_PATH`) | ADRs, patterns, project INDEX notes, integration contracts | `/vault-update`, `/write-adr`, `/extract-pattern` mirrors |
+| 3. Code retrieval | **Local RAG** — per-project LEANN index (`docs/LOCAL-RAG.md`) | "Where is X / how does Y work" over every repo's code + docs; cross-project reuse search | `/rag-init` once; PostToolUse hook keeps it fresh |
+| 4. External docs | Context7 MCP | Fresh library/framework documentation | Zero — fetched on demand |
 
-> Scope: this covers curated knowledge, not code retrieval — see the Local RAG module (v3.1) for code.
+One routing rule per layer: session facts → let the platform write them; decisions and reusable patterns → layer 2 (when the vault module is on); "find code" → **one layer-3 retrieval call, never a grep loop**; "how does library X work" → layer 4.
+
+**Why the vault (layer 2) is markdown, not a vector DB:** human-editable anywhere, survives any tool change, combines vector + full-text + graph traversal via the knowledge-graph MCP, wikilinks encode relationships explicitly, and you can read your knowledge without an LLM in the loop. The vault indexes zero code — that is layer 3's job.
 
 ### Cross-stack integration contracts (v2.3 NEW — M5)
 
@@ -724,7 +727,7 @@ For non-fintech: ignore all of this and ship faster.
 The kit is **not** a Next.js code template. It's a **scaffold-generator skill** for Claude Code. You install it once at user level (`~/.claude/skills/ai-project-scaffold/`), then in any empty directory you say *"scaffold a new project"* and the skill:
 
 1. Asks ~11 questions (project name, tech-stack profile, security profile, AI involvement, multi-tenancy, deployment target, Phase 1 tasks).
-2. Copies a fixed `reference/` payload (11 agents + 18 slash commands + 7 workflow recipes + 9 hook scripts + a per-project `settings.json` template).
+2. Copies a fixed `reference/` payload (11 agents + 22 slash commands + 7 workflow recipes + 10 hook scripts + a per-project `settings.json` template).
 3. Generates 9 planning docs from your answers (`CLAUDE.md`, `PROJECT_CONTEXT.md`, `ARCHITECTURE.md`, `ROADMAP.md`, `SECURITY_MODEL.md`, `TASKS.md`, `DECISIONS.md`, `README.md`, `HANDOFF.md`).
 4. Generates a stack-appropriate monorepo skeleton (`apps/`, `packages/`, `ai/`, `infra/`, `compliance/`, `docs/`, `tests/`, `scripts/`).
 5. Generates toolchain files (`Makefile`, `docker-compose.yml`, `.pre-commit-config.yaml`).
@@ -745,7 +748,7 @@ It's stack-agnostic: `python-fullstack`, `node-fullstack`, `python-api-only`, `n
 
 5. **Subagents double as agent-team teammates** (Claude Code v2.1.32+). The 11 subagents work two ways: as in-session subagents spawned via Task tool, OR as teammate types when `/start-phase-team` spawns a parallel team.
 
-6. **Hooks for safety, not cleverness.** 9 scripts wire to SessionStart, PreToolUse (Bash, Write, Edit), PostToolUse (Write, Edit), and PreCompact — including `guard-file-domain.sh` (enforces a durable leaf's file domain) and `design-lint.sh`. Fail loud, fail early.
+6. **Hooks for safety, not cleverness.** 10 scripts wire to SessionStart, PreToolUse (Bash, Write, Edit), PostToolUse (Write, Edit), and PreCompact — including `guard-file-domain.sh` (enforces a durable leaf's file domain), `design-lint.sh`, and `rag-reindex.sh` (debounced background RAG reindex, dormant until `/rag-init`). Fail loud, fail early.
 
 7. **Context-window management is part of the structure.** `CLAUDE.md` ≤ 200 lines (loaded every session). `/start-session` re-loads phase + tasks. `PreCompact` hook → `session-snapshot.sh` dumps state to `docs/session-snapshots/` before compaction.
 
@@ -771,7 +774,7 @@ Each agent has `name`, `description`, `tools` frontmatter + a body that's both a
 | `technical-writer` | Docs, runbooks, demo scripts, voice per audience |
 | `product-owner-reviewer` | End-of-phase exec review, demoability check, go/no-go |
 
-## A.4 The 18 slash commands (`reference/commands/*.md`)
+## A.4 The 22 slash commands (`reference/commands/*.md`)
 
 | Command | Purpose |
 |---------|---------|
@@ -787,8 +790,12 @@ Each agent has `name`, `description`, `tools` frontmatter + a body that's both a
 | `/orchestrate-loops [N]` | Mode 3 — durable, headless parallel loops: one background worktree leaf per file-domain, attempt-capped, reviewer-integrated. `Workflow()` substrate. Default Phase 1 only. |
 | `/design-feature <name>` | Design-first UI cycle (design → build → review) in one command. |
 | `/sync-project` | Wire the current project into the setup — detects new / retrofit / sync. |
-| `/vault-update` | Refresh the Obsidian vault INDEX.md + trigger knowledge-graph re-index. |
+| `/vault-update` | Refresh the knowledge-vault INDEX.md + run the configured re-index (vault module — no-op when off). |
 | `/write-an-agent` | Generate a domain-expert agent from a description. |
+| `/rag-init` | Build the project's local LEANN RAG index (preflight → build → smoke test). Retrofit path for existing projects. |
+| `/rag-status` | Read-only RAG health check: freshness vs HEAD, reindex log, MCP registration. |
+| `/extract-pattern <module>` | Save a reusable module to `~/.claude/patterns/` (indexed; vault-mirrored when module on). Feeds the reuse check. |
+| `/write-adr <decision>` | ADR at `docs/adr/NNNN-<slug>.md` via the 3-test threshold; vault-mirrored when module on. |
 | `/mode best\|saver` | Set the session execution profile that the workflow recipes read via `args.mode`. |
 | `/review-exhaustive` | Deep multi-lens diff review (runs the `exhaustive-review` workflow). |
 | `/audit-security` | Whole-repo security audit (runs the `security-sweep` workflow). |
@@ -810,11 +817,12 @@ Saved `Workflow()` scripts that fan work across many parallel agents — committ
 
 On Max plans the binding constraint is the weekly Opus cap, not token cost — so even Best keeps bulk leaves (skeptics, grind) on Sonnet/Haiku to preserve it. See `reference/workflows/README.md` and `docs/adr/0002-workflow-recipe-library.md`.
 
-## A.5 The 9 hook scripts (`reference/scripts/*.sh`)
+## A.5 The 10 hook scripts (`reference/scripts/*.sh`)
 
 | Script | Hook | What it does |
 |--------|------|--------------|
-| `session-start.sh` | SessionStart | Print active phase, env flags, git status, pending phase reviews |
+| `session-start.sh` | SessionStart | Print active phase, env flags, git status, pending phase reviews, RAG-index freshness |
+| `rag-reindex.sh` | PostToolUse(Write\|Edit) | Debounced background incremental rebuild of the local LEANN index; dormant until `/rag-init` |
 | `guard-dangerous-command.sh` | PreToolUse(Bash) | Block `rm -rf /~`, `git push --force`, `git reset --hard HEAD~`, reads of `.ssh/.aws/.env`, outbound scp/rsync, sudo, `curl \| sh`, docker prune |
 | `check-secrets-staged.sh` | PreToolUse(Write\|Edit) | Pre-write secret pattern check (AWS, GitHub, OpenAI, Anthropic, Slack, GCP keys + private keys) |
 | `secret-scan.sh` | pre-commit + CI | Full repo / staged / diff scan via gitleaks + custom patterns |
@@ -832,7 +840,7 @@ Three security perimeters: `deny` (no override), `ask` (human prompted), `allow`
 - **ask**: `rm -rf *`, `docker system prune`, `alembic downgrade`, `psql -c "DROP*`, write `.env`, write Dockerfiles, write terraform
 - **allow**: `make *`, `pnpm *`, `uv *`, `pytest *`, `alembic upgrade head`, `docker compose *`, `git status/diff/log/add/commit/branch/checkout`, `gh pr *`
 
-Plus: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` env, `teammateMode: in-process`, and the 9 hook scripts wired to their stages.
+Plus: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` env, `teammateMode: in-process`, and the 10 hook scripts wired to their stages.
 
 > **Customize per project — don't loosen without an ADR.** Add project-specific env vars (region flags, policy gates) to the env block.
 

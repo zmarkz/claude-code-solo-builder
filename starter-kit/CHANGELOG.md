@@ -4,6 +4,21 @@ All notable changes to this skill, newest first. Each entry pairs with an ADR-st
 
 ---
 
+## [2.1] — 2026-07-18
+
+**Theme:** Local RAG + cross-project module reuse (repo v3.1). See `docs/adr/0004-local-rag-leann.md` and `docs/LOCAL-RAG.md`.
+
+### Added
+
+- **`reference/scripts/rag-reindex.sh`** (10th guardrail script) — PostToolUse Write|Edit hook: debounced background incremental rebuild of the project's local LEANN index; dormant until `/rag-init`.
+- **`reference/commands/rag-init.md` + `rag-status.md`** — build/retrofit the index (graceful degradation, never blocks) and read-only health check.
+- **`reference/commands/extract-pattern.md` + `write-adr.md`** — the pattern library (`~/.claude/patterns/`, indexed for reuse search, vault-mirrored when module on) and per-file ADR skill. Command count 18 → 22.
+- **Scaffold Q12 + Step 6.5** — "Local RAG index?" (default yes, opt-out); build usually defers to `/rag-init` after the first commit.
+- **Reuse loop** — `/plan-feature` Step 0.6 searches pattern library + all project indexes before scoping a new module; `/build-feature` pre-flight reuse guard; CLAUDE.md example ships the "search before you grep" rule.
+- **`session-start.sh`** — RAG-index freshness warning (behind HEAD / not initialized).
+- **`.gitignore.template`** — `.leann/` (machine-local, rebuildable).
+- **`reference/settings.json.template`** — rag-reindex PostToolUse hook entry.
+
 ## [2.0] — 2026-07-18
 
 **Theme:** Public/private split (repo v3.0) — the kit is now fully generic and portable. See `docs/adr/0003-public-private-overlay-split.md`.

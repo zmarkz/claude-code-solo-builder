@@ -14,6 +14,7 @@ You are starting a new session on this project. Before doing anything else:
 Then briefly report (≤ 10 lines):
 
 - Which phase we're in.
+- If `scripts/session-start.sh` reported the RAG index missing or behind HEAD: recommend `/rag-init` before deep exploration.
 - The next 1-3 tasks you'd recommend tackling and why.
 - Any open blockers from prior `product-owner-reviewer` sign-offs.
 - Confirmation that the project's safety env flags are set.

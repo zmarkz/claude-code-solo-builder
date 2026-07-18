@@ -124,3 +124,6 @@ Icon
 *.bak
 *.orig
 *.rej
+
+# Local RAG index (LEANN — machine-local, rebuildable)
+.leann/

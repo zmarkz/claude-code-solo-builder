@@ -133,10 +133,11 @@ cp ~/.claude/workflows/*.js .claude/workflows/ 2>/dev/null
 (If the project already has a tuned local recipe of the same name, back it up first — a project
 `.claude/workflows/` recipe overrides the user-level one, so don't clobber a deliberate override.)
 
-**Hooks — 2 core:**
+**Hooks — 3 core:**
 ```bash
 cp ~/.claude/skills/ai-project-scaffold/reference/scripts/check-secrets-staged.sh scripts/
 cp ~/.claude/skills/ai-project-scaffold/reference/scripts/session-snapshot.sh scripts/
+cp ~/.claude/skills/ai-project-scaffold/reference/scripts/rag-reindex.sh scripts/
 chmod +x scripts/*.sh
 ```
 
@@ -213,7 +214,11 @@ Phase 1 — [goal]
 [TBD]
 ```
 
-Then run `/vault-update` to create the vault INDEX.md entry.
+Then run `/rag-init` to build the local RAG index (it prints install
+instructions if LEANN prerequisites are missing — never blocks the retrofit).
+
+Then run `/vault-update` to create the vault INDEX.md entry (no-op if the
+vault module is off).
 
 Then ask: "Run `/write-an-agent` to fill in `domain-expert.md` for this project's domain? (`yes` / `skip`)"
 
@@ -244,6 +249,8 @@ chmod +x scripts/check-secrets-staged.sh
 ```
 
 Scaffold `CLAUDE.md` and `CONTEXT.md` stubs if missing (same templates as above).
+
+Ask: "Build a local RAG index for semantic code search? (`yes` → run `/rag-init` / `no`)"
 
 Run `/vault-update` (status: VALIDATE).
 
@@ -307,7 +314,8 @@ Commands installed:      <list or "none">
 Workflows installed:     <list or "none">
 Hooks installed:         <list or "none">
 Planning docs created:   <list or "none">
-Vault:                   <created | updated | skipped>
+RAG index:               <built | skipped | deferred — run /rag-init>
+Vault:                   <created | updated | skipped (module off)>
 
 Next: <one recommended next step>
 ```

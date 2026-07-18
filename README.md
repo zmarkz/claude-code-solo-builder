@@ -12,10 +12,11 @@
 This repository is the **complete, shareable setup** that lets a solo developer run like a 10-person team using Claude Code. It includes:
 
 - **The Playbook** — a 13-part operating manual covering mental model, AI swarm patterns, knowledge vault, portfolio management, and daily cadences
-- **The Starter Kit** — a Claude Code skill that scaffolds any new project with 11 agents, 18 slash commands, 7 workflow recipes, 9 guardrail scripts, and all planning docs in ~10 minutes
+- **The Starter Kit** — a Claude Code skill that scaffolds any new project with 11 agents, 22 slash commands, 7 workflow recipes, 10 guardrail scripts, and all planning docs in ~10 minutes
+- **Local RAG + module reuse** — per-project LEANN semantic index built at init (one retrieval call instead of grep loops), plus a cross-project pattern library so modules get reused, not rewritten — see `docs/LOCAL-RAG.md`
 - **The Knowledge Stack (optional module)** — Obsidian vault + Context7 + knowledge-graph MCP working together to ground every AI call in your prior decisions (see `docs/VAULT.md`)
 - **Token Efficiency Guide** — how to get 85%+ cost savings through model routing, context management, and vault-first queries
-- **Settings & Agents** — production-grade Claude Code settings, 11 specialist subagents, 18 slash commands, 7 profile-aware workflow recipes, and guardrail scripts
+- **Settings & Agents** — production-grade Claude Code settings, 11 specialist subagents, 22 slash commands, 7 profile-aware workflow recipes, and guardrail scripts
 - **Comparison with mattpocock/skills** — the best-of-both hybrid workflow
 
 ## The Core Insight
@@ -68,7 +69,7 @@ cd claude-code-solo-builder
 ```bash
 make install     # idempotent — safe to re-run after every `git pull`
 ```
-This syncs the scaffold skill, all 11 agents, 18 commands, 7 workflow recipes, and the two generic
+This syncs the scaffold skill, all 11 agents, 22 commands, 7 workflow recipes, and the two generic
 hook scripts into `~/.claude` (`agents/`, `commands/`, `workflows/`, `skills/`, and
 `~/.claude/scripts/`). It deliberately does **not** touch your `~/.claude/settings.json` or
 `~/.claude/CLAUDE.md` — those stay yours. Run `make check` any time for a read-only, content-based
@@ -142,9 +143,9 @@ claude-code-solo-builder/
 │   ├── examples/                     ← Template files for generated docs
 │   └── reference/
 │       ├── agents/                   ← 11 specialist subagent definitions (incl. upgraded frontend-engineer)
-│       ├── commands/                 ← 18 slash commands (incl. /design-feature, /mode, /review-exhaustive)
+│       ├── commands/                 ← 22 slash commands (incl. /design-feature, /mode, /review-exhaustive)
 │       ├── workflows/                ← 7 profile-aware Workflow() recipes (incl. fast-dag-build, exhaustive-review)
-│       ├── scripts/                  ← 9 guardrail hook scripts (incl. design-lint.sh)
+│       ├── scripts/                  ← 10 guardrail hook scripts (incl. design-lint.sh)
 │       └── settings.json.template    ← Per-project Claude Code settings (all guardrails wired)
 ├── skills/
 │   └── sync-skills/                  ← /sync-skills command (install to ~/.claude/skills/sync-skills/)
