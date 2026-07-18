@@ -13,7 +13,7 @@ remedy for each miss):
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 command -v uv >/dev/null    || echo "MISS uv      → brew install uv"
-command -v leann >/dev/null || echo "MISS leann   → uv tool install leann-core --with leann"
+command -v leann >/dev/null || echo "MISS leann   → uv tool install leann-core --with leann --with docx2txt"
 command -v ollama >/dev/null || echo "MISS ollama  → brew install ollama"
 ollama list 2>/dev/null | grep -q nomic-embed-text || echo "MISS model   → ollama pull nomic-embed-text"
 claude mcp list 2>/dev/null | grep -q leann-server || echo "MISS mcp     → claude mcp add --scope user leann-server -- leann_mcp"

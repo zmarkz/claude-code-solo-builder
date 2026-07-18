@@ -183,7 +183,7 @@ ollama pull qwen2.5-coder:14b   # Primary local model
 ollama pull nomic-embed-text     # For RAG embeddings
 
 # Local RAG module (per-project semantic code search — docs/LOCAL-RAG.md)
-uv tool install leann-core --with leann
+uv tool install leann-core --with leann --with docx2txt
 claude mcp add --scope user leann-server -- leann_mcp
 
 # Test

@@ -25,10 +25,13 @@ the module is opt-out rather than mandatory doctrine.
 
 ```bash
 brew install uv ollama                      # if missing
-uv tool install leann-core --with leann     # the LEANN CLI
+uv tool install leann-core --with leann --with docx2txt   # the LEANN CLI (+ Word-file parser)
 ollama pull nomic-embed-text                # local embedding model (274 MB)
 claude mcp add --scope user leann-server -- leann_mcp   # one MCP server, all projects
 ```
+
+(`--with docx2txt` matters: if any tracked file is a `.docx`, LEANN's build
+dies with an ImportError without it.)
 
 ## Lifecycle
 

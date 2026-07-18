@@ -17,7 +17,7 @@ cd "$(dirname "$0")/.."
 export PATH="$HOME/.local/bin:$PATH"
 
 if ! command -v leann >/dev/null 2>&1; then
-  echo "[rag] leann CLI not found — index is stale. Install: uv tool install leann-core --with leann"
+  echo "[rag] leann CLI not found — index is stale. Install: uv tool install leann-core --with leann --with docx2txt"
   exit 0
 fi
 
