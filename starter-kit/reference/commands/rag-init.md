@@ -37,7 +37,7 @@ claude mcp list 2>/dev/null | grep -q leann-server || echo "MISS mcp     → cla
 
 ```bash
 INDEX_NAME="$(basename "$PWD" | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')"
-leann build "$INDEX_NAME" --docs $(git ls-files) \
+leann build "$INDEX_NAME" --docs $(git ls-files | grep -ivE '\.(png|jpe?g|gif|svg|ico|icns|webp|bmp|mp3|wav|m4a|ogg|flac|mp4|mov|avi|webm|mkv|xls|xlsx|ppt|pptx|csv|zip|gz|tgz|tar|7z|rar|woff2?|ttf|otf|eot|jar|class|pyc|so|dylib|bin|sqlite|db)$') \
   --embedding-mode "${RAG_EMBEDDING_MODE:-ollama}" \
   --embedding-model "${RAG_EMBEDDING_MODEL:-nomic-embed-text}" \
   --use-ast-chunking --ast-fallback-traditional

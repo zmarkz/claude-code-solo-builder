@@ -35,10 +35,12 @@ touch "$LOCK_FILE"
     echo "[rag-reindex] $(date '+%Y-%m-%d %H:%M:%S') — starting ($INDEX_NAME)"
     # Same command as the initial build — leann build is idempotent/incremental
     # (Merkle diff: only changed files are re-embedded). git ls-files keeps the
-    # scope gitignore-filtered. NOTE: can hit ARG_MAX on very large repos —
+    # scope gitignore-filtered; the grep drops media/binary files LEANN would
+    # otherwise try to parse (mp3 wants Whisper, xlsx wants openpyxl — none of
+    # it helps code retrieval). NOTE: can hit ARG_MAX on very large repos —
     # if that happens, switch to --docs . and curate excludes.
     # shellcheck disable=SC2046
-    leann build "$INDEX_NAME" --docs $(git ls-files) \
+    leann build "$INDEX_NAME" --docs $(git ls-files | grep -ivE '\.(png|jpe?g|gif|svg|ico|icns|webp|bmp|mp3|wav|m4a|ogg|flac|mp4|mov|avi|webm|mkv|xls|xlsx|ppt|pptx|csv|zip|gz|tgz|tar|7z|rar|woff2?|ttf|otf|eot|jar|class|pyc|so|dylib|bin|sqlite|db)$') \
       --embedding-mode "${RAG_EMBEDDING_MODE:-ollama}" \
       --embedding-model "${RAG_EMBEDDING_MODEL:-nomic-embed-text}" \
       --use-ast-chunking --ast-fallback-traditional

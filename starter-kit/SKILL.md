@@ -140,7 +140,7 @@ scaffold NEVER fails on this step:
 4. **Otherwise build**:
    ```bash
    INDEX_NAME="$(basename "$PWD" | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')"
-   leann build "$INDEX_NAME" --docs $(git ls-files) \
+   leann build "$INDEX_NAME" --docs $(git ls-files | grep -ivE '\.(png|jpe?g|gif|svg|ico|icns|webp|bmp|mp3|wav|m4a|ogg|flac|mp4|mov|avi|webm|mkv|xls|xlsx|ppt|pptx|csv|zip|gz|tgz|tar|7z|rar|woff2?|ttf|otf|eot|jar|class|pyc|so|dylib|bin|sqlite|db)$') \
      --embedding-mode ollama --embedding-model nomic-embed-text \
      --use-ast-chunking --ast-fallback-traditional
    ```
