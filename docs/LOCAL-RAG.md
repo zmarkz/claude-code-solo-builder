@@ -36,7 +36,7 @@ claude mcp add --scope user leann-server -- leann_mcp   # one MCP server, all pr
 |---|---|
 | Scaffold (new project) | Q12 asks "Local RAG index?" (default yes); wiring always ships; build usually defers to `/rag-init` (needs a git repo) |
 | Existing project | `/rag-init` — preflight, wiring check, build, smoke test |
-| Every Claude edit | `scripts/rag-reindex.sh` (PostToolUse hook) — debounced background incremental rebuild (Merkle diff, only changed files re-embed) |
+| Every Claude edit | `scripts/rag-reindex.sh` (PostToolUse hook) — debounced background rebuild (Merkle diff; pure additions update incrementally, modifications trigger a fast full rebuild — ~20s at solo-project scale) |
 | Session start | `session-start.sh` warns if the index is behind HEAD |
 | Trouble | `/rag-status` — freshness, log tail, MCP registration |
 

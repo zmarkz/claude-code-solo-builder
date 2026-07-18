@@ -58,7 +58,10 @@ command -v leann >/dev/null && \
   leann build patterns --docs "$HOME/.claude/patterns" \
     --embedding-mode "${RAG_EMBEDDING_MODE:-ollama}" \
     --embedding-model "${RAG_EMBEDDING_MODEL:-nomic-embed-text}" \
+    --include-hidden \
   || echo "leann not installed — pattern saved but unindexed (searchable after /rag-init prereqs)"
+# --include-hidden is REQUIRED: ~/.claude is a dotdir, and LEANN skips hidden
+# paths by default — without the flag the build silently indexes 0 documents.
 ```
 
 ## 4. Vault mirror (only if the vault module is on)
