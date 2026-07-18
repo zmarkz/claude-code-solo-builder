@@ -40,8 +40,8 @@ const LENS_AGENT = {
   readability: 'frontend-engineer',
 }
 const SKEPTICS = SAVER ? 2 : 5
-const SKEPTIC_MODEL = SAVER ? 'claude-haiku-4-5-20251001' : 'claude-sonnet-4-6'
-const SYNTH_MODEL = SAVER ? 'claude-sonnet-4-6' : 'claude-opus-4-8'
+const SKEPTIC_MODEL = SAVER ? 'haiku' : 'sonnet'
+const SYNTH_MODEL = SAVER ? 'sonnet' : 'opus'
 
 const FINDING = {
   type: 'object', additionalProperties: false,
@@ -77,7 +77,7 @@ phase('Review')
 log(`exhaustive-review [${MODE}]: ${LENSES.length} lenses, ${SKEPTICS} skeptics/finding`)
 const reviews = (await parallel(LENSES.map(lens => () => agent(
   `${DIFF}\nYou are the **${lens}** reviewer. Inspect the diff strictly through the ${lens} lens. Be adversarial — default an unclear ${lens} concern to a finding. For each issue return a finding (title, severity, file, line, dimension="${lens}", evidence, concrete fix, confidence 0-1). Return an empty array if the diff is clean on ${lens}.`,
-  { label: `review:${lens}`, phase: 'Review', agentType: LENS_AGENT[lens] || 'backend-engineer', model: lens === 'security' ? 'claude-opus-4-8' : 'claude-sonnet-4-6', schema: FINDINGS_SCHEMA },
+  { label: `review:${lens}`, phase: 'Review', agentType: LENS_AGENT[lens] || 'backend-engineer', model: lens === 'security' ? 'opus' : 'sonnet', schema: FINDINGS_SCHEMA },
 )))).filter(Boolean)
 
 const findings = reviews.flatMap(r => (r && r.findings) || [])

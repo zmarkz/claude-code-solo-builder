@@ -69,7 +69,7 @@ phase('Discover')
 log(`safe-migration [${MODE}]: discovering sites for "${TASK}"`)
 const discovery = await agent(
   `Repo root: ${REPO}. Migration task: ${TASK}\n\nFind every site affected and group them into domains with NON-OVERLAPPING file globs (two domains' globs must not intersect — that is what lets them run as parallel worktree leaves safely). For each domain: id, globs, sites (specific files), and a note. Do not edit anything.`,
-  { label: 'discover', phase: 'Discover', agentType: 'solution-architect', model: SAVER ? 'claude-sonnet-4-6' : 'claude-opus-4-8', schema: DISCOVERY_SCHEMA },
+  { label: 'discover', phase: 'Discover', agentType: 'solution-architect', model: SAVER ? 'sonnet' : 'opus', schema: DISCOVERY_SCHEMA },
 )
 const domains = (discovery && discovery.domains) || []
 if (!domains.length) {
@@ -80,14 +80,14 @@ phase('Transform')
 log(`Transforming ${domains.length} domain(s) in isolated worktrees`)
 const results = (await parallel(domains.map(d => () => agent(
   `Repo root: ${REPO}. You own ONE migration domain and run in your own git worktree. Do NOT touch files outside your globs.\n\nFIRST, in your shell: \`export LEAF_DOMAIN_GLOBS="${(d.globs || []).join(':')}"\` so the guard-file-domain.sh hook enforces your boundary.\n\nMIGRATION TASK: ${TASK}\nYOUR DOMAIN: ${d.id}\nGLOBS: ${(d.globs || []).join(', ')}\nSITES: ${(d.sites || []).join(', ')}\n\nApply the change across your sites, then run \`${QUALITY}\`. Retry up to ${ATTEMPTS} times, fixing failures. On the ${ATTEMPTS + 1}th failure, set status="needs-human" and stop touching the domain. On green, commit (Conventional Commits, one commit) and set status="done". Return domain, status, filesChanged, commit, notes. Do NOT merge or switch branches.`,
-  { label: `migrate:${d.id}`, phase: 'Transform', isolation: 'worktree', agentType: 'backend-engineer', model: SAVER ? 'claude-haiku-4-5-20251001' : 'claude-sonnet-4-6', schema: LEAF_SCHEMA },
+  { label: `migrate:${d.id}`, phase: 'Transform', isolation: 'worktree', agentType: 'backend-engineer', model: SAVER ? 'haiku' : 'sonnet', schema: LEAF_SCHEMA },
 )))).filter(Boolean)
 
 phase('Integrate')
 const needsHuman = results.filter(r => r.status === 'needs-human')
 const review = await agent(
   `A migration ("${TASK}") was applied across ${results.length} isolated worktree domains. Review for CROSS-LEAF contract drift — places where one domain's change breaks an assumption in another (shared types, API shapes, call sites). Use \`git diff\` across the leaf branches. Return verdict (clean / drift-found) + risks.\n\nLEAF RESULTS:\n${JSON.stringify(results, null, 2)}`,
-  { label: 'reviewer', phase: 'Integrate', agentType: 'product-owner-reviewer', model: 'claude-opus-4-8', schema: REVIEW_SCHEMA },
+  { label: 'reviewer', phase: 'Integrate', agentType: 'product-owner-reviewer', model: 'opus', schema: REVIEW_SCHEMA },
 )
 
 return {

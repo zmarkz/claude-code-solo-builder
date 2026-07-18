@@ -96,7 +96,7 @@ When no eligible `todo` tasks remain for Phase $ARGUMENTS:
 Durable loop run complete — Phase $ARGUMENTS.
 
 Leaves: <n>  | Tasks done: <list of ids>  | needs-human: <list or none>
-Commits: <list by leaf>  | Runtime: <wall-clock>  | Est. cost: <₹/$>
+Commits: <list by leaf>  | Runtime: <wall-clock>  | Est. cost: <$>
 Open contract risks (reviewer): <list or none>
 
 NEXT — HUMAN ACTIONS REQUIRED:

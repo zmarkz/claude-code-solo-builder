@@ -4,7 +4,19 @@ All notable changes to this skill, newest first. Each entry pairs with an ADR-st
 
 ---
 
-## [1.2] — 2026-05-16
+## [2.0] — 2026-07-18
+
+**Theme:** Public/private split (repo v3.0) — the kit is now fully generic and portable. See `docs/adr/0003-public-private-overlay-split.md`.
+
+### Changed
+
+- **All agent `model:` frontmatter and workflow-recipe model constants** switched from pinned IDs (`claude-sonnet-4-6`, `claude-opus-4-8`, `claude-haiku-4-5-20251001`) to tier aliases (`sonnet`, `opus`, `haiku`) — retired-model hard-failures are structurally eliminated.
+- **`fast-dag-build.js`** commit trailer is now model-neutral (`Co-Authored-By: Claude`).
+- **`commands/vault-update.md` and `commands/start-session.md`** — vault steps now gate on the optional vault module (`VAULT_PATH` in `~/.claude/solo-builder.config`) and use `$VAULT_PATH` instead of a hardcoded Obsidian path; `start-session` now reads `docs/adr/` (per-file ADRs) instead of the retired `DECISIONS.md`.
+
+### Removed
+
+- **`platform-scripts/`** — the personal automation scripts (kg-reindex, vault-write-hook, ccc launcher, fleet digest) moved to the author's private overlay repo. The two generic session-check scripts moved to the repo's top-level `scripts/`, install to `~/.claude/scripts/`, and are parameterized via `solo-builder.config`.
 
 **Theme:** Agent quality pass — model routing, proactive trigger language, tool access bug fixes, and `/write-an-agent` skill for domain customisation.
 

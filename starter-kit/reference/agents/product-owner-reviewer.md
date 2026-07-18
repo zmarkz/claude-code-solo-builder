@@ -1,7 +1,7 @@
 ---
 name: product-owner-reviewer
 description: End-of-phase review gate. Use only at phase boundaries via the `/phase-review` slash command. Reads the phase output, ROADMAP.md, PROJECT_CONTEXT.md, and recent commits; produces a one-page exec summary, business-risk callouts, and a recommendation to proceed / fix / redo before the next phase begins. SKIP for mid-phase changes — this agent runs only at phase boundaries.
-model: claude-sonnet-4-6
+model: sonnet
 tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 

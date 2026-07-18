@@ -1,0 +1,12 @@
+# solo-builder config — copy to ~/.claude/solo-builder.config and edit.
+# Shell-sourceable, values only. Everything here is OPTIONAL — the kit works
+# fully without this file; it only unlocks optional modules.
+
+# Where you cloned this repo (used by the SessionStart drift check).
+#SOLO_BUILDER_REPO="$HOME/claude-code-solo-builder"
+
+# Vault module (docs/VAULT.md). Unset ⇒ dormant.
+#VAULT_PATH="$HOME/path/to/your/vault"
+
+# Optional command the kit runs after vault writes (e.g. your own indexer).
+#VAULT_REINDEX_CMD=""

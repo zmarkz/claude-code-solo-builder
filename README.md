@@ -3,7 +3,7 @@
 > An operating system for solo developers building a multi-app portfolio with AI agents.
 > Token-efficient, vault-grounded, security-first, and compounding over time.
 
-**Version 2.5 — June 2026**
+**Version 3.0 — July 2026**
 
 ---
 
@@ -13,7 +13,7 @@ This repository is the **complete, shareable setup** that lets a solo developer 
 
 - **The Playbook** — a 13-part operating manual covering mental model, AI swarm patterns, knowledge vault, portfolio management, and daily cadences
 - **The Starter Kit** — a Claude Code skill that scaffolds any new project with 11 agents, 18 slash commands, 7 workflow recipes, 9 guardrail scripts, and all planning docs in ~10 minutes
-- **The Knowledge Stack** — Obsidian vault + Context7 + knowledge-graph MCP working together to ground every AI call in your prior decisions
+- **The Knowledge Stack (optional module)** — Obsidian vault + Context7 + knowledge-graph MCP working together to ground every AI call in your prior decisions (see `docs/VAULT.md`)
 - **Token Efficiency Guide** — how to get 85%+ cost savings through model routing, context management, and vault-first queries
 - **Settings & Agents** — production-grade Claude Code settings, 11 specialist subagents, 18 slash commands, 7 profile-aware workflow recipes, and guardrail scripts
 - **Comparison with mattpocock/skills** — the best-of-both hybrid workflow
@@ -49,13 +49,14 @@ This repository is the **complete, shareable setup** that lets a solo developer 
 
 ---
 
-## Quick Start (30 minutes to full setup)
+## Quick Start
+
+Three steps to a working setup.
 
 ### Prerequisites
 - [Claude Code](https://claude.ai/code) installed
-- [Obsidian](https://obsidian.md/) installed
 - `gh` CLI authenticated (`gh auth login`)
-- `node` 18+, `pnpm`, `git`
+- `node` 22+, `pnpm`, `git`
 
 ### Step 1 — Clone this repo
 ```bash
@@ -67,82 +68,46 @@ cd claude-code-solo-builder
 ```bash
 make install     # idempotent — safe to re-run after every `git pull`
 ```
-This syncs the scaffold skill, all 11 agents, 18 commands, 7 workflow recipes, and the platform
-scripts into `~/.claude` (and `~/builds/_platform/scripts`). It deliberately does **not** touch your
-`~/.claude/settings.json` or `~/.claude/CLAUDE.md` — those stay yours (Steps 5 and 7). Run
-`make check` any time for a read-only, content-based drift report.
+This syncs the scaffold skill, all 11 agents, 18 commands, 7 workflow recipes, and the two generic
+hook scripts into `~/.claude` (`agents/`, `commands/`, `workflows/`, `skills/`, and
+`~/.claude/scripts/`). It deliberately does **not** touch your `~/.claude/settings.json` or
+`~/.claude/CLAUDE.md` — those stay yours. Run `make check` any time for a read-only, content-based
+drift report.
 
-### Step 3 — Install gstack
-```bash
-# gstack is a comprehensive skill ecosystem (~30 skills)
-# See docs/SKILLS-ECOSYSTEM.md for the full list
-npx skills@latest add gstack  # or follow gstack install docs
+> **First run:** also copy the settings and standing-instructions templates —
+> `settings/settings.json.template`, `settings/CLAUDE.md.template`, and (optional)
+> `settings/solo-builder.config.template`. `make install` never touches your live settings; the full
+> walkthrough is in `docs/INSTALL.md`.
+
+### Step 3 — Wire up any project (new or existing)
+
+In any project directory, launch Claude Code and run:
+
+```
+> /sync-project          # existing project → retrofit, or update agents to latest
+> /ai-project-scaffold   # empty dir → scaffold a new project from scratch
 ```
 
-### Step 4 — Install mattpocock/skills (atomic daily workflow skills)
-```bash
-npx skills@latest add mattpocock/skills
-# Select: grill-with-docs, diagnose, zoom-out, improve-codebase-architecture, handoff, caveman
-```
+`/sync-project` is the single entry point: it probes the directory, classifies the scenario (new /
+retrofit / update), confirms with one question, and executes the right steps — delegating to
+`/ai-project-scaffold` when the directory is empty. See `docs/NEW-PROJECT.md` and
+`docs/EXISTING-PROJECT.md` for what each path does.
 
-### Step 5 — Configure Claude Code settings
-```bash
-cp settings/settings.json.template ~/.claude/settings.json
-# Edit to customize your notification channel, model preference, etc.
-```
+---
 
-### Step 6 — Set up Obsidian vault
-Follow `docs/OBSIDIAN-CONTEXT7.md` — takes ~20 minutes. Creates the vault at `~/Obsidian/Builds/`.
+## Optional modules
 
-### Step 7 — Set up your personal CLAUDE.md
-```bash
-cp settings/CLAUDE.md.template ~/.claude/CLAUDE.md
-# Edit: fill in your stack, your projects, your non-negotiables
-```
+The core setup above is fully self-contained. These modules are opt-in — turn on the ones you want.
 
-### Step 8 — Install the `ccc` launcher
-
-`ccc` wraps your normal Claude Code launch command and auto-re-indexes the knowledge-graph when you close the session.
-
-**fish shell:**
-```bash
-# Copy and edit — replace /YOUR_HOME with your actual home path
-cp starter-kit/platform-scripts/ccc.fish ~/.config/fish/functions/ccc.fish
-# Edit the file to replace /YOUR_HOME and adjust launch flags
-```
-
-**zsh / bash** — add to `~/.zshrc`:
-```bash
-function ccc() {
-  caffeinate -s claude --dangerously-skip-permissions "$@"
-  bash /YOUR_HOME/builds/_platform/scripts/kg-reindex.sh
-}
-```
-
-See `docs/VAULT-AUTOMATION.md` for full details.
-
-### Step 9 — Wire up any project (new or existing)
-
-`/sync-project` is the single entry point for all three cases:
-
-```bash
-# New project
-mkdir ~/builds/my-app && cd ~/builds/my-app
-ccc
-> /sync-project          # detects empty dir → delegates to /ai-project-scaffold
-
-# Existing project — no setup yet
-cd ~/builds/existing-app
-ccc
-> /sync-project          # detects code, no .claude/ → retrofit flow, asks bucket
-
-# Existing project — update agents to latest
-cd ~/builds/any-app
-ccc
-> /sync-project          # detects .claude/agents/ → syncs from ~/.claude/agents/
-```
-
-It probes the directory, classifies the scenario, confirms with one question, and executes the right steps. See `docs/EXISTING-PROJECT.md` for what each path does.
+- **Vault / knowledge layer** — ground every AI call in your prior decisions (Obsidian vault +
+  Context7 + optional knowledge-graph). Dormant until enabled: set `VAULT_PATH` in
+  `~/.claude/solo-builder.config` (template at `settings/solo-builder.config.template`). Guide:
+  `docs/VAULT.md`.
+- **Third-party skill suites** — gstack (~30 shipping / QA / review / SEO skills) and
+  mattpocock/skills (atomic daily-workflow skills). Install only what you use. Guide:
+  `docs/SKILLS-ECOSYSTEM.md`.
+- **Local-model routing** — send simple AI calls to a free local model (e.g. Qwen via Ollama) and
+  reserve Claude for complex work. A recommended generic pattern, written up in `PLAYBOOK.md` §3.10.
 
 ---
 
@@ -154,13 +119,14 @@ claude-code-solo-builder/
 ├── PLAYBOOK.md                       ← The full 13-part operating manual
 ├── install.sh                        ← Propagate repo → ~/.claude (run after every git pull)
 ├── Makefile                          ← make install (sync) · make check (drift report)
+├── scripts/                          ← Generic hook scripts → installed to ~/.claude/scripts/
+│   ├── vault-session-check.sh        ← SessionStart hook: vault freshness (dormant until VAULT_PATH set)
+│   └── solo-builder-session-check.sh ← SessionStart hook: repo → ~/.claude drift reminder
 ├── docs/
 │   ├── INSTALL.md                    ← Detailed installation guide (start here)
 │   ├── BEST-PRACTICES.md             ← Daily operating discipline (propagation, profiles, recipes)
-│   ├── VAULT-AUTOMATION.md           ← Auto-indexing: hooks, ccc wrapper, cron
+│   ├── VAULT.md                      ← Optional vault/knowledge module (Obsidian + Context7 + kg)
 │   ├── TOKEN-EFFICIENCY.md           ← 85%+ cost savings strategies
-│   ├── OBSIDIAN-CONTEXT7.md          ← Knowledge vault + MCP setup + project ingestion
-│   ├── AI-ROUTING.md                 ← Model routing pattern (COMPLEX vs SIMPLE)
 │   ├── NEW-PROJECT.md                ← How to scaffold a new project
 │   ├── EXISTING-PROJECT.md           ← Retrofitting existing projects
 │   ├── AGENTS-GUIDE.md               ← The 11 specialist agents explained
@@ -174,13 +140,6 @@ claude-code-solo-builder/
 │   ├── SKILL.md                      ← Skill specification (invoke with /ai-project-scaffold)
 │   ├── CHANGELOG.md                  ← Version history
 │   ├── examples/                     ← Template files for generated docs
-│   ├── platform-scripts/             ← Automation scripts (copy to ~/builds/_platform/scripts/)
-│   │   ├── kg-reindex.sh             ← Rebuild knowledge-graph index
-│   │   ├── vault-session-check.sh    ← SessionStart hook: vault freshness check
-│   │   ├── vault-write-hook.sh       ← PostToolUse hook: auto re-index on vault write
-│   │   ├── solo-builder-session-check.sh ← SessionStart hook: repo→~/.claude drift reminder
-│   │   ├── fleet-status.sh           ← Status snapshot across ~/builds projects
-│   │   └── ccc.fish                  ← Fish shell launcher (re-index on session close)
 │   └── reference/
 │       ├── agents/                   ← 11 specialist subagent definitions (incl. upgraded frontend-engineer)
 │       ├── commands/                 ← 18 slash commands (incl. /design-feature, /mode, /review-exhaustive)
@@ -194,7 +153,8 @@ claude-code-solo-builder/
 └── settings/
     ├── settings.json.template        ← Claude Code settings with hooks wired
     ├── settings.local.json.template  ← Per-machine permission allowlist template
-    └── CLAUDE.md.template            ← Personal L1 standing instructions template
+    ├── CLAUDE.md.template            ← Personal L1 standing instructions template
+    └── solo-builder.config.template  ← Optional module config (VAULT_PATH, VAULT_REINDEX_CMD)
 ```
 
 ---
@@ -202,8 +162,8 @@ claude-code-solo-builder/
 ## The Daily Workflow
 
 ```bash
-# Launch Claude Code (auto re-indexes vault on exit)
-ccc
+# Launch Claude Code
+claude
 
 # First time in a project (or to update agents)
 > /sync-project                       # detect + scaffold / retrofit / sync in one command
@@ -230,7 +190,7 @@ ccc
 > /diagnose                          # structured debug: reproduce → minimize → fix
 
 # End of session
-> /vault-update                      # write/update vault INDEX.md + trigger re-index
+> /vault-update                      # (vault module) write/update vault INDEX.md + trigger re-index
 > /handoff                           # human-readable doc for tomorrow
 
 # Weekly
@@ -327,4 +287,4 @@ MIT — use freely, adapt to your context, share improvements.
 
 ---
 
-*Built by [Markandey Singh](https://markandey.in) with Claude as co-author. v2.5, June 2026.*
+*Built by [Markandey Singh](https://markandey.in) with Claude as co-author. v3.0, July 2026.*

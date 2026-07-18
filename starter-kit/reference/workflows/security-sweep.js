@@ -29,19 +29,19 @@ const SAVER = MODE === 'saver'
 const REPO = A.repoPath || '.'
 
 const CLASSES = [
-  { key: 'authz', agent: 'security-architect', model: 'claude-opus-4-8', desc: 'authentication, authorization, tenant isolation, privilege escalation, IDOR' },
-  { key: 'injection', agent: 'security-architect', model: 'claude-sonnet-4-6', desc: 'SQL/NoSQL/command injection, SSRF, XSS, path traversal' },
-  { key: 'secrets', agent: 'devops-engineer', model: 'claude-sonnet-4-6', desc: 'hardcoded secrets, credential handling, key exposure, secrets in logs' },
-  { key: 'input-validation', agent: 'backend-engineer', model: 'claude-sonnet-4-6', desc: 'unvalidated input, unsafe deserialization, mass assignment, missing schema validation' },
-  { key: 'dependencies', agent: 'devops-engineer', model: 'claude-sonnet-4-6', desc: 'vulnerable/outdated dependencies, supply-chain risk, lockfile integrity' },
-  { key: 'prompt-injection', agent: 'ai-engineer', model: 'claude-opus-4-8', desc: 'LLM trust-boundary violations, prompt injection, tool-output-as-instruction, unsafe handling of model output' },
+  { key: 'authz', agent: 'security-architect', model: 'opus', desc: 'authentication, authorization, tenant isolation, privilege escalation, IDOR' },
+  { key: 'injection', agent: 'security-architect', model: 'sonnet', desc: 'SQL/NoSQL/command injection, SSRF, XSS, path traversal' },
+  { key: 'secrets', agent: 'devops-engineer', model: 'sonnet', desc: 'hardcoded secrets, credential handling, key exposure, secrets in logs' },
+  { key: 'input-validation', agent: 'backend-engineer', model: 'sonnet', desc: 'unvalidated input, unsafe deserialization, mass assignment, missing schema validation' },
+  { key: 'dependencies', agent: 'devops-engineer', model: 'sonnet', desc: 'vulnerable/outdated dependencies, supply-chain risk, lockfile integrity' },
+  { key: 'prompt-injection', agent: 'ai-engineer', model: 'opus', desc: 'LLM trust-boundary violations, prompt injection, tool-output-as-instruction, unsafe handling of model output' },
 ]
 const classes = SAVER ? CLASSES.slice(0, 4) : CLASSES
 const DRY = SAVER ? 1 : 2          // stop a class after this many consecutive empty rounds
 const MAX_ROUNDS = 5
 const SKEPTICS = SAVER ? 2 : 5
-const SKEPTIC_MODEL = SAVER ? 'claude-haiku-4-5-20251001' : 'claude-sonnet-4-6'
-const SYNTH_MODEL = SAVER ? 'claude-sonnet-4-6' : 'claude-opus-4-8'
+const SKEPTIC_MODEL = SAVER ? 'haiku' : 'sonnet'
+const SYNTH_MODEL = SAVER ? 'sonnet' : 'opus'
 
 const FINDING = {
   type: 'object', additionalProperties: false,

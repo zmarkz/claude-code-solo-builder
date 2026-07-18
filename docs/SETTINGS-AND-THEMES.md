@@ -48,8 +48,7 @@ higher throughput *without* downgrading the model, which changes the default:
 - **Repetitive grind** → Haiku 4.5 / local Qwen, unchanged.
 
 Fast mode is a runtime toggle, not a `settings.json` key — `/fast` flips it per session (supported on
-Opus 4.8/4.7/4.6). See `docs/AI-ROUTING.md` › *Fast mode changes the Opus calculus* for the
-per-loop-role table.
+Opus 4.8/4.7/4.6). See `docs/TOKEN-EFFICIENCY.md` › *Strategy 2* for model-routing guidance.
 | `tui` | `"fullscreen"` | Full terminal UI — better for long sessions than inline mode |
 | `theme` | `"dark"` | Dark theme — reduces eye strain in long sessions |
 | `preferredNotifChannel` | `"ghostty"` | Ghostty terminal for notifications. Change to `"iterm"` or `"terminal"` for your setup |

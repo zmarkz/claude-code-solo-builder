@@ -1,7 +1,7 @@
 # Installation Guide
 
-> Complete setup: Claude Code → skills → Obsidian vault → Context7 → first project.
-> Estimated time: 45-90 minutes.
+> Complete setup: Claude Code → settings → skills → first project.
+> Core setup takes ~15 minutes. Optional modules (vault, local models) add more.
 
 ---
 
@@ -11,7 +11,7 @@ Before starting, ensure you have:
 
 ```bash
 # Check versions
-node --version          # Need 18+
+node --version          # Need 22+
 git --version           # Need 2.30+
 gh --version            # GitHub CLI
 pnpm --version          # Optional but recommended
@@ -22,12 +22,17 @@ npm install -g pnpm
 ```
 
 - [Claude Code](https://claude.ai/code) installed and authenticated
-- [Obsidian](https://obsidian.md/) installed
 - GitHub account with `gh auth login` completed
+
+Optional: [Obsidian](https://obsidian.md/) — only needed for the vault module (`docs/VAULT.md`).
 
 ---
 
 ## Phase 1 — Claude Code Settings (5 minutes)
+
+`install.sh` / `make install` propagate the repo's skills, agents, commands, workflows, and hook
+scripts into `~/.claude`. They **never** touch your live `~/.claude/settings.json` or
+`~/.claude/CLAUDE.md` — you own those. Copy the templates once and edit them by hand.
 
 ### Step 1 — Install global settings
 
@@ -39,6 +44,9 @@ cp settings/settings.json.template ~/.claude/settings.json
 # Options: "ghostty", "iterm", "terminal", "wezterm"
 nano ~/.claude/settings.json
 ```
+
+The template wires the SessionStart hooks to `$HOME/.claude/scripts/…` — there are no path
+placeholders to replace. `make install` copies those scripts into `~/.claude/scripts/`.
 
 ### Step 2 — Install machine-specific permissions
 
@@ -60,29 +68,36 @@ cp settings/CLAUDE.md.template ~/.claude/CLAUDE.md
 
 **Critical:** Keep `~/.claude/CLAUDE.md` under 200 lines. Every extra line costs tokens on every session.
 
+### Step 4 — (Optional) Module config
+
+Only if you plan to use an optional module (e.g. the vault): copy the config template.
+
+```bash
+cp settings/solo-builder.config.template ~/.claude/solo-builder.config
+# Edit: set VAULT_PATH (and VAULT_REINDEX_CMD if you use knowledge-graph)
+```
+
+Leave it unset and the modules stay dormant. Details in `docs/VAULT.md`.
+
 ---
 
 ## Phase 2 — Skills Installation (10 minutes)
 
-### Step 4 — Install the starter kit skill
+### Step 5 — Install the starter kit + agents/commands/workflows
+
+`make install` is the canonical, idempotent installer. It installs the `ai-project-scaffold` skill
+plus all agents, commands, workflows, and hook scripts at user level, so improvements propagate to
+every project.
 
 ```bash
-mkdir -p ~/.claude/skills ~/.claude/agents ~/.claude/commands
-
-# Install the skill
-cp -r starter-kit ~/.claude/skills/ai-project-scaffold
-
-# Dual-residency: also install components at user level
-# This means improvements propagate to all projects automatically
-cp starter-kit/reference/agents/*.md ~/.claude/agents/
-cp starter-kit/reference/commands/*.md ~/.claude/commands/
+make install
 
 echo "✓ ai-project-scaffold installed"
 ls ~/.claude/agents/    # Should show 11 .md files
-ls ~/.claude/commands/  # Should show 9 .md files
+ls ~/.claude/commands/  # Should show 18 .md files
 ```
 
-### Step 5 — Install mattpocock/skills
+### Step 6 — Install mattpocock/skills (optional)
 
 ```bash
 npx skills@latest add mattpocock/skills
@@ -101,7 +116,7 @@ echo "✓ mattpocock skills installed"
 ls ~/.claude/skills/ | grep -E "grill|diagnose|zoom|improve|handoff|caveman"
 ```
 
-### Step 6 — Install gstack (optional but recommended)
+### Step 7 — Install gstack (optional but recommended)
 
 gstack provides ~30 additional skills for shipping, reviewing, QA, and SEO.
 
@@ -119,20 +134,18 @@ Key gstack skills you'll use most:
 - `/plan-ceo-review` — CEO-mode scope review
 - `/plan-eng-review` — engineering architecture review
 
-### Step 6b — Install /sync-skills (optional)
+### Step 8 — Configure /sync-skills (optional)
 
-`/sync-skills` keeps your tools current: gstack, mattpocock/skills, and the Karpathy CLAUDE.md baseline. Run it monthly.
+`make install` already installs `/sync-skills`. It keeps your tools current: gstack,
+mattpocock/skills, and the Karpathy CLAUDE.md baseline. Run it monthly.
 
 ```bash
-# Install to user-level skills
-mkdir -p ~/.claude/skills/sync-skills
-cp -r skills/sync-skills/* ~/.claude/skills/sync-skills/
-
 # Verify sources.json is present — the skill blocks without it
 ls ~/.claude/skills/sync-skills/sources.json
 ```
 
-`sources.json` ships pre-configured for gstack, mattpocock/skills, and the Karpathy CLAUDE.md URL. Edit it to add or remove sources before the first run.
+`sources.json` ships pre-configured for gstack, mattpocock/skills, and the Karpathy CLAUDE.md URL.
+Edit it to add or remove sources before the first run.
 
 ```bash
 # First run (establishes baseline — no changes applied yet)
@@ -141,142 +154,23 @@ ls ~/.claude/skills/sync-skills/sources.json
 
 ---
 
-## Phase 3 — Obsidian Vault Setup (20 minutes)
+## Phase 3 — Optional: Vault / Knowledge Module
 
-### Step 7 — Create the vault structure
+The vault grounds every AI call in your prior decisions (Obsidian + Context7 + optional
+knowledge-graph MCP). It is entirely optional and stays dormant until you set `VAULT_PATH` in
+`~/.claude/solo-builder.config`.
 
-```bash
-mkdir -p ~/Obsidian/Builds/{00-Inbox,01-Projects,02-Areas,03-Resources,04-Archive,05-Patterns}
-mkdir -p ~/Obsidian/Builds/.claude/skills
-cd ~/Obsidian/Builds && git init -b main
-```
-
-### Step 8 — Open in Obsidian
-
-1. Open Obsidian
-2. File → Open folder → select `~/Obsidian/Builds`
-3. Install recommended plugins (Settings → Community plugins → Browse):
-   - **Dataview** — query notes like a database
-   - **Templater** — note templates with auto-fill
-   - **Git** — auto-sync to GitHub
-
-### Step 9 — Create vault CLAUDE.md
-
-Create `~/Obsidian/Builds/.claude/CLAUDE.md`:
-```markdown
-# Vault: ~/Obsidian/Builds/
-
-This vault follows the Karpathy Six rules:
-1. Five page types: entity, concept, synthesis, source, report
-2. Search before write — always kg_search before creating
-3. Backlinks mandatory — every note links to ≥1 other note
-4. Contradictions flagged on the page, never silently overwritten
-5. Attribution in frontmatter (created_by, last_edited_by)
-6. One vault — no subvaults, no parallel hierarchies
-
-When adding notes:
-- Active projects → 01-Projects/<project-name>/
-- Patterns → 05-Patterns/
-- New ideas → 00-Inbox/ (process weekly)
-- Killed apps → 04-Archive/ (keep forever)
-```
-
-### Step 10 — Set up vault backup
-
-```bash
-cd ~/Obsidian/Builds
-git add . && git commit -m "vault: initial structure"
-
-# Create private GitHub repo for the vault
-gh repo create vault-builds --private --push --source=.
-echo "✓ Vault backed up to GitHub"
-```
+**Setup guide: `docs/VAULT.md`** — covers the vault structure, the MCP servers (Context7,
+filesystem, knowledge-graph), and the auto-indexing hooks.
 
 ---
 
-## Phase 4 — MCP Server Setup (15 minutes)
+## Phase 4 — Local Model Setup (optional, 30 minutes)
 
-### Step 11 — Install Context7
+Optional — powers the local-model routing pattern (`PLAYBOOK.md` §3.10) and the embeddings the RAG
+module will use.
 
-Context7 fetches fresh library docs at query time.
-
-```bash
-# Add to Claude Code via settings (claude.json or /config command):
-# Navigate to: claude.ai/code → Settings → MCP Servers → Add Server
-# Or edit ~/.claude/claude.json directly
-```
-
-Add to your MCP config:
-```json
-{
-  "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"]
-    }
-  }
-}
-```
-
-Test: Open Claude Code, ask about a library. It should silently use Context7.
-
-### Step 12 — Install vault-files MCP
-
-> **Note:** The `mcpvault` npm package does not exist. Use `@modelcontextprotocol/server-filesystem` (the official MCP filesystem server) instead.
-
-```bash
-# Easiest: use the Claude Code CLI
-claude mcp add --scope user vault-files -- npx -y @modelcontextprotocol/server-filesystem /Users/YOUR_USERNAME/Obsidian/Builds
-```
-
-Or add manually to your MCP config:
-```json
-{
-  "mcpServers": {
-    "vault-files": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/YOUR_USERNAME/Obsidian/Builds"]
-    }
-  }
-}
-```
-
-Replace `YOUR_USERNAME` with your actual username.
-
-### Step 13 — Install knowledge-graph (optional, 30 minutes)
-
-```bash
-git clone https://github.com/obra/knowledge-graph-mcp.git ~/tools/knowledge-graph-mcp
-cd ~/tools/knowledge-graph-mcp && npm install
-
-# Add to MCP config:
-{
-  "mcpServers": {
-    "knowledge-graph": {
-      "command": "node",
-      "args": ["/Users/YOUR_USERNAME/tools/knowledge-graph-mcp/index.js"],
-      "env": {
-        "KG_VAULT_PATH": "/Users/YOUR_USERNAME/Obsidian/Builds"
-      }
-    }
-  }
-}
-```
-
-After adding to config, in Claude Code run:
-```
-> /kg-index
-```
-
-Initial indexing takes ~30 minutes. Schedule a block for this.
-
----
-
-## Phase 5 — Local Model Setup (optional, 30 minutes)
-
-Required for AI routing with local Qwen (free tier of the classifier):
-
-### Step 14 — Install Ollama
+### Step 9 — Install Ollama
 
 ```bash
 brew install ollama
@@ -299,47 +193,13 @@ ollama run qwen2.5-coder:14b "What is 2+2?"
 
 ---
 
-## Phase 6 — Shell wrapper (2 minutes)
+## Phase 5 — First Project (10 minutes)
 
-### Step 15 — Add the `cc` launcher to `~/.zshrc`
-
-This replaces your normal Claude Code launch command. When you close a session, the knowledge-graph automatically re-indexes.
-
-**zsh / bash** — add to `~/.zshrc` or `~/.bashrc`:
-```bash
-cat >> ~/.zshrc << 'EOF'
-
-# claude wrapper: re-index knowledge-graph after every session ends
-function ccc() {
-  caffeinate -s claude --dangerously-skip-permissions "$@"
-  bash /YOUR_HOME/builds/_platform/scripts/kg-reindex.sh
-}
-EOF
-source ~/.zshrc
-```
-
-**fish** — create a function file (picked up automatically, no source needed):
-```bash
-mkdir -p ~/.config/fish/functions
-cat > ~/.config/fish/functions/ccc.fish << 'EOF'
-function ccc --description "Launch Claude Code and re-index knowledge-graph on exit"
-    caffeinate -s claude --dangerously-skip-permissions $argv
-    bash /YOUR_HOME/builds/_platform/scripts/kg-reindex.sh
-end
-EOF
-```
-
-Replace `/YOUR_HOME` with your home path. From now on use `ccc` instead of your usual Claude Code launch command.
-
----
-
-## Phase 7 — First Project (10 minutes)
-
-### Step 16 — Start a new project with the scaffold
+### Step 10 — Start a new project with the scaffold
 
 ```bash
 mkdir ~/builds/my-first-app && cd ~/builds/my-first-app
-cc
+claude
 ```
 
 In Claude Code:
@@ -371,21 +231,18 @@ Run these checks to verify the installation:
 # 1. Skills installed correctly
 ls ~/.claude/skills/ | grep -c "."           # Should be ≥3 directories
 ls ~/.claude/agents/ | grep -c ".md"         # Should be 11 files
-ls ~/.claude/commands/ | grep -c ".md"       # Should be 9 files
+ls ~/.claude/commands/ | grep -c ".md"       # Should be 18 files
 
 # 2. CLAUDE.md is within limit
 wc -l ~/.claude/CLAUDE.md                    # Should be ≤200 lines
 
-# 3. Vault structure exists
-ls ~/Obsidian/Builds/                        # Should show the 6 directories
-
-# 4. Ollama running (if installed)
+# 3. Ollama running (if installed)
 curl -s http://localhost:11434/api/tags | python3 -m json.tool | grep name
 
-# 5. GitHub auth
+# 4. GitHub auth
 gh auth status                               # Should show "Logged in to github.com"
 
-# 6. Claude Code version (check agent teams support)
+# 5. Claude Code version (check agent teams support)
 claude --version                             # Should be ≥2.1.32 for agent teams
 ```
 
@@ -397,7 +254,7 @@ claude --version                             # Should be ≥2.1.32 for agent tea
 ```bash
 # Check installation
 ls ~/.claude/skills/ai-project-scaffold/SKILL.md
-# If missing: re-run step 4
+# If missing: re-run make install
 ```
 
 **CLAUDE.md not loading:**
@@ -406,11 +263,6 @@ ls ~/.claude/skills/ai-project-scaffold/SKILL.md
 # Verify path
 cat ~/.claude/CLAUDE.md | wc -l    # Should exist and be ≤200
 ```
-
-**Context7 not fetching docs:**
-- Check your MCP config is valid JSON
-- Restart Claude Code after MCP config changes
-- Test with: `> "Show me the latest Next.js 15 Image component API"` (should use context7)
 
 **Ollama not responding:**
 ```bash
@@ -428,13 +280,10 @@ curl http://localhost:11434/api/tags    # Should return JSON with model list
 ## Updating the Setup
 
 ```bash
-# Update starter kit components
+# Pull the latest kit and re-propagate to ~/.claude
 cd /path/to/claude-code-solo-builder
 git pull
-
-# Re-install agents and commands (they're overwritten, not merged)
-cp starter-kit/reference/agents/*.md ~/.claude/agents/
-cp starter-kit/reference/commands/*.md ~/.claude/commands/
+make install      # idempotent — re-syncs agents, commands, workflows, scripts, skills
 
 # Update gstack
 /gstack-upgrade   # in Claude Code
@@ -445,4 +294,4 @@ npx skills@latest add mattpocock/skills --update
 
 ---
 
-*See also: `docs/OBSIDIAN-CONTEXT7.md` for vault deep-dive, `docs/NEW-PROJECT.md` for project setup, `docs/SETTINGS-AND-THEMES.md` for configuration reference.*
+*See also: `docs/VAULT.md` for the vault module, `docs/NEW-PROJECT.md` for project setup, `docs/SETTINGS-AND-THEMES.md` for configuration reference.*

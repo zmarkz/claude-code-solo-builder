@@ -1,17 +1,17 @@
 {
-  "version": "1.2",
+  "version": "2.0",
   "sources": [
     {
       "id": "solo-builder",
       "name": "claude-code-solo-builder (this repo — source of truth)",
       "type": "local-build",
-      "description": "The source of truth for the scaffold skill, 11 agents, 14 commands, 9 guardrail scripts, 5 platform scripts, and settings templates. ~/.claude is a COPY of this repo.",
-      "local_path": "~/Documents/claude/Projects/claude-code-solo-builder",
+      "description": "The source of truth for the scaffold skill, 11 agents, 18 commands, 7 workflow recipes, 9 guardrail scripts, user-level hook scripts, and settings templates. ~/.claude is a COPY of this repo.",
+      "local_path": "<your clone — or set SOLO_BUILDER_REPO>",
       "github_remote": "https://github.com/zmarkz/claude-code-solo-builder.git",
-      "install_command": "cd ~/Documents/claude/Projects/claude-code-solo-builder && git pull && ./install.sh",
-      "drift_check": "cd ~/Documents/claude/Projects/claude-code-solo-builder && ./install.sh --check",
+      "install_command": "cd \"$SOLO_BUILDER_REPO\" && git pull && ./install.sh",
+      "drift_check": "cd \"$SOLO_BUILDER_REPO\" && ./install.sh --check",
       "auto_apply": false,
-      "note": "Propagation chain: repo -> ./install.sh -> ~/.claude -> /sync-project per app. The SessionStart hook (solo-builder-session-check.sh) warns when ~/.claude has drifted from the repo."
+      "note": "Propagation chain: repo -> ./install.sh -> ~/.claude -> /sync-project per app. The SessionStart hook (solo-builder-session-check.sh) warns when ~/.claude has drifted from the repo. Personal overrides go in ~/.claude/sync-skills/sources.local.json (merged at runtime, local wins by id)."
     },
     {
       "id": "gstack",
@@ -29,17 +29,17 @@
       "id": "mattpocock-skills",
       "name": "mattpocock/skills",
       "type": "manual-install",
-      "description": "15 session-layer atomic workflow skills (diagnose, grill-with-docs, handoff, zoom-out, microsoft-foundry, etc.)",
+      "description": "Session-layer atomic workflow skills (diagnose, grill-with-docs, handoff, etc.). Upstream now ships as a Claude Code plugin — prefer the plugin install going forward.",
       "local_path": "~/.agents/skills",
       "symlink_target": "~/.claude/skills",
       "auto_apply": false,
-      "note": "NOT a git repo — manual install. To update: re-run the installation script or copy new SKILL.md files manually from the source."
+      "note": "Installed as a manual copy (no git). Upstream has moved to plugin-marketplace distribution: `claude plugin marketplace add mattpocock/skills`. Migrate when consolidating skills."
     },
     {
       "id": "karpathy-claude",
       "name": "Karpathy CLAUDE.md behavioral principles",
       "type": "web-fetch",
-      "description": "Behavioral OS principles from andrej-karpathy-skills (134k GitHub stars)",
+      "description": "Behavioral OS principles from andrej-karpathy-skills",
       "url": "https://raw.githubusercontent.com/multica-ai/andrej-karpathy-skills/main/CLAUDE.md",
       "target_file": "~/.claude/CLAUDE.md",
       "target_section": "Behavioral Principles",
@@ -59,24 +59,13 @@
     },
     {
       "id": "mcp-vault-files",
-      "name": "Vault Files MCP",
+      "name": "Vault Files MCP (optional vault module)",
       "type": "npm-package",
-      "description": "Filesystem MCP server for Obsidian vault access",
+      "description": "Filesystem MCP server for vault access — only relevant if the vault module is enabled (docs/VAULT.md)",
       "package": "@modelcontextprotocol/server-filesystem",
       "install_command": "npx -y @modelcontextprotocol/server-filesystem",
       "auto_apply": true,
       "note": "Uses @latest — always pulls newest on each invocation. No manual update needed."
-    },
-    {
-      "id": "mcp-knowledge-graph",
-      "name": "Knowledge Graph MCP",
-      "type": "local-build",
-      "description": "Our own graph/vector search over Obsidian vault (24 nodes, 54 edges)",
-      "local_path": "~/builds/_knowledge-graph",
-      "run_script": "~/builds/_knowledge-graph/run-mcp.sh",
-      "package_json": "~/builds/_knowledge-graph/package.json",
-      "auto_apply": false,
-      "note": "Our own code — update by pulling ~/builds/_knowledge-graph and re-indexing."
     },
     {
       "id": "openai-codex",
@@ -85,6 +74,31 @@
       "description": "OpenAI Codex CLI — adversarial code review and second-opinion tool",
       "package": "@openai/codex",
       "auto_apply": false
+    },
+    {
+      "id": "plugin-superpowers",
+      "name": "superpowers (official plugin)",
+      "type": "plugin-marketplace",
+      "plugin": "superpowers@claude-plugins-official",
+      "auto_apply": false,
+      "note": "Process-skills framework (brainstorming, systematic-debugging, writing-plans, TDD). Version from ~/.claude/plugins/installed_plugins.json; if it reads 'unknown', fall back to gitCommitSha/lastUpdated. Update via `claude plugin update` — never git-clone a second copy."
+    },
+    {
+      "id": "plugin-official-suite",
+      "name": "Other official plugins (metadata-only)",
+      "type": "plugin-marketplace",
+      "plugins": [
+        "claude-md-management@claude-plugins-official",
+        "frontend-design@claude-plugins-official",
+        "commit-commands@claude-plugins-official",
+        "pr-review-toolkit@claude-plugins-official",
+        "skill-creator@claude-plugins-official",
+        "claude-code-setup@claude-plugins-official",
+        "session-report@claude-plugins-official",
+        "security-guidance@claude-plugins-official"
+      ],
+      "auto_apply": false,
+      "note": "Tracked for freshness reporting only. Versions from ~/.claude/plugins/installed_plugins.json (gitCommitSha/lastUpdated fallback for entries whose version reads 'unknown'). Updates go through `claude plugin update <name>` — sync-skills never modifies plugins."
     }
   ]
 }

@@ -174,15 +174,15 @@ bash scripts/tasks-sync.sh
 `guard-file-domain.sh` is a no-op until a durable leaf sets `LEAF_DOMAIN_GLOBS`, so it won't affect
 your normal sessions. See `docs/SWARM-ORCHESTRATION.md` for the full Mode 3 flow.
 
-#### Step 6 — Ingest into vault
+#### Step 6 — Ingest into vault (optional — requires the vault module, `docs/VAULT.md`)
 
-Create `~/Obsidian/Builds/01-Projects/<project-name>/STATUS.md`:
+Create `$VAULT_PATH/01-Projects/<project-name>/STATUS.md`:
 ```markdown
 ---
 type: entity
 name: <project-name>
 status: ACTIVE-BUILD
-last_edited_by: markandey
+last_edited_by: <your-name>
 ---
 # <project-name>
 [What it does]
@@ -255,7 +255,7 @@ If your existing app calls Claude/OpenAI directly, retrofit the routing pattern:
 **Before (costly and brittle):**
 ```typescript
 const response = await anthropic.messages.create({
-  model: "claude-sonnet-4-6",
+  model: "sonnet",
   messages: [{ role: "user", content: userMessage }]
 })
 ```
@@ -272,7 +272,7 @@ if (complexity === "SIMPLE") {
 }
 ```
 
-Add the classification keywords from `docs/AI-ROUTING.md`. The 85% cost reduction is the fastest payoff in this entire setup.
+Add the classification keywords from `PLAYBOOK.md` §3.10. The 85% cost reduction is the fastest payoff in this entire setup.
 
 ---
 
