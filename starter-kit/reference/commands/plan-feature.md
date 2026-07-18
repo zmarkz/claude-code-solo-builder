@@ -26,6 +26,14 @@ Workflow:
    - If **found**: read the first 50 lines — note the aesthetic direction, type scale, and palette. You'll pass these to the architect and `plan-design-review` later.
    - If a **Figma URL** appears in `PROJECT_CONTEXT.md` or `CONTEXT.md`: flag it — "Figma file found. The frontend-engineer will use Figma MCP to read the design directly during implementation."
 
+0.6. **Reuse check (cross-project module search).** Before scoping anything new, check whether a module this feature needs already exists somewhere in the portfolio:
+
+   - Derive 2–4 candidate modules/capabilities from the grilled feature (e.g. "model picker", "CSV import", "rate limiter").
+   - For each, search **(a)** the pattern library index (`leann search patterns "<capability>"` — exists if the user has run `/extract-pattern`) and **(b)** the project code indexes (LEANN MCP semantic search; `leann list` shows every indexed project — search the relevant ones, not just this repo).
+   - Skip silently if LEANN isn't installed or no indexes exist.
+   - On a plausible hit, present it BEFORE proceeding: *"`<module>` already exists in `<project>` (`<path>`) — options: (a) reuse as-is, (b) extract to a shared package, (c) reimplement (justify why)."* Record the decision in the feature spec (Step 6).
+   - This is the single highest-leverage step for a portfolio: one found module saves the whole build.
+
 1. **Read context first.** `PROJECT_CONTEXT.md`, `CONTEXT.md`, the active phase in `ROADMAP.md`, the relevant section of `TASKS.md`, and the latest few files in `docs/adr/`.
 
 2. **Launch `product-manager` subagent.** Hand it the grilling summary from Step 0. Ask it to produce the vertical-slice scoping document using the template in its system prompt:

@@ -70,6 +70,8 @@ Track whether each step moved toward the goal. Stop and reorient if it didn't.
 - Server Components by default; `"use client"` only when needed
 - API routes only when server-only secrets needed; otherwise Server Actions
 - All env vars typed (t3-env or equivalent)
+- Search before you grep: if the project has a `.leann/` index, answer where/how questions with one LEANN MCP search first; grep only for exact strings
+- Before building a new module, run the reuse check (`/plan-feature` does it automatically); after building something reusable, `/extract-pattern`
 
 ---
 
@@ -86,8 +88,8 @@ At the START of every non-trivial task:
 4. Cite findings by `[[wikilink]]` in your response.
 
 When producing outputs:
-1. Non-trivial architectural decision → write ADR at `docs/adr/NNNN-<slug>.md`
-2. Reusable pattern → draft note for `05-Patterns/` via extract-pattern
+1. Non-trivial architectural decision → run `/write-adr` (→ `docs/adr/NNNN-<slug>.md`, vault-mirrored when the module is on)
+2. Reusable pattern → run `/extract-pattern` (→ `~/.claude/patterns/`, indexed for cross-project reuse search)
 3. Never silently overwrite an existing vault note — propose diffs only.
 
 ---

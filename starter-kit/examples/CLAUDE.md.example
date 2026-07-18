@@ -17,6 +17,7 @@ This file is loaded by Claude Code at the start of every session. Keep it under 
 3. **Tests are mandatory.** No new code without tests.
 4. **{{DOMAIN_SPECIFIC_RULE_IF_ANY}}** — e.g., for AI products: "Citations are mandatory; outputs without citations are invalid." For regulated products: "Use 'aligned with X' not 'certified by X'." For multi-tenant: "Every table has tenant_id."
 5. **Phase gates are real.** Each phase ends with a `product-owner-reviewer` check via `/phase-review`. Do not start the next phase until the previous one has been signed off.
+6. **Search before you grep.** If `.leann/` exists, answer "where is X / how does Y work" questions with one LEANN MCP semantic search first; grep only for exact strings/symbols after. One retrieval call replaces a multi-turn grep/read loop. After building something reusable, run `/extract-pattern` so other projects find it.
 
 ## Subagents
 
@@ -47,7 +48,11 @@ In `.claude/commands/`:
 - `/phase-review N` — end-of-phase sign-off
 - `/start-phase-team [N]` — launch parallel agent team (v2.1.32+; bounded to early phases)
 - `/build-phase-autopilot [slugs|all]` — single-session chained autopilot (bounded scope)
-- `/orchestrate-loops [N]` — durable headless parallel loops (Mode 3): one background worktree leaf per `tasks.json` domain, attempt-capped, file-domain enforced. For large/overnight builds. Run `scripts/tasks-sync.sh` first. Loop-role model routing in `docs/AI-ROUTING.md`.
+- `/orchestrate-loops [N]` — durable headless parallel loops (Mode 3): one background worktree leaf per `tasks.json` domain, attempt-capped, file-domain enforced. For large/overnight builds. Run `scripts/tasks-sync.sh` first.
+- `/rag-init` — build the local semantic code index (LEANN); run once after the first commit
+- `/rag-status` — health check on the RAG index (freshness, log, MCP registration)
+- `/extract-pattern <module>` — save a reusable module to the user-level pattern library
+- `/write-adr <decision>` — ADR at docs/adr/NNNN-<slug>.md (3-test threshold)
 
 ## Tech stack (decided)
 
@@ -85,7 +90,7 @@ scripts/                — guardrails, quality checks, secret scans
 
 ## When stuck
 
-1. Read `DECISIONS.md` for prior architectural decisions.
+1. Read `docs/adr/` for prior architectural decisions.
 2. Read `docs/architecture/` for system diagrams.
 3. Use the `solution-architect` subagent — wider context than the default agent.
 4. If the question is domain-specific, use `domain-expert`.

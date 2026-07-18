@@ -10,6 +10,7 @@ Pre-flight:
 1. Read the spec. If it isn't marked `status: approved`, stop and ask the human to approve it.
 2. Read CLAUDE.md, the relevant section of ARCHITECTURE.md, and SECURITY_MODEL.md if the spec touches auth/tenancy/storage/model.
 3. Verify any project-specific safety env flags are set per `.claude/settings.json`.
+4. **Reuse guard.** Before creating any NEW module/component not named in the spec, run one pattern-library search (`leann search patterns "<module purpose>"` — skip silently if LEANN absent). On a hit, surface it and ask before reimplementing. (The spec's reuse decisions from `/plan-feature` Step 0.6 are already settled — this guard catches modules that emerge mid-build.)
 
 ## Two different "vertical slices" — don't confuse them
 

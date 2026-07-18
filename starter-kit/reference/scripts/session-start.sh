@@ -49,6 +49,18 @@ if [ -d docs/phase-reviews ]; then
   fi
 fi
 
+# Local RAG index freshness (see the kit's docs/LOCAL-RAG.md)
+if [ -d .leann/indexes ]; then
+  newest=$(find .leann/indexes -type f -exec stat -f %m {} + 2>/dev/null | sort -rn | head -1 || true)
+  [ -z "${newest:-}" ] && newest=$(find .leann/indexes -type f -exec stat -c %Y {} + 2>/dev/null | sort -rn | head -1 || true)
+  head_ts=$(git log -1 --format=%ct 2>/dev/null || echo 0)
+  if [ "${head_ts:-0}" -gt "${newest:-0}" ]; then
+    echo "  ⚠  RAG index behind HEAD — refreshes on next edit, or run /rag-init"
+  fi
+elif [ -x scripts/rag-reindex.sh ]; then
+  echo "  RAG           : not initialized — run /rag-init for semantic search"
+fi
+
 # Reminder
 echo ""
 echo "  → /start-session  to re-load context"

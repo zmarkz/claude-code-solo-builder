@@ -1,6 +1,6 @@
 ---
 name: ai-project-scaffold
-description: Use when starting a new software project that will be built with Claude Code. Generates a complete project scaffold — planning docs (CLAUDE.md, PROJECT_CONTEXT.md, ARCHITECTURE.md, ROADMAP.md, SECURITY_MODEL.md, TASKS.md, DECISIONS.md, README.md, HANDOFF.md), `.claude/` config with permissions/hooks/11-subagent team/18 slash commands/7 workflow recipes, monorepo skeleton, Makefile, docker-compose, pre-commit hooks, and 9 guardrail scripts. Establishes phase-gated, vertical-slice, test-mandatory development with human review checkpoints. Invoke when the user says "start a new project," "scaffold a project," "bootstrap with Claude Code best practices," or when the working directory is empty / near-empty and they describe a build.
+description: Use when starting a new software project that will be built with Claude Code. Generates a complete project scaffold — planning docs (CLAUDE.md, PROJECT_CONTEXT.md, ARCHITECTURE.md, ROADMAP.md, SECURITY_MODEL.md, TASKS.md, DECISIONS.md, README.md, HANDOFF.md), `.claude/` config with permissions/hooks/11-subagent team/22 slash commands/7 workflow recipes, monorepo skeleton, Makefile, docker-compose, pre-commit hooks, 10 guardrail scripts, and a local LEANN RAG index of the codebase (opt-out). Establishes phase-gated, vertical-slice, test-mandatory development with human review checkpoints. Invoke when the user says "start a new project," "scaffold a project," "bootstrap with Claude Code best practices," or when the working directory is empty / near-empty and they describe a build.
 ---
 
 # AI Project Scaffold — Skill
@@ -52,6 +52,7 @@ Use `AskUserQuestion` (or equivalent) to gather these answers. Don't proceed unt
 9. **AI / LLM in the product?** (y/n) If yes, ask: local-only (Ollama/vLLM), hosted-only (Claude/OpenAI), or hybrid. Drives whether to scaffold `ai/` and the model adapter pattern.
 10. **Deployment target** (Docker Compose / AWS / GCP / Azure / Vercel / Render / self-hosted).
 11. **Phase 1 task list** — ask the user to enumerate the 5-10 tasks that complete Phase 1, or describe Phase 1's goal and let you propose tasks they can review.
+12. **Local RAG index?** (default: **yes**) Build a local semantic search index (LEANN) over the project's code and docs so Claude answers "where/how" questions in one retrieval call instead of grep/read loops. Fully local — nothing leaves the machine. Requires `uv`, the `leann` CLI, and Ollama with `nomic-embed-text`; if any are missing the scaffold skips the build and the user runs `/rag-init` later. Answer `no` to opt out.
 
 Record the answers in a temporary scratch note; you'll embed them into the generated docs.
 
@@ -62,9 +63,9 @@ Copy these from this skill's `reference/` directory into the target project, wit
 | Source | Destination |
 |--------|-------------|
 | `reference/agents/*.md` (11 files) | `<project>/.claude/agents/` |
-| `reference/commands/*.md` (18 files) | `<project>/.claude/commands/` |
+| `reference/commands/*.md` (22 files) | `<project>/.claude/commands/` |
 | `reference/workflows/*.js` (7 recipes) | `<project>/.claude/workflows/` |
-| `reference/scripts/*.sh` (9 files) | `<project>/scripts/` |
+| `reference/scripts/*.sh` (10 files) | `<project>/scripts/` |
 | `reference/settings.json.template` | `<project>/.claude/settings.json` |
 | `reference/.gitignore.template` | `<project>/.gitignore` |
 | `reference/.editorconfig.template` | `<project>/.editorconfig` |
@@ -117,6 +118,34 @@ Based on the tech stack profile, create these directories with a brief README in
 - `docker-compose.yml` — Postgres + Redis + (Ollama if AI) + (MinIO if files) bound to 127.0.0.1. App/worker/web services commented out until Phase 1 builds their Dockerfiles.
 - `.pre-commit-config.yaml` — gitleaks, pre-commit-hooks hygiene, language-specific linters, and the custom scripts in `scripts/`.
 
+### Step 6.5 — Build the local RAG index (unless opted out in Q12)
+
+The wiring (`scripts/rag-reindex.sh`, the PostToolUse hook in settings.json,
+`.leann/` in .gitignore) was already installed in Step 3 and is a safe no-op
+until an index exists. Now build the index — with graceful degradation; the
+scaffold NEVER fails on this step:
+
+1. **Prereq check** (collect misses, print exact remedies):
+   - `command -v leann` — else print: `uv tool install leann-core --with leann`
+   - `ollama list 2>/dev/null | grep -q nomic-embed-text` — else print: `ollama pull nomic-embed-text`
+   - `claude mcp list 2>/dev/null | grep -q leann-server` — else print
+     `claude mcp add --scope user leann-server -- leann_mcp` and tell the user
+     to run it themselves (user-level config; the scaffold never modifies it).
+2. **If leann or the model is missing, or the user opted out**: skip the build,
+   add "Run `/rag-init` to enable semantic code search" to HANDOFF.md's
+   next-steps and the Step 8 report, and continue to Step 7.
+3. **If the directory is not yet a git repo** (the normal case — `git init`
+   happens after the scaffold): defer the same way via HANDOFF.md. `git ls-files`
+   needs commits; indexing an empty list is useless.
+4. **Otherwise build**:
+   ```bash
+   INDEX_NAME="$(basename "$PWD" | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')"
+   leann build "$INDEX_NAME" --docs $(git ls-files) \
+     --embedding-mode ollama --embedding-model nomic-embed-text \
+     --use-ast-chunking --ast-fallback-traditional
+   ```
+5. Smoke test: `leann search "$INDEX_NAME" "project roadmap"` returns ≥1 hit.
+
 ### Step 7 — Verify the scaffold
 
 Run a verification pass:
@@ -128,6 +157,7 @@ Run a verification pass:
 5. **(v1.1)** `test -f CONTEXT.md` — must exist (DDD glossary).
 6. **(v1.1)** `test -d docs/adr && test -f docs/adr/INDEX.md` — must exist (per-file ADR layout, replaces `DECISIONS.md`).
 7. **(v1.2)** `for f in .claude/workflows/*.js; do node --check "$f" || echo "FAIL: $f"; done` — no FAILs (the 7 workflow recipes are valid JS). Each also loads only if its `export const meta = {…}` is a pure literal.
+8. **(v2.1)** `test -x scripts/rag-reindex.sh && grep -q '^\.leann/' .gitignore` — RAG wiring present (the index itself may be deferred to `/rag-init`).
 
 If any check fails, fix it before reporting completion.
 
@@ -136,6 +166,7 @@ If any check fails, fix it before reporting completion.
 Print a summary:
 
 - File count by category (planning docs, agents, commands, workflow recipes, scripts, infra).
+- RAG index: `built (N files)` | `skipped by user` | `deferred — run /rag-init` (prereqs missing or repo not yet committed).
 - Total directories created.
 - The first 5 commands the user should run (`chmod +x scripts/*.sh`, `git init`, `git commit`, `claude`, `/start-session`).
 - Where the scaffold's HANDOFF.md is (with the full installation steps).
@@ -171,7 +202,7 @@ Per Claude Code docs, only `tools`, `model`, and the body are honored when used 
 
 ### Pattern 6 — Hooks for safety, not for cleverness
 
-The hook scripts wire to SessionStart, PreToolUse (Bash, Write, Edit), PostToolUse (Write, Edit), and PreCompact hooks. Their purpose is to fail loudly and early. Don't make them do anything fancy; clarity beats elegance. Includes `guard-file-domain.sh` (PreToolUse Write/Edit) — a no-op in normal sessions that enforces a durable leaf's file-domain boundary when `LEAF_DOMAIN_GLOBS` is set.
+The hook scripts wire to SessionStart, PreToolUse (Bash, Write, Edit), PostToolUse (Write, Edit), and PreCompact hooks. Their purpose is to fail loudly and early. Don't make them do anything fancy; clarity beats elegance. Includes `guard-file-domain.sh` (PreToolUse Write/Edit) — a no-op in normal sessions that enforces a durable leaf's file-domain boundary when `LEAF_DOMAIN_GLOBS` is set — and `rag-reindex.sh` (PostToolUse Write/Edit) — a debounced background reindex of the local RAG index, no-op until `/rag-init` builds one.
 
 ### Pattern 7 — Context-window management is part of the structure
 
@@ -212,7 +243,7 @@ chmod +x scripts/*.sh
 git init -b main
 git add . && git commit -m "chore: phase 0 scaffold"
 pre-commit install     # if pre-commit is available
-claude                 # then: /start-session
+claude                 # then: /start-session, and /rag-init after the first commit
 ```
 
 From there, normal Claude Code workflow: `/plan-feature <slug>` (Step 0 of which is the embedded grilling protocol — see the command file) → human approves spec → `/build-feature <slug>` (which applies TDD tracer-bullet cycles per layer) → human reviews commit. At the end of each phase, `/phase-review N`.
