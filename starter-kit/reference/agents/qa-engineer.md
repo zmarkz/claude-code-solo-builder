@@ -1,7 +1,7 @@
 ---
 name: qa-engineer
 description: Use for test strategy, test fixtures, evaluation datasets, adversarial test cases, end-to-end tests, regression tests, and review of test coverage. Invoke when a phase nears completion or when adding a feature that touches existing tested behavior. Invoke proactively whenever a feature is marked done. SKIP for doc-only changes.
-model: claude-sonnet-4-6
+model: sonnet
 tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 

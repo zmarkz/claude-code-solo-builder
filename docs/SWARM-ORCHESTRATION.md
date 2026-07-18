@@ -1,5 +1,7 @@
 # Swarm Orchestration — Teams, Autopilot, and Mobile Control
 
+> Verified against Claude Code v2.1.214 — 2026-07-18
+>
 > How to run parallel AI workers safely, when to use each mode, and how to control your swarm from your phone.
 
 ---
@@ -35,7 +37,7 @@
 In the playbook diagram, **"Paperclip / Scheduler"** is a **conceptual label** — it represents whatever external trigger mechanism you use to kick off a Claude Code swarm. It is NOT a specific installed tool. Concretely this means:
 - A `cron` job that runs `claude --no-interactive "/build-phase-autopilot all"` nightly
 - A GitHub Actions workflow that triggers a swarm on push to a branch
-- A Telegram bot that relays your mobile commands to the Mac Mini
+- A Telegram bot that relays your mobile commands to the fleet host
 - A simple shell script you run manually
 
 There is no "Paperclip" product to install. The diagram is showing the *layer*, not a specific tool.
@@ -48,35 +50,13 @@ There is no "Paperclip" product to install. The diagram is showing the *layer*, 
 
 ---
 
-## Hermes — Two Different Things
+## Hermes (gstack host adapter — not the LM)
 
-"Hermes" appears in two different contexts and they are NOT the same thing:
-
-### 1. gstack's Hermes host adapter
+"Hermes" can mean two different things; if you see it, disambiguate.
 
 gstack compiles its skills to run inside multiple AI coding tools. `~/.claude/skills/gstack/hosts/hermes.ts` is a **host config** that translates gstack skills to work inside the **Hermes AI agent** (a separate coding assistant tool with its own CLI). If you use Hermes as your coding tool instead of Claude Code, gstack's skills still work via this adapter.
 
-This is NOT the Nous Research Hermes language model. It's a compatibility layer.
-
-### 2. Telegram-based mobile swarm control (in-progress setup)
-
-The vault at `~/Obsidian/Builds/02-Areas/Playbook/HERMES-TELEGRAM-SETUP.md` documents a setup for controlling your Mac Mini swarm from your phone via Telegram. This uses a Telegram bot (`@marky91_bot`) to:
-- Send commands to the Mac Mini (`/status`, `/deploy`, `/pause`)
-- Receive nightly portfolio digests
-- Get push notifications when background agents complete
-
-This is the "24/7 fleet on Mac Mini controlled via Telegram" concept from the playbook. Setup steps are in the vault doc.
-
-**Stack for Telegram mobile control:**
-```
-Telegram Bot (BotFather) ← your phone
-        ↓
-~/builds/_platform/deploy-scripts/send-digest.sh  (cron 9 AM)
-        ↓
-Supabase portfolio_attention view
-        ↓
-Telegram API → your CHAT_ID
-```
+This is a compatibility layer — NOT the Nous Research Hermes language model, and NOT any Telegram bot you might name "Hermes" for mobile swarm control (that's a personal notification-channel concern, out of scope here).
 
 ---
 
@@ -171,8 +151,8 @@ hand-rolled loop runner like Ralph would have provided.
    transcripts** — so its window stays lean. Reviewer integrates; human signs the phase gate.
 
 **Cost:** Medium-high (parallel contexts), controlled by per-loop-role model routing — see
-`docs/AI-ROUTING.md`. You pay Opus rates only for the orchestrator and reviewer; leaves run on
-Sonnet (feature work) or Haiku/local (grind).
+`docs/TOKEN-EFFICIENCY.md` Strategy 2. You pay Opus rates only for the orchestrator and reviewer;
+leaves run on Sonnet (feature work) or Haiku/local (grind).
 
 **Why a third mode?** Mode 1 is interactive (you're at the keyboard, in-process teammates, no
 session resumption); Mode 2 is sequential. Neither is *durable-headless*. Mode 3 fills that gap.
@@ -250,7 +230,7 @@ left recovery to the operator. Mode 3 mechanizes it. These knobs live in the lea
 | **Agent timeout** | per leaf | A wedged leaf is terminated, not left hanging; its task keeps its `attempts` for the next run. |
 | **Stuck-detection** | no-output threshold | A leaf producing no output past the threshold is treated as wedged. |
 | **Wall-clock runtime ceiling** | 4h | Stops launching new leaves past the cap; in-flight leaves finish; the run reports. The cost/safety brake on an overnight run. |
-| **Spend cap → page** | per run | On cap or any `needs-human` flip, the Telegram digest pages you. |
+| **Spend cap → page** | per run | On cap or any `needs-human` flip, your notification channel pages you. |
 
 **The substrate — `tasks.json`.** Generated from `TASKS.md` by `scripts/tasks-sync.sh`:
 
@@ -308,25 +288,12 @@ The Reviewer can **veto** a worker's output. This is the last automated gate bef
 
 ---
 
-## Mac Mini M4 Pro as 24/7 Fleet Host
+## Running a Persistent 24/7 Fleet Host
 
-For running a persistent swarm:
-
-```bash
-# Prevent sleep
-sudo pmset -a sleep 0 displaysleep 10 disksleep 0
-
-# Keep caffeinate running as a launchd service
-caffeinate -dimsu &
-
-# Essential tools
-brew install tmux node git gh rclone
-npm install -g @anthropic-ai/claude-code
-
-# Persistent swarm session
-tmux new-session -d -s swarm
-# Workers attach to this session from any device
-```
+An always-on machine (a spare Mac, a Linux box, a cloud VM) can host a persistent swarm you drive
+remotely. The provisioning specifics (sleep prevention, launch-on-boot, a persistent `tmux` session)
+depend on your OS; the parts that generalize are concurrency tuning, the harness's no-poll-burn
+behavior, and your remote-access stack.
 
 ### Concurrency tuning — match the fan-out to your cores
 
@@ -335,7 +302,7 @@ headroom for the main loop and the OS). So the right fan-out width is a property
 not a guess. Check it:
 
 ```bash
-sysctl -n hw.logicalcpu        # logical cores
+sysctl -n hw.logicalcpu        # logical cores (macOS)
 python3 -c "import os;print('cap =', min(16, os.cpu_count()-2))"
 ```
 
@@ -354,9 +321,9 @@ cap above.
 - **No poll-burn.** When a background agent or `Workflow()` finishes, the harness *re-invokes you
   automatically* — you don't spend tokens looping "are we done yet?". Use `ScheduleWakeup` only as a
   long fallback heartbeat (1200 s+), never as a tight poll.
-- **Thermals.** A sustained 12-wide fan-out will run the M4 Pro hot for hours. Keep it ventilated;
-  `caffeinate -dimsu` prevents sleep but not throttling. If you see leaves slow down late in a run,
-  that's thermal throttling, not the model.
+- **Thermals.** A sustained wide fan-out will run a laptop or mini hot for hours. Keep it ventilated;
+  `caffeinate -dimsu` (macOS) prevents sleep but not throttling. If you see leaves slow down late in
+  a run, that's thermal throttling, not the model.
 
 **Remote access stack:**
 - Tailscale (zero-config VPN between devices)
@@ -364,7 +331,7 @@ cap above.
 - SSH key-only (password auth disabled)
 - Termux/Blink Shell for terminal from phone
 - GitHub Mobile for PR review
-- Telegram bot for build notifications
+- Your notification channel (Telegram, Slack, etc.) for build notifications
 
 ---
 
@@ -406,4 +373,4 @@ The goal isn't to prevent AI from working — it's to keep decision-making under
 
 ---
 
-*See also: `docs/AGENTS-GUIDE.md` for agent roles; `docs/AI-ROUTING.md` for per-loop-role model routing; `starter-kit/reference/commands/start-phase-team.md` and `orchestrate-loops.md` for the command implementations; `scripts/tasks-sync.sh` + `guard-file-domain.sh` for the Mode 3 substrate and enforcement.*
+*See also: `docs/AGENTS-GUIDE.md` for agent roles; `docs/TOKEN-EFFICIENCY.md` Strategy 2 for per-loop-role model routing; `starter-kit/reference/commands/start-phase-team.md` and `orchestrate-loops.md` for the command implementations; `scripts/tasks-sync.sh` + `guard-file-domain.sh` for the Mode 3 substrate and enforcement.*

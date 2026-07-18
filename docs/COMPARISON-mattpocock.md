@@ -1,6 +1,6 @@
 # Matt Pocock's `skills` vs Our `ai-project-scaffold` — Comparison + Best-of-Both Recommendation
 
-May 2026 — companion to FINAL-PLAYBOOK.md v2.1
+May 2026 — companion to `PLAYBOOK.md` (this repo)
 
 ---
 
@@ -282,7 +282,7 @@ In the order I'd do them:
 7. **Install 5 of Matt's skills user-wide** via `npx skills@latest add mattpocock/skills`, picking: grill-with-docs, diagnose, zoom-out, improve-codebase-architecture, handoff.
 8. **Add `/prototype`** as a user-level skill from Matt's repo (don't bundle into project scaffolds).
 9. **Make scaffold components dual-resident** — also install the 11 agents + 6 scripts at user level so future kit improvements propagate.
-10. **Update FINAL-PLAYBOOK.md** with these decisions as an ADR in the playbook's own changelog. Version bump to v2.2.
+10. **Update `PLAYBOOK.md`** with these decisions as an ADR in the playbook's own changelog.
 
 Estimated effort: 4–6 hours of editing + 30 min installing Matt's skills. Net result: the discipline of our kit + the daily ergonomics of Matt's atoms + the two best documentation patterns from DDD.
 
@@ -311,4 +311,4 @@ That's the system worth running.
 - Ousterhout, "A Philosophy of Software Design" — deep modules
 - Beck, "Extreme Programming Explained" — "invest in design every day"
 - Thomas & Hunt, "The Pragmatic Programmer" — small deliberate steps, tracer bullets
-- Our FINAL-PLAYBOOK.md v2.1 — `~/Documents/claude/Projects/solo-ai/FINAL-PLAYBOOK.md`
+- Our `PLAYBOOK.md` (this repo) — the operating manual these decisions fed into

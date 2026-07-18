@@ -30,11 +30,12 @@ prunes only the dirs this repo fully owns (the scaffold skill, `sync-skills`).
 - **Opus 4.8 + `/fast` is the daily driver.** Fast mode is Opus-class reasoning at higher
   throughput *without* downgrading the model. The old "sit on Sonnet to dodge latency" rule is
   retired.
-- **Reserve Sonnet 4.6 for wide parallel leaves** (token economy on fan-outs); **Haiku 4.5 / local
+- **Reserve Sonnet 5 for wide parallel leaves** (token economy on fan-outs); **Haiku 4.5 / local
   Qwen for grind** (migrations, boilerplate, renames).
 - Keep the two routing axes separate:
-  - *Product routing* — your app's runtime AI calls: `classifyQuery` → local Qwen (free) vs Claude.
-  - *Harness routing* — which model each swarm role uses (see `docs/AI-ROUTING.md`).
+  - *Product routing* — your app's runtime AI calls: `classifyQuery` → local Qwen (free) vs Claude
+    (a recommended generic pattern, `PLAYBOOK.md` §3.10).
+  - *Harness routing* — which model each swarm role uses (see §7 below and `docs/SWARM-ORCHESTRATION.md`).
 
 ---
 
@@ -70,12 +71,12 @@ prunes only the dirs this repo fully owns (the scaffold skill, `sync-skills`).
 ## 5. The golden-path loop
 
 ```bash
-ccc                      # launch (caffeinate + re-index vault on exit)
+claude                   # launch Claude Code
 /start-session           # in a scaffolded app: reload phase/tasks/ADRs
 /plan-feature <name>     # PM + architect + (UI) design review
 /build-feature <slug>    # vertical-slice TDD
 /diagnose                # when something breaks
-/vault-update            # end of session: refresh INDEX.md + re-index
+/vault-update            # (vault module) end of session: refresh INDEX.md + re-index
 /phase-review N          # end of phase: product-owner gate + human signature
 git pull && make install # whenever the toolkit repo changed
 ```

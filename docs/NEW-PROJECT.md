@@ -38,7 +38,7 @@ If any gate fails: idea goes to `00-Inbox/` in the vault as a capture note. Not 
 
 ### Greenfield apps (default)
 ```
-Frontend: Next.js 15 + TypeScript + Tailwind CSS + shadcn/ui
+Frontend: Next.js 16 + TypeScript + Tailwind CSS + shadcn/ui
 Backend:  Next.js route handlers or Hono on Cloudflare Workers
 DB:       Supabase (Postgres + Auth + Storage + Realtime)
 Jobs:     Trigger.dev or Inngest
@@ -200,12 +200,12 @@ Vertical-slice implementation: schema → API → worker → UI → test → doc
 
 ---
 
-## Vault Entry (Create Before First Commit)
+## Vault Entry (optional — requires the vault module, `docs/VAULT.md`)
 
-Before starting any real work, create the vault note:
+If you run the vault module, create the project note before starting real work:
 
 ```bash
-# In Obsidian: New note at 01-Projects/my-app/STATUS.md
+# New note at $VAULT_PATH/01-Projects/my-app/STATUS.md
 ```
 
 ```markdown
@@ -213,8 +213,8 @@ Before starting any real work, create the vault note:
 type: entity
 name: my-app
 status: ACTIVE-BUILD
-created_by: markandey
-last_edited_by: markandey
+created_by: <your-name>
+last_edited_by: <your-name>
 ---
 # my-app
 [One-line product description]
@@ -231,7 +231,7 @@ Target: [ship MVP by date]
 1. **No landing page** — Ship a landing page with waitlist before writing backend code. If you can't describe the app to a stranger, you can't build it.
 2. **Horizontal slicing** — Don't write all schema first, then all routes, then all UI. Vertical slices (one full feature end-to-end) or nothing.
 3. **Stack deviation without ADR** — Any new tech requires an ADR before writing code.
-4. **Direct model calls** — Never call Claude/OpenAI/Ollama directly. Always through Agent Farm classifier.
+4. **Direct model calls** — Never call Claude/OpenAI/Ollama directly. Always through your AI-routing wrapper (classifier → frontier or local model — PLAYBOOK §3.10).
 5. **Secrets in code** — The `check-secrets-staged.sh` hook catches this. Never commit secrets.
 6. **ADR for everything** — Apply the 3-test threshold. 5-10 ADRs per project, not 50.
 7. **Scaffold overwriting** — Never run the scaffold on a project that already has code. It overwrites.
@@ -242,15 +242,12 @@ Target: [ship MVP by date]
 ## Directory Layout for Multiple Projects
 
 ```
-~/builds/                      ← greenfield apps
-├── _platform/                 ← shared components, helpers
-├── _templates/                ← bootstrap templates
-├── _starter-kit/              ← this kit
+~/builds/                      ← your apps (path is a suggested default — configurable)
 ├── my-saas-app/               ← ACTIVE-BUILD
 ├── my-other-app/              ← VALIDATE
 └── _archive/                  ← killed apps (keep forever)
 
-~/Obsidian/Builds/             ← the vault
+$VAULT_PATH                    ← the vault (optional module — docs/VAULT.md)
 ```
 
 ---

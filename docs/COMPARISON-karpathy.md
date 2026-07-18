@@ -41,14 +41,14 @@ His file is a **behavioral OS for Claude** — how to think, not what tools to u
 
 | Capability | Details |
 |---|---|
-| **Knowledge vault** | 24-node graph across 9 projects. kg_search before every task. Cross-project pattern discovery. |
-| **AI model routing** | COMPLEX → Claude Sonnet (~₹0.05/call), SIMPLE → Qwen local (₹0). 93% of queries free. |
-| **Kill discipline** | portfolio_apps table. kill_by dates enforced. Postmortem required. Anti-patterns documented. |
+| **Knowledge vault** | Cross-project knowledge graph. kg_search before every task. Cross-project pattern discovery. |
+| **AI model routing** | COMPLEX → Claude Sonnet (paid), SIMPLE → Qwen local (free). 93% of queries free. |
+| **Kill discipline** | Portfolio tracker with kill-by dates enforced. Postmortem required. Anti-patterns documented. |
 | **Operational skills** | 30+ gstack + 14 mattpocock + seed skills. /ship, /qa, /investigate, /retro all automated. |
 | **Rolling context compression** | Qwen compresses every 3 turns → 85% token reduction. Sessions stay cheap indefinitely. |
-| **Two-stack doctrine** | ~/builds/ (greenfield) vs ~/Documents/claude/ (legacy). Clear rules, no rewrites. |
-| **Telegram digest** | Nightly briefing via @marky91_bot. Portfolio health, kill_by alerts, cost report. |
-| **Secret scanning** | scripts/secret-scan.sh pre-commit on every ~/builds/ project. |
+| **Two-stack doctrine** | Your primary stack vs an optional legacy stack. Clear rules, no rewrites. |
+| **Scheduled digest** | Nightly briefing (e.g. Telegram/Slack bot). Portfolio health, kill-by alerts, cost report. |
+| **Secret scanning** | scripts/secret-scan.sh pre-commit on every project. |
 | **Tenant isolation** | tenant_id mandatory on all multi-tenant tables from day one. |
 | **Cross-project routing** | CLAUDE.md keyword routing rules map requests to the right project directory. |
 | **Vault-first behavior** | kg_search → check 02-Areas → Context7 before any non-trivial task. |

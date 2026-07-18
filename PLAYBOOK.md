@@ -1,15 +1,15 @@
-# The Solo AI-Augmented Builder's Playbook — Final v2.5
+# The Solo AI-Augmented Builder's Playbook — v3.0
 
 **An operating manual for building, consolidating, and compounding a multi-app portfolio single-handedly with AI agents.**
 
-Version 2.5 — June 2026
-Author: Markandey (with Claude as co-author)
+Version 3.0 — July 2026
 Status: living document — edit as you learn
 
 ---
 
 ## Changelog
 
+- **v3.0 (July 2026)** — Public/private split: playbook fully genericized; personal doctrine moved to the private overlay repo; vault module now optional (VAULT_PATH-driven, see `docs/VAULT.md`); stack prescriptions refreshed (Next 16, Zod 4, legacy targets). Structural change only — Parts 0–12 spine unchanged.
 - **v2.5 (June 2026)** — Profile-aware Dynamic Workflow recipe library. Adds a committed `.claude/workflows/` library of 7 `Workflow()` recipes (`exhaustive-review`, `codebase-map`, `security-sweep`, `design-panel`, `safe-migration`, `release-readiness`, `fast-dag-build`), 4 wrapper commands (`/review-exhaustive`, `/audit-security`, `/map-codebase`, `/mode`), and a Best/Saver execution profile (`args.mode`, default Best) tuned so the weekly Opus cap — not token cost — is the constraint. Recipes propagate via `install.sh` → `~/.claude/workflows/`, `/sync-project`, and the scaffold skill, and auto-register as `/<name>`. Detail in `starter-kit/reference/workflows/README.md`, `docs/BEST-PRACTICES.md` §6–7, and `docs/adr/0002-workflow-recipe-library.md`. **Mechanism, not spine** — no new Part.
 - **v2.4 (May 2026)** — Durability + domain-enforcement layer for parallel agent loops. Adds a third parallelism mode `/orchestrate-loops` (durable, headless, background worktree leaves), a `tasks.json` substrate (`scripts/tasks-sync.sh`), a `guard-file-domain.sh` PreToolUse hook that *enforces* per-leaf file domains (previously a prose instruction), per-loop-role model routing, and a per-workstream fleet status line for the digest. Detail in `docs/SWARM-ORCHESTRATION.md` (Modes + Durability & Recovery + Domain Enforcement) and `docs/AI-ROUTING.md`. **Mechanism, not spine** — no new Part; the framework already forbids custom orchestrators, so this is glue over native Claude Code primitives (background `Agent` worktrees, `Monitor`, `ScheduleWakeup`, FleetView), not a new platform.
 - **v2.3 (May 2026)** — Refinement after full Part C ingestion (9 projects indexed). Adds: two-stack reality (3.9), AI model routing as mandatory pattern (3.10), bucket transition rules (B.2a), cross-stack integration contracts (Part 8), personal-utility carve-out for kill criteria (Part 5), no-landing-page anti-pattern (#14 in Part 12), empty-folder smell rule (4.5). Inline updates to Parts 3.3, 3.5, 4.3, 5, 7, and Part C.6. No spine changes. Evidence at `02-Areas/Playbook/refinement-2026-05-16.md`.
@@ -101,7 +101,7 @@ A solo AI-augmented builder runs four layers concurrently, like a tiny holding c
 - Rolling **5-hour usage windows** (doubled for Pro/Max/Team).
 - **Weekly active-hours cap** — counts only when models are processing.
 - **200K context window** (500K Enterprise). Output quality measurably degrades above 70% utilization.
-- **Server-side compaction** available in beta on Opus 4.8/4.7/4.6 and Sonnet 4.6.
+- **Server-side compaction** available in beta on Opus 4.8/4.7/4.6 and Sonnet 5.
 
 Implications:
 
@@ -126,7 +126,7 @@ Implications:
         ┌─────────────────┼─────────────────┐
         ▼                 ▼                 ▼
    ┌─────────┐      ┌─────────┐      ┌─────────┐
-   │Worker A │      │Worker B │      │Worker C │     (Sonnet 4.6 / Haiku 4.5)
+   │Worker A │      │Worker B │      │Worker C │     (Sonnet 5 / Haiku 4.5)
    │worktree │      │worktree │      │worktree │
    └────┬────┘      └────┬────┘      └────┬────┘
         └────────────────┼────────────────┘
@@ -142,7 +142,7 @@ Implications:
 
 **Use:** Claude Code Agent Teams (native), Claude Swarm (`affaan-m/claude-swarm`), `claude_code_agent_farm`, `workflow-orchestration` plugin.
 
-**Maybe:** Hermes Agent (Nous Research) for Telegram-based mobile control of a 24/7 fleet on the Mac Mini.
+**Maybe:** Hermes Agent (Nous Research) for mobile control of a 24/7 fleet on a dedicated always-on machine, driven from a notification channel that reaches your phone (Telegram bot, ntfy, Slack…).
 
 **Skip:** OpenClaw (470 security advisories Jan–Apr 2026), custom orchestrators, plugin maximalism (cap at 3–5).
 
@@ -151,7 +151,7 @@ Implications:
 | Task | Model |
 |------|-------|
 | Planning, architecture, code review | Opus 4.8 |
-| Parallel feature execution | Sonnet 4.6 |
+| Parallel feature execution | Sonnet 5 |
 | Repetitive / structured work | Haiku 4.5 |
 | Local / private / cost-sensitive | Qwen3-Coder 32B via MLX |
 
@@ -163,11 +163,11 @@ Implications:
 
 | Layer | Choice |
 |-------|--------|
-| Frontend | Next.js 15 + TS + Tailwind + shadcn/ui |
+| Frontend | Next.js 16 + TS + Tailwind + shadcn/ui |
 | Backend | Next.js route handlers or Hono on Cloudflare Workers |
 | DB / Auth / Storage / Realtime | Supabase |
 | Background jobs | Trigger.dev or Inngest |
-| Payments | Stripe (global) + Razorpay (India), wrapped behind your own interface |
+| Payments | Stripe, plus a regional provider if needed (e.g. Razorpay in India), wrapped behind your own interface |
 | Email | Resend |
 | Analytics | PostHog (product) + Plausible (web) |
 | Errors | Sentry |
@@ -176,7 +176,11 @@ Implications:
 | CI/CD | GitHub Actions |
 | DNS / CDN | Cloudflare |
 
-### 3.2 Mac Mini M4 Pro setup
+> **Stack currency:** Next.js 16 is the current Active LTS. Any existing Next.js 15 apps must upgrade before **21 Oct 2026**, when Next.js 15 security support ends. Validate all external inputs with **Zod 4**.
+
+### 3.2 Dedicated always-on machine (optional)
+
+Optional but recommended once you run a 24/7 fleet. The worked example below is a Mac Mini M4 Pro (macOS); adapt the sleep-disable and boot-service steps for Linux (`systemd`) if that's your box.
 
 ```bash
 sudo pmset -a sleep 0 displaysleep 10 disksleep 0
@@ -200,21 +204,21 @@ gh auth login
 ├── app-internal-tool-3/
 └── _archive/           # killed apps, kept for reference
 
-~/Obsidian/Builds/      # the vault (Part 4)
+$VAULT_PATH/      # the vault (Part 4)
 ~/.claude/
 ├── CLAUDE.md           # personal standing instructions (Appendix A)
 └── skills/             # personal skill library (Appendix B)
 ```
 
-> **Update 2026-05-16 (F1):** Two parent roots are in active use.
-> - `~/builds/` — greenfield apps (Next.js / Expo / Python). **Default for any NEW app.**
-> - `~/Documents/claude/` — legacy stack (Spring Boot + Docker Compose + MySQL + Cloudflare Tunnel). Hosts `portfolio-tracker`, `mcp-farm`, `knowledge-store`, `admin-nexus`, `markandey-in`. Closed to new apps unless explicitly reasoned via ADR.
+> **Two parent roots may be in active use.**
+> - `~/builds/` — greenfield apps (your primary stack: Next.js / Expo / Python). **Default for any NEW app.**
+> - A legacy workspace (if any) — your frozen legacy stack (e.g. a Spring Boot + Docker Compose + MySQL monolith). Closed to new apps unless explicitly reasoned via ADR.
 >
-> Part B triage classifier still applies across both roots. The move target for newly-PROMOTEd apps is `~/builds/`. See Part 3.9.
+> Part B triage classifier still applies across both roots. The move target for newly-PROMOTEd apps is `~/builds/`. See Part 3.9. (Your own concrete legacy inventory, if you have one, belongs in your private overlay — not here.)
 
 ### 3.4 Remote access
 
-Tailscale + Cloudflare Tunnel + SSH-key-only + a persistent `swarm` tmux session attached from any device. Termux/Blink Shell for terminal, GitHub Mobile for PRs, Telegram bot for notifications.
+Tailscale + Cloudflare Tunnel + SSH-key-only + a persistent `swarm` tmux session attached from any device. Termux/Blink Shell for terminal, GitHub Mobile for PRs, your notification channel for alerts.
 
 ### 3.5 Five seed skills
 
@@ -247,7 +251,7 @@ Progressive disclosure: keep task-specific instructions in separate files (`buil
 - One Sentry org, one project per app.
 - One PostHog project, feature flag = app name.
 - One Better Stack account for uptime.
-- Daily 9 AM Telegram digest: revenue, signups, errors, uptime per app.
+- Daily 9 AM digest via your notification channel: revenue, signups, errors, uptime per app.
 
 ### 3.8 Portfolio tracker
 
@@ -255,32 +259,32 @@ One Supabase table, one row per app. Schema in Appendix C. The `portfolio_attent
 
 ### 3.9 Two-stack reality (v2.3 NEW)
 
-Solo builders accumulate stacks. As of 2026-05-16 this portfolio runs two:
+Solo builders accumulate stacks. In practice you may run two: your primary greenfield stack and, if you have one, a frozen legacy stack. New apps always go to the primary stack unless an ADR argues otherwise.
 
-- **Greenfield** — Next.js 15 + Supabase + Expo. Default for any NEW app.
-- **Legacy** — Spring Boot 3.2 + MySQL 8 + Docker Compose + Cloudflare Tunnel. Hosts `portfolio-tracker`, `mcp-farm`, `knowledge-store`, `admin-nexus`, `markandey-in`.
+- **Greenfield** — your primary stack (default: Next.js 16 + Supabase + Expo). Default for any NEW app.
+- **Legacy** — a frozen, still-shipping stack inherited from earlier work (e.g. a Spring Boot 3.2 + MySQL 8 + Docker Compose monolith), **frozen-pending-migration**. If/when you migrate, the targets are current LTS lines (e.g. Java 25 LTS + Spring Boot 4.1, MySQL 8.4, Node 22 LTS / Fastify 5). Your concrete legacy inventory lives in your private overlay.
 
 **Rules:**
 - **DO NOT** rewrite a working legacy app to "consolidate stacks." That's stack-hopping in disguise (failure mode #1).
-- **DO** route new apps to greenfield unless there's an explicit reason (Java ecosystem need, existing legacy infra dependency) — write an ADR if you deviate.
+- **DO** route new apps to greenfield unless there's an explicit reason (an ecosystem need, an existing legacy-infra dependency) — write an ADR if you deviate.
 - **DO** maintain cross-stack glue via well-defined contracts (HTTP/SSE/MCP). Never shared library code across stacks. See Part 8.
 - Two-stack regime stays as long as: legacy still ships value AND rewrite cost > 30 days AND no security forcing function. When any of those flips, write an ADR and migrate one app as a tracer bullet.
 
 The two-app rule still applies **across both stacks** — ≤2 ACTIVE-BUILD total, not per-stack.
 
-### 3.10 AI model routing (v2.3 NEW — MANDATORY)
+### 3.10 AI model routing (v2.3 NEW — RECOMMENDED)
 
-Every app that makes an AI call MUST route through a classifier. **Apps MUST NOT call Anthropic/OpenAI/Ollama directly** — always through the Agent Farm contract.
+Any app that makes AI calls benefits from routing through a classifier rather than calling a model provider directly. The classifier splits queries two ways:
 
 | Query type | Route | Cost |
 |------------|-------|------|
-| COMPLEX — analyze, recommend, decide, risk, plan, forecast, sell/buy | Claude Sonnet (paid) | ~₹0.03–0.08/call |
-| SIMPLE — lookup, summarise, format, list, define, show me, total | Qwen local via Ollama | ₹0 |
+| COMPLEX — analyze, recommend, decide, risk, plan, forecast | Frontier model (paid) | ~$0.01–0.05/call |
+| SIMPLE — lookup, summarise, format, list, define, show me, total | Local model via Ollama | $0 |
 | Unsure | Default to COMPLEX | — |
 
-Currently realised by `mcp-farm` Agent Farm (templates 3 and 4), consumed by `portfolio-tracker`, `markandey-in`, `knowledge-store`. For greenfield Next.js apps, use the established `markandey-in` SSE proxy pattern to Agent Farm.
+In practice ~90% of an app's AI calls can route to the free local model, so total cost stays near-constant as usage grows instead of scaling linearly. COMPLEX queries can request a structured-JSON response the frontend renders as cards/tables; SIMPLE queries stream markdown. Routing through a classifier also decouples your business logic from any single provider — a deeper routing retune (keyword tuning, provider swaps) is deferred to a later refinement.
 
-**Cost evidence:** 93% of queries route to Qwen (₹0), 7% to Claude (~₹0.03–0.08). Monthly cost ≈ ₹28 vs ~₹200+ if every call went to Claude. This is the largest single cost optimisation in the portfolio.
+A concrete realization of this pattern — a shared Agent Farm contract, template IDs, consumer-app list, and per-call cost evidence — lives in your private overlay and in `docs/AI-ROUTING.md`.
 
 ---
 
@@ -304,7 +308,7 @@ Every app produces three kinds of knowledge:
 ### 4.2 Vault structure
 
 ```
-~/Obsidian/Builds/
+$VAULT_PATH/
 ├── .obsidian/
 ├── .claude/
 │   ├── CLAUDE.md         # vault-level standing instructions (Appendix E)
@@ -359,7 +363,7 @@ Claude (silently):
 - Run `vault-health-check` weekly.
 - Use a separate experimentation vault when trying new MCP servers.
 
-> **Update 2026-05-16 (M9):** `vault-health-check` must flag **empty subfolders**, not just orphan notes. An empty folder produces broken wikilinks silently — orphan detection misses it entirely because the target never existed. Current portfolio confirmed empty: `04-Archive/medi-tracker/` (no POSTMORTEM.md) and `05-Patterns/` (all referenced, none written). Rule: any folder under `01-Projects/`, `04-Archive/`, or `05-Patterns/` with zero `.md` files is a health-check failure.
+> **Refinement (M9):** `vault-health-check` must flag **empty subfolders**, not just orphan notes. An empty folder produces broken wikilinks silently — orphan detection misses it entirely because the target never existed. Typical offenders: an `04-Archive/<app>/` folder with no `POSTMORTEM.md`, or a `05-Patterns/` where everything is referenced but nothing is written. Rule: any folder under `01-Projects/`, `04-Archive/`, or `05-Patterns/` with zero `.md` files is a health-check failure.
 
 ---
 
@@ -382,7 +386,7 @@ More than five and you're paying a focus tax.
 > | VALIDATE | ≤1 (a landing-page experiment ≠ a build) |
 > | STABILIZE | ≤2 (close-to-shippable, scheduled for next push) |
 > | KEEP-AS-IS | Unlimited (shipped + on ≤4h/mo maintenance budget) |
-> | Infrastructure | Unlimited (`mcp-farm`, `knowledge-store`, `_platform`) |
+> | Infrastructure | Unlimited (shared services and platform packages) |
 >
 > The "no more than 5" rule still holds for ACTIVE-BUILD + STABILIZE + VALIDATE combined.
 
@@ -405,9 +409,9 @@ Then run the PRD through Claude as a skeptic: *"What's the strongest reason this
 - **Traction kill** — 30 days post-launch, no 10 paying users or 100 active free users → kill or pivot.
 - **Maintenance kill** — >4 hours/month on an app earning <$50/month → kill.
 
-Set Telegram reminders on `kill_by` dates so the system enforces your own rules on you.
+Set reminders on `kill_by` dates (via your notification channel) so the system enforces your own rules on you.
 
-> **Update 2026-05-16 (M6) — Personal-utility carve-out:** Some apps are deliberately non-commercial: `portfolio-tracker`, `family-expenses`, `markandey-in`, `admin-nexus`. For these:
+> **Personal-utility carve-out (M6):** Some apps are deliberately non-commercial — personal or family tools where you are the only user. For these:
 > - Validation gate does **not** require landing-page signups — you ARE the user.
 > - Kill criteria are "maintenance > 4h/mo for 2 consecutive months" only (no MRR floor).
 > - Tag `commercial: false` in `portfolio_apps` table.
@@ -426,7 +430,7 @@ When kill criteria trigger, the `kill-app` skill: archives the repo, downgrades 
 
 ### Daily
 
-- Morning (15 min): Telegram digest → triage failures.
+- Morning (15 min): digest (via your notification channel) → triage failures.
 - Build block (2–4h): deep work on current app with Team Lead.
 - Review block (30 min): approve overnight worker PRs.
 - Evening (30 min): set up overnight tasks, update portfolio tracker.
@@ -502,11 +506,11 @@ Daily ritual: append decisions/blockers to `BUILD-LOG.md`.
 
 ### Day 6 — Ship
 
-Vercel preview → prod. Stripe live. Email the waitlist. Small ad spend (₹500–₹2000) or community posts. Submit to Product Hunt / HN / niche directories. Vault touch: `LAUNCH.md` capturing channels, copy variants, day-one signups.
+Vercel preview → prod. Stripe live. Email the waitlist. Small ad spend ($10–50) or community posts. Submit to Product Hunt / HN / niche directories. Vault touch: `LAUNCH.md` capturing channels, copy variants, day-one signups.
 
 ### Day 7 — Decide
 
-30-day kill clock starts. Telegram digest tracks signups, MRR, errors. Day 30: apply traction kill honestly. **Whatever the outcome**, run `extract-pattern` to draft notes for `05-Patterns/`.
+30-day kill clock starts. The digest (via your notification channel) tracks signups, MRR, errors. Day 30: apply traction kill honestly. **Whatever the outcome**, run `extract-pattern` to draft notes for `05-Patterns/`.
 
 ---
 
@@ -523,7 +527,7 @@ Loop 1: Per-build → extract-pattern skill → drafts in 05-Patterns/
 Loop 2: Nightly consolidation (Paperclip cron 3 AM)
                   → review past 24h vault diffs + worker transcripts
                   → propose: promotions, contradictions, stale-note cleanup, skill updates
-                  → Telegram-notify at 9 AM
+                  → notify at 9 AM (via your notification channel)
 
 Loop 3: Weekly + monthly review
                   → vault-health-check (orphans, broken links, staleness)
@@ -573,13 +577,15 @@ Each component has a matching note in `05-Patterns/` describing *why* and *when*
 - Wikilinks encode relationships explicitly, not just semantically.
 - You can read your knowledge without an LLM in the loop.
 
+> Scope: this covers curated knowledge, not code retrieval — see the Local RAG module (v3.1) for code.
+
 ### Cross-stack integration contracts (v2.3 NEW — M5)
 
 When apps span stacks (e.g. greenfield Next.js → legacy Spring Boot), the **contract between them is the moat**, not the code on either side. Three rules:
 
 **1. The contract is HTTP/SSE/MCP, never shared library code.**
-- `markandey-in` (Next.js) ↔ `mcp-farm` (Fastify): SSE over HTTP. No shared types package.
-- `portfolio-tracker` (Spring Boot) ↔ `knowledge-store` (Fastify): MCP over HTTP.
+- `web-app` (Next.js) ↔ `api-service` (Fastify): SSE over HTTP. No shared types package.
+- `legacy-monolith` (Spring Boot) ↔ `api-service` (Fastify): MCP over HTTP.
 - Cross-stack monorepos are a trap — one CI break stops both apps.
 
 **2. The contract has a versioned schema doc in `02-Areas/Integrations/`.**
@@ -588,7 +594,7 @@ When apps span stacks (e.g. greenfield Next.js → legacy Spring Boot), the **co
 
 **3. The contract has an integration test owned by the CONSUMER, not the producer.**
 - The consumer breaks expensively when the contract drifts; the producer doesn't notice.
-- `markandey-in` tests that `mcp-farm`'s SSE format hasn't changed — `mcp-farm` does not own that test.
+- `web-app` tests that `api-service`'s SSE format hasn't changed — `api-service` does not own that test.
 
 ---
 
@@ -606,11 +612,11 @@ Honest signals:
 
 ## Part 10 — Fintech caveats (only when applicable)
 
-If you touch money, lending, payments, or financial data:
+If you touch money, lending, payments, or financial data (regulatory examples below are India-specific — substitute your jurisdiction's equivalents: licensing regime, data-protection law, in-region cloud, KYC partner):
 
-- **Razorpay / Cashfree** wrappers; never raw card data.
-- **Validate RBI licensing first**, before any code. Most fintech ideas die at this wall (PA/PG, NBFC, P2P lending, payment aggregator).
-- **Indian-region cloud** (Mumbai/Hyderabad) for any Indian-resident data.
+- **Payments wrapper** — route through your billing abstraction; never touch raw card data.
+- **Validate licensing first**, before any code. Most fintech ideas die at this wall (in India: PA/PG, NBFC, P2P lending, payment aggregator — check the RBI regime).
+- **In-region cloud** for regulated-resident data (e.g. Mumbai/Hyderabad for Indian-resident data).
 - **Complete audit log** from day one.
 - **CA + fintech lawyer review** before ship.
 - **KYC via verified partner** (Hyperverge, Digio). Never roll your own.
@@ -625,14 +631,14 @@ For non-fintech: ignore all of this and ship faster.
 ### Days 1–7 — Foundation
 
 **Build server + access**
-- [ ] Mac Mini: pmset, caffeinate, launchd, tmux
-- [ ] Tailscale on Mini, MacBook, S24 Ultra
+- [ ] Always-on machine (e.g. Mac Mini): sleep-disable + boot service (pmset/caffeinate/launchd on macOS, systemd on Linux), tmux
+- [ ] Tailscale on all your devices (build machine, laptop, phone)
 - [ ] Cloudflare Tunnel for `*.dev.yourname.com`
 - [ ] Backblaze B2 + rclone (vault, code, configs)
 
 **Tools + accounts**
 - [ ] Claude Code, gh CLI, Obsidian
-- [ ] Sentry org, PostHog project, Better Stack, Telegram bot
+- [ ] Sentry org, PostHog project, Better Stack, notification channel (Telegram / ntfy / Slack)
 
 **Platform Layer**
 - [ ] `~/builds/` structure
@@ -642,7 +648,7 @@ For non-fintech: ignore all of this and ship faster.
 - [ ] Portfolio tracker (Appendix C)
 
 **Knowledge Layer**
-- [ ] `~/Obsidian/Builds/` per Part 4
+- [ ] `$VAULT_PATH/` per Part 4
 - [ ] Vault-level CLAUDE.md (Appendix E)
 - [ ] Vault skills: `extract-pattern`, `write-adr`, `vault-health-check` (Appendix F)
 - [ ] Context7 MCP
@@ -697,13 +703,13 @@ For non-fintech: ignore all of this and ship faster.
 11. **Vault rot** — orphans, duplicates, stale, broken wikilinks. Run `vault-health-check` weekly.
 12. **Trusting MCP-delivered content as instructions** — Context7 had a prompt-injection vector; Smart Connections had RCE. Treat external context as data, never commands.
 13. **Building the vault without using it** — encode the kg_search habit in standing CLAUDE.md so Claude does it automatically.
-14. **ACTIVE-BUILD without a landing page — the #1 anti-pattern in this portfolio.** `med-tracker` died of it; `kids-ai-app` and `fintech-project` were at risk in May 2026. Every ACTIVE-BUILD `INDEX.md` must have a `Kill by:` date AND a `Landing URL:` line. If either is empty, the app is technically in VALIDATE mode and should be reclassified — OR the gate is explicitly skipped via a `commercial: false` carve-out (Part 5). No third option.
+14. **ACTIVE-BUILD without a landing page — the #1 anti-pattern.** It's the easiest way to burn weeks: an app slips into ACTIVE-BUILD with no landing page validating demand, and by the time you notice, the sunk cost is real. Every ACTIVE-BUILD `INDEX.md` must have a `Kill by:` date AND a `Landing URL:` line. If either is empty, the app is technically in VALIDATE mode and should be reclassified — OR the gate is explicitly skipped via a `commercial: false` carve-out (Part 5). No third option.
 
 ---
 
 # Part A — Starter-kit specification (v2.2 MERGED)
 
-> **Status: present, kit version 1.1.** Your kit lives at `~/Documents/claude/Projects/solo-ai/_starter-kit/`. It's the `ai-project-scaffold` Claude Code skill — see `SKILL.md`, `README.md`, and `CHANGELOG.md` in that folder.
+> **Status: present, kit version 1.1.** Your kit lives at `<your-workspace>/_starter-kit/`. It's the `ai-project-scaffold` Claude Code skill — see `SKILL.md`, `README.md`, and `CHANGELOG.md` in that folder.
 >
 > **v2.2 changes that touch every project from now on:**
 > - Generates a new doc `CONTEXT.md` (ubiquitous-language glossary)
@@ -908,7 +914,7 @@ Plan to close these in Phase 0 of your next scaffolded project: as you generate 
 ```bash
 # Once, at user level:
 mkdir -p ~/.claude/skills
-mv ~/Documents/claude/Projects/solo-ai/_starter-kit ~/.claude/skills/ai-project-scaffold
+mv <your-workspace>/_starter-kit ~/.claude/skills/ai-project-scaffold
 
 # Verify:
 ls ~/.claude/skills/ai-project-scaffold/SKILL.md
@@ -920,7 +926,7 @@ claude
 # > "Scaffold this project with ai-project-scaffold. It's a <one-liner>."
 ```
 
-> **Note on the move:** Your workspace folder (`solo-ai/`) now holds the kit copy at `_starter-kit/`. The original at `fintech-project/_starter-kit/` is still there too. After you `mv` either copy into `~/.claude/skills/`, delete the other to avoid drift.
+> **Note on the move:** Your workspace folder now holds the kit copy at `_starter-kit/`. If you have another copy elsewhere, after you `mv` either copy into `~/.claude/skills/`, delete the other to avoid drift.
 
 ---
 
@@ -971,7 +977,7 @@ done < ~/inventory.txt > ~/projects.csv
 For each project, answer four binary questions:
 
 1. **Has a real user?** Anyone other than you used it in the last 90 days?
-2. **Has working revenue OR clear PMF signal?** Even ₹1 paid OR retained free users?
+2. **Has working revenue OR clear PMF signal?** Even $1 paid OR retained free users?
 3. **Would you ship the next change in <2 weeks?** I.e., is it close enough that a small push moves it forward?
 4. **Does its core idea still excite you?** Honest gut-check, not sunk-cost talk.
 
@@ -1075,7 +1081,7 @@ You have consolidated projects in `~/builds/`. Now make them vault-native so fut
 
 ```bash
 # Vault exists?
-ls ~/Obsidian/Builds/.claude/CLAUDE.md
+ls $VAULT_PATH/.claude/CLAUDE.md
 
 # MCP servers connected?
 claude mcp list   # should show context7, knowledge-graph, mcpvault
@@ -1100,7 +1106,7 @@ If any of these fail, do Days 1–7 of Part 11 first.
 Run this *one project at a time* in Claude Code, with the project as the cwd:
 
 ```
-You are ingesting an existing project into my Obsidian vault at ~/Obsidian/Builds/.
+You are ingesting an existing project into my Obsidian vault at $VAULT_PATH/.
 Project path: <pwd>
 Project name: <app-name>
 
@@ -1225,7 +1231,7 @@ frontmatter:
 1. **Killed projects first — HARD PREREQUISITE, not just ordering.**
    You cannot start a NEW app under Part 7 until every killed predecessor has a `POSTMORTEM.md` in `04-Archive/<app>/`. Postmortems generate the anti-pattern vocabulary that protects new builds. Skip this and the new app rediscovers failures the hard way.
 
-   > **Update 2026-05-16 (M3):** `bootstrap-new-app` skill should fail if any `04-Archive/<app>/` folder has zero `.md` files — unless the folder is explicitly marked `status: no-postmortem-by-design` in a stub file. Currently violated by `04-Archive/medi-tracker/` (empty folder). Write the postmortem before the next build.
+   > **Refinement (M3):** `bootstrap-new-app` skill should fail if any `04-Archive/<app>/` folder has zero `.md` files — unless the folder is explicitly marked `status: no-postmortem-by-design` in a stub file. If any `04-Archive/<app>/` folder is currently empty, write its postmortem before the next build.
 
 2. **PROMOTE projects.** Your live winners — vault them now so future work uses them.
 3. **ACTIVE-BUILD project.** Your current focus.
@@ -1294,7 +1300,7 @@ For each part of the playbook (0 through 12, and A/B/C/D):
      - Propose where to insert it.
 
 OUTPUT a single proposal document at:
-  ~/Obsidian/Builds/02-Areas/Playbook/refinement-YYYY-MM-DD.md
+  $VAULT_PATH/02-Areas/Playbook/refinement-YYYY-MM-DD.md
 
   Sections:
     VALIDATED parts (list)
@@ -1331,7 +1337,7 @@ When you approve the proposed diff:
 1. Commit the playbook update to the vault git repo.
 2. Bump version (v2.0 → v2.1).
 3. Update the changelog at the top.
-4. Telegram-notify yourself for the *next* refinement (quarterly cron).
+4. Notify yourself (via your notification channel) for the *next* refinement (quarterly cron).
 5. Update `02-Areas/Playbook/CHANGELOG.md` with the rationale (so future-you doesn't undo well-reasoned changes).
 
 ## D.5 What success looks like by month 6
@@ -1366,9 +1372,9 @@ I am a solo builder running a multi-app portfolio. When working on any app
 in ~/builds/, follow these standing rules in addition to per-app CLAUDE.md.
 
 ## Stack defaults
-- Frontend: Next.js 15 + TypeScript + Tailwind + shadcn/ui
+- Frontend: Next.js 16 + TypeScript + Tailwind + shadcn/ui
 - DB/Auth: Supabase
-- Payments: Stripe (global) + Razorpay (India), via @platform/billing
+- Payments: Stripe (+ a regional provider if needed), via @platform/billing
 - Email: Resend
 - Background jobs: Trigger.dev
 - Hosting: Vercel + Cloudflare Workers
@@ -1385,7 +1391,7 @@ in ~/builds/, follow these standing rules in addition to per-app CLAUDE.md.
 - Conventional commits: feat:, fix:, chore:, docs:, refactor:
 - Branch naming: <type>/<short-description>
 - Tests for any function touching money, auth, data deletion
-- Zod schemas for all external inputs
+- Zod 4 schemas for all external inputs
 
 ## Code style
 - File names: kebab-case
@@ -1464,7 +1470,7 @@ git add . && git commit -m "chore: initial commit from template"
 git push -u origin main
 
 ### 5. Supabase project
-supabase projects create <app-name> --region ap-south-1
+supabase projects create <app-name> --region <closest-to-your-users>
 # pull connection strings into .env.local
 # run initial migrations
 
@@ -1483,10 +1489,10 @@ Insert row: name, hypothesis, status='building', started_at=today, kill_by=today
 
 ### 9. Report
 - Repo URL, Vercel preview URL, Supabase dashboard URL
-- Next action: write PRD into ~/Obsidian/Builds/01-Projects/<app>/PRD.md
+- Next action: write PRD into $VAULT_PATH/01-Projects/<app>/PRD.md
 
 ## Common mistakes
-- Wrong Supabase region (must be ap-south-1 for Indian users)
+- Wrong Supabase region — pick the one closest to your users (e.g. ap-south-1 for India-based users)
 - Missing env var → silent prod failure (check `vercel env ls`)
 - Skipping the test run
 ```
@@ -1574,7 +1580,7 @@ order by
 - "Working in Public" — Eghbal (solo open dev)
 - Karpathy on context engineering — 2-hour LLM walkthrough, early 2026
 
-## Appendix E — Vault-level `~/Obsidian/Builds/.claude/CLAUDE.md`
+## Appendix E — Vault-level `$VAULT_PATH/.claude/CLAUDE.md`
 
 ```markdown
 # Builds Vault — Claude Standing Instructions
@@ -1641,12 +1647,12 @@ cd ~/builds
 git clone https://github.com/obra/knowledge-graph.git
 cd knowledge-graph
 npm install
-export KG_VAULT_PATH=~/Obsidian/Builds
+export KG_VAULT_PATH=$VAULT_PATH
 /plugin add /path/to/knowledge-graph
 /kg-index
 
 # 3. mcpvault
-claude mcp add --scope user mcpvault -- npx -y mcpvault --vault ~/Obsidian/Builds
+claude mcp add --scope user mcpvault -- npx -y mcpvault --vault $VAULT_PATH
 
 # 4. Verify
 /mcp   # inside Claude Code
@@ -1658,8 +1664,8 @@ If you have nothing set up yet, this is the minimum path to start compounding wi
 
 ```bash
 # Hour 1 — vault
-mkdir -p ~/Obsidian/Builds/{00-Inbox,01-Projects,02-Areas,03-Resources,04-Archive,05-Patterns,.claude/skills}
-cd ~/Obsidian/Builds && git init && gh repo create obsidian-builds --private --source=. --remote=origin && git add . && git commit -m "chore: vault init" && git push -u origin main
+mkdir -p "$VAULT_PATH"/{00-Inbox,01-Projects,02-Areas,03-Resources,04-Archive,05-Patterns,.claude/skills}
+cd $VAULT_PATH && git init && gh repo create obsidian-builds --private --source=. --remote=origin && git add . && git commit -m "chore: vault init" && git push -u origin main
 # paste Appendix E into .claude/CLAUDE.md
 
 # Hour 2 — Context7 + knowledge-graph MCP
@@ -1681,4 +1687,4 @@ The whole point: don't try to build the platform layer perfectly before doing an
 
 ---
 
-*End of Playbook v2.3. Update this file via Part D refinement loop. Track changes in `02-Areas/Playbook/CHANGELOG.md`. Refinement evidence at `02-Areas/Playbook/refinement-2026-05-16.md`. See `COMPARISON-mattpocock-vs-ours.md` for the v2.2 rationale.*
+*End of Playbook v3.0. Update this file via Part D refinement loop. Track changes in `02-Areas/Playbook/CHANGELOG.md`. Refinement evidence at `02-Areas/Playbook/refinement-2026-05-16.md`. See `COMPARISON-mattpocock-vs-ours.md` for the v2.2 rationale.*

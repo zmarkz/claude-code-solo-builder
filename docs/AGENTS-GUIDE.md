@@ -183,17 +183,24 @@ Every agent now declares a `model:` field in its frontmatter. This pins the righ
 
 | Agent | Model | Reason |
 |-------|-------|--------|
-| `security-architect` | `claude-opus-4-8` | Highest stakes — missed findings have real consequences |
-| `solution-architect` | `claude-opus-4-8` | Architecture decisions are hard to reverse |
-| `product-owner-reviewer` | `claude-sonnet-4-6` | Balanced judgment across business + technical |
-| `ai-engineer` | `claude-sonnet-4-6` | Complex but well-structured domain |
-| `qa-engineer` | `claude-sonnet-4-6` | Adversarial thinking needs depth |
-| `backend-engineer` | `claude-sonnet-4-6` | Standard implementation work |
-| `frontend-engineer` | `claude-sonnet-4-6` | Standard implementation work |
-| `devops-engineer` | `claude-sonnet-4-6` | Standard implementation work |
-| `domain-expert` | `claude-sonnet-4-6` | Domain research needs good recall |
-| `product-manager` | `claude-haiku-4-5-20251001` | Structured output, lightweight reasoning (~10-20x cheaper) |
-| `technical-writer` | `claude-haiku-4-5-20251001` | Doc formatting, low cognitive load (~10-20x cheaper) |
+| `security-architect` | `opus` | Highest stakes — missed findings have real consequences |
+| `solution-architect` | `opus` | Architecture decisions are hard to reverse |
+| `product-owner-reviewer` | `sonnet` | Balanced judgment across business + technical |
+| `ai-engineer` | `sonnet` | Complex but well-structured domain |
+| `qa-engineer` | `sonnet` | Adversarial thinking needs depth |
+| `backend-engineer` | `sonnet` | Standard implementation work |
+| `frontend-engineer` | `sonnet` | Standard implementation work |
+| `devops-engineer` | `sonnet` | Standard implementation work |
+| `domain-expert` | `sonnet` | Domain research needs good recall |
+| `product-manager` | `haiku` | Structured output, lightweight reasoning (~10-20x cheaper) |
+| `technical-writer` | `haiku` | Doc formatting, low cognitive load (~10-20x cheaper) |
+
+> **Why aliases, not pinned IDs.** `opus` / `sonnet` / `haiku` resolve to the
+> latest model of each tier (currently Opus 4.8 / Sonnet 5 / Haiku 4.5) and
+> advance automatically with Claude Code releases. Pinned IDs
+> (`claude-sonnet-4-6`-style) hard-fail when a model is retired — the kit
+> switched to aliases in v3.0 to eliminate that failure class. Pin a full ID in
+> a project override only if you need snapshot stability.
 
 ---
 

@@ -10,7 +10,15 @@
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
   "enabledPlugins": {
-    "claude-md-management@claude-plugins-official": true
+    "claude-md-management@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "session-report@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true
   },
   "hooks": {
     "SessionStart": [
@@ -19,22 +27,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /YOUR_HOME/builds/_platform/scripts/vault-session-check.sh"
+            "command": "bash \"$HOME/.claude/scripts/vault-session-check.sh\""
           },
           {
             "type": "command",
-            "command": "bash /YOUR_HOME/builds/_platform/scripts/solo-builder-session-check.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /YOUR_HOME/builds/_platform/scripts/vault-write-hook.sh"
+            "command": "bash \"$HOME/.claude/scripts/solo-builder-session-check.sh\""
           }
         ]
       }

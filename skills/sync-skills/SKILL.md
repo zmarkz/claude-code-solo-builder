@@ -10,12 +10,23 @@ Produces a dated report of what changed, what was applied, and what was skipped.
 ## Step 0 — Init
 
 ```bash
-mkdir -p ~/.claude/sync-skills/state ~/Obsidian/Builds/02-Areas/Sync-Reports
+mkdir -p ~/.claude/sync-skills/state
 SYNC_DATE=$(date +%Y-%m-%d)
 SYNC_TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 SOURCES_FILE=~/.claude/skills/sync-skills/sources.json
+LOCAL_SOURCES=~/.claude/sync-skills/sources.local.json
 STATE_FILE=~/.claude/sync-skills/state/last-sync.json
-REPORT_FILE=~/Obsidian/Builds/02-Areas/Sync-Reports/$SYNC_DATE.md
+
+# Reports land in the vault when the vault module is configured, else in ~/.claude.
+CONFIG=~/.claude/solo-builder.config
+[ -f "$CONFIG" ] && . "$CONFIG"
+if [ -n "${VAULT_PATH:-}" ]; then
+  REPORT_DIR="$VAULT_PATH/02-Areas/Sync-Reports"
+else
+  REPORT_DIR=~/.claude/sync-skills/reports
+fi
+mkdir -p "$REPORT_DIR"
+REPORT_FILE="$REPORT_DIR/$SYNC_DATE.md"
 
 # Hard prerequisite — sources.json must exist
 if [ ! -f "$SOURCES_FILE" ]; then
@@ -28,6 +39,21 @@ fi
 if ! jq empty "$SOURCES_FILE" 2>/dev/null; then
   echo "BLOCKED: sources.json is not valid JSON. Fix it before running /sync-skills."
   exit 1
+fi
+
+# Merge personal overrides (sources.local.json): concat, dedupe by id, LOCAL WINS.
+# The local file lives in ~/.claude/sync-skills/ (state dir) — never inside the
+# skill dir, which install.sh --delete-syncs.
+EFFECTIVE_SOURCES="$SOURCES_FILE"
+if [ -f "$LOCAL_SOURCES" ]; then
+  if jq empty "$LOCAL_SOURCES" 2>/dev/null; then
+    EFFECTIVE_SOURCES=~/.claude/sync-skills/state/sources.effective.json
+    jq -s '{version: .[0].version, sources: (.[0].sources + .[1].sources | group_by(.id) | map(last))}' \
+      "$SOURCES_FILE" "$LOCAL_SOURCES" > "$EFFECTIVE_SOURCES"
+    echo "Merged sources.local.json -> $(jq '.sources|length' "$EFFECTIVE_SOURCES") effective sources"
+  else
+    echo "WARN: sources.local.json is invalid JSON — proceeding with public sources only"
+  fi
 fi
 
 # Load last sync info
@@ -116,7 +142,7 @@ echo "--- Globally installed npm packages (AI/Claude-related) ---"
 npm ls -g --depth=0 2>/dev/null | grep -iE "claude|anthropic|mcp|gstack|openai|ollama|langchain" || echo "(none found)"
 
 echo ""
-echo "--- Local builds with version info ---"
+echo "--- Local builds with version info (adjust the glob to your projects root) ---"
 for pkg in ~/builds/*/package.json; do
   [ -f "$pkg" ] && echo "$pkg: $(jq -r '"\(.name) v\(.version)"' "$pkg" 2>/dev/null)"
 done
@@ -210,7 +236,7 @@ Fetch the latest Karpathy CLAUDE.md from the URL in sources.json.
 ```bash
 echo "=== Karpathy CLAUDE.md ==="
 KARPATHY_CACHE=~/.claude/sync-skills/state/karpathy-claude.last
-KARPATHY_URL=$(jq -r '.sources[] | select(.id=="karpathy-claude") | .url' ~/.claude/skills/sync-skills/sources.json)
+KARPATHY_URL=$(jq -r '.sources[] | select(.id=="karpathy-claude") | .url' "$EFFECTIVE_SOURCES")
 echo "URL: $KARPATHY_URL"
 [ -f "$KARPATHY_CACHE" ] && echo "Cache exists: $(wc -l < $KARPATHY_CACHE) lines" || echo "No cache (first run)"
 ```
@@ -343,9 +369,32 @@ For MCPs with absolute-path git repos that have new upstream commits: offer to a
 
 ---
 
+## Step 6.5 — Plugin Freshness
+
+For every `plugin-marketplace` source in the effective sources:
+
+```bash
+echo "=== Plugin freshness ==="
+PLUGINS_FILE=~/.claude/plugins/installed_plugins.json
+if [ -f "$PLUGINS_FILE" ]; then
+  jq -r 'to_entries[] | "\(.key) | version=\(.value.version // "unknown") | sha=\(.value.gitCommitSha // "-" | .[0:8]) | updated=\(.value.lastUpdated // "-")"' \
+    "$PLUGINS_FILE" 2>/dev/null || echo "(could not parse $PLUGINS_FILE)"
+else
+  echo "(no installed_plugins.json — plugins not in use)"
+fi
+```
+
+- Report each tracked plugin's version. When version reads `unknown`, report
+  `gitCommitSha`/`lastUpdated` instead — that is the freshness signal.
+- sync-skills NEVER updates plugins itself. If a plugin looks stale (lastUpdated
+  much older than its marketplace), recommend: `claude plugin update <name>`.
+- Status per plugin: `TRACKED_OK` | `STALE_CANDIDATE` | `NOT_INSTALLED`.
+
+---
+
 ## Step 7 — Write Sync Report
 
-Write a complete markdown report to `~/Obsidian/Builds/02-Areas/Sync-Reports/$SYNC_DATE.md` using the Write tool (do NOT use a shell heredoc — the empty-heredoc pattern silently truncates any existing same-day report before the content is ready).
+Write a complete markdown report to `$REPORT_FILE` (vault when the vault module is configured, `~/.claude/sync-skills/reports/` otherwise) using the Write tool (do NOT use a shell heredoc — the empty-heredoc pattern silently truncates any existing same-day report before the content is ready).
 
 If the file already exists (same-day re-run), append a `## Re-run — <SYNC_TS>` section rather than overwriting.
 
@@ -416,6 +465,9 @@ if [ $? -eq 0 ]; then
 else
   echo "WARNING: failed to write state file — next run will show last_run=never"
 fi
+
+# Epoch stamp read by the SessionStart freshness nag (solo-builder-session-check.sh).
+date +%s > ~/.claude/sync-skills/state/last-run
 ```
 
 ---
@@ -439,7 +491,7 @@ Changes written:
   ~/.claude/CLAUDE.md    <"N lines added/changed" or "no changes">
   sources.json           <"N sources added" or "unchanged">
 
-Report: ~/Obsidian/Builds/02-Areas/Sync-Reports/<SYNC_DATE>.md
+Report: <$REPORT_FILE>
 
 Run again any time with /sync-skills
 ```

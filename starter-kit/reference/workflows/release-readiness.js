@@ -25,7 +25,7 @@ if (!A || typeof A !== 'object') A = {}
 const MODE = A.mode || 'best'
 const SAVER = MODE === 'saver'
 const REPO = A.repoPath || '.'
-const SYNTH_MODEL = SAVER ? 'claude-sonnet-4-6' : 'claude-opus-4-8'
+const SYNTH_MODEL = SAVER ? 'sonnet' : 'opus'
 
 const LENSES = [
   { key: 'qa', agent: 'qa-engineer', desc: 'run/inspect the test suite; coverage of new code; flaky or skipped tests' },
@@ -61,7 +61,7 @@ phase('Assess')
 log(`release-readiness [${MODE}]: ${lenses.length} lenses on ${REPO}`)
 const assessed = (await parallel(lenses.map(l => () => agent(
   `Repo root: ${REPO}. You are the **${l.key}** release-readiness lens. Assess the release-candidate state for: ${l.desc}. Inspect the code/diff/tree as needed. Return status (pass/warn/fail), notes, and any blockers.`,
-  { label: `assess:${l.key}`, phase: 'Assess', agentType: l.agent, model: 'claude-sonnet-4-6', schema: LENS_SCHEMA },
+  { label: `assess:${l.key}`, phase: 'Assess', agentType: l.agent, model: 'sonnet', schema: LENS_SCHEMA },
 )))).filter(Boolean)
 
 phase('Critique')

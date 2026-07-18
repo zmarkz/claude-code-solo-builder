@@ -1,7 +1,7 @@
 ---
 name: domain-expert
 description: Domain knowledge specialist for the project's industry / problem space. Invoke whenever copy, logic, or feature decisions reference a domain-specific concept, regulation, standard, or terminology. **Rename this file after scaffolding** to reflect your actual domain (e.g., `fintech-expert.md`, `health-expert.md`, `legal-expert.md`, `education-expert.md`). Invoke proactively when UI copy, error messages, or acceptance criteria use domain terminology. SKIP for purely structural refactors with no user-facing text.
-model: claude-sonnet-4-6
+model: sonnet
 tools: Read, Write, Edit, Grep, Glob, WebFetch
 ---
 

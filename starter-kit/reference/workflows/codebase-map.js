@@ -30,7 +30,7 @@ const REPO = A.repoPath || '.'
 const MODES = SAVER
   ? ['modules', 'data-model', 'tests']
   : ['modules', 'data-model', 'integrations', 'tests', 'build-ci', 'domain-language']
-const SYNTH_MODEL = SAVER ? 'claude-sonnet-4-6' : 'claude-opus-4-8'
+const SYNTH_MODEL = SAVER ? 'sonnet' : 'opus'
 
 const MODE_BRIEF = {
   'modules': 'top-level modules / packages / entrypoints and how they depend on each other',
@@ -67,7 +67,7 @@ const CRITIC_SCHEMA = { type: 'object', additionalProperties: false, required: [
 
 const reader = (m) => agent(
   `Repo root: ${REPO}. You are the **${m}** reader. Explore the tree and report on: ${MODE_BRIEF[m] || m}. Read excerpts, not whole files. Return a section: mode="${m}", a tight summary, the key paths, entrypoints, and any risks you noticed.`,
-  { label: `read:${m}`, phase: 'Sweep', model: 'claude-sonnet-4-6', agentType: m === 'domain-language' ? 'domain-expert' : undefined, schema: SECTION_SCHEMA },
+  { label: `read:${m}`, phase: 'Sweep', model: 'sonnet', agentType: m === 'domain-language' ? 'domain-expert' : undefined, schema: SECTION_SCHEMA },
 )
 const synthPrompt = (sections, extra) =>
   `Synthesize these per-mode readings of repo ${REPO} into ONE architecture brief: overview, components (name/role/paths), the primary data-flow path, the key paths a new contributor must know, and risks. ${extra || ''}\n\nSECTIONS:\n${JSON.stringify(sections, null, 2)}`
@@ -89,7 +89,7 @@ if (!SAVER && gaps.length) {
   log(`Critic found ${gaps.length} gap(s) — one re-pass`)
   const extra = (await parallel(gaps.slice(0, 6).map((g, i) => () => agent(
     `Repo ${REPO}. A completeness critic flagged this previously-unread area: "${g}". Read it and return a section (mode="gap:${i}", summary, keyPaths, entrypoints, risks).`,
-    { label: `read:gap#${i}`, phase: 'Critique', model: 'claude-sonnet-4-6', schema: SECTION_SCHEMA },
+    { label: `read:gap#${i}`, phase: 'Critique', model: 'sonnet', schema: SECTION_SCHEMA },
   )))).filter(Boolean)
   sections = sections.concat(extra)
   brief = await agent(synthPrompt(sections, 'Incorporate the newly-read gap areas.'), { label: 'resynthesize', phase: 'Critique', agentType: 'solution-architect', model: SYNTH_MODEL, schema: BRIEF_SCHEMA })

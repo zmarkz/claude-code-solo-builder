@@ -1,5 +1,7 @@
 # Token Efficiency Guide
 
+> Verified against Claude Code v2.1.214 — 2026-07-18
+>
 > How to get 85-93% cost savings while building faster with Claude Code.
 
 ---
@@ -22,7 +24,7 @@ This guide fixes all three.
 > per token — so the strategies below split into two buckets:
 >
 > - **Product-runtime AI** — your *app's own* API calls (Strategy 1, Strategy 10). Still real money.
->   Keep the frugality: classify → route 93% to local Qwen, etc.
+>   Keep the frugality: classify → route the bulk of simple queries to a free local model, etc.
 > - **The harness** — how *you* drive Claude Code (which model your sessions and swarm roles use). Token
 >   cost is **not** your constraint here; the **weekly Opus sub-cap** is — drain it mid-week and you get
 >   silently downgraded to Sonnet. Reframe the harness goal as *"spend the weekly Opus cap on judgment,
@@ -48,7 +50,7 @@ COMPLEX (→ Claude Sonnet, paid ~$0.001–0.003/call):
   rebalance, should I, compare, strategy, tax, deep dive,
   outlook, action plan, which is best/worst, portfolio health
 
-SIMPLE (→ local Qwen via Ollama, FREE):
+SIMPLE (→ local model via Ollama, FREE):
   what is, how many, show me, list, allocation, explain, define,
   total value, how much, summary, what does, meaning, count
 
@@ -57,28 +59,20 @@ DEFAULT → COMPLEX (safer — use Claude if unsure)
 
 ### Implementation
 
-Route through an Agent Farm classifier, not directly to the model:
+Route through a classifier layer, not directly to the model:
 
 ```typescript
 // NEVER do this:
 const result = await anthropic.messages.create({...})
 
-// ALWAYS do this — route through classifier first:
+// ALWAYS do this — classify first, then route:
 const complexity = classifyQuery(userMessage) // "COMPLEX" | "SIMPLE"
-const template = complexity === "COMPLEX" ? TEMPLATE_3_CLAUDE : TEMPLATE_4_LOCAL
-const result = await agentFarm.execute(template, userMessage)
+const model = complexity === "COMPLEX" ? PAID_MODEL : LOCAL_MODEL
+const result = await route(model, userMessage)
 ```
 
-### Real-world cost evidence
-
-| Period | Without routing | With routing | Savings |
-|--------|----------------|--------------|---------|
-| Monthly (portfolio app) | ~₹200+ | ~₹28 | 85%+ |
-| Per query distribution | 100% paid | 7% paid, 93% free | — |
-
-The mcp-farm Agent Farm in this setup handles templates:
-- **Template 3** — Claude Sonnet 4.6 (complex analysis, structured JSON output)
-- **Template 4** — Qwen local via Ollama (simple queries, streaming markdown, ₹0)
+Routing like this typically serves the large majority of queries from a free local model, cutting
+product-runtime AI cost by ~85%+ — the exact split depends on your query mix.
 
 ---
 
@@ -145,19 +139,22 @@ Every time you explain a past decision to Claude, you're paying twice — once w
 - "What's our auth pattern?" → finds your security architecture decision
 - "How did we structure this table?" → finds your schema migration ADR
 
-**Setup:** See `docs/OBSIDIAN-CONTEXT7.md` for MCP server installation.
+**Setup:** The vault is an optional module — see `docs/VAULT.md` for enabling it and wiring the MCP servers.
 
 ---
 
 ## Strategy 5 — Context Window Management
 
-The 200K context window degrades noticeably above 70% utilization. Strategies:
+> **Caveat (2026):** Current frontier models ship 1M-token context; several context-rationing tactics
+> below matter less than when this was written — re-evaluate before optimizing.
+
+A context window degrades noticeably above 70% utilization. Strategies:
 
 ### Use swarms, not monolith sessions
 
 Instead of one long session doing everything:
 ```
-One session (200K context):
+One long session:
   Planning → Design → Backend → Frontend → Tests → Review
   → Context fills, quality degrades mid-session
 ```
@@ -228,7 +225,7 @@ When NOT to use:
 | Review | 30-60 min | Opus 4.8 | PR review, security review |
 | QA | 1-2 hours | Haiku 4.5 | Test generation, fixture work |
 
-Break features into focused sub-tasks, each in its own session. A "restart with fresh context" is free — a degraded 180K context is expensive.
+Break features into focused sub-tasks, each in its own session. A "restart with fresh context" is free — a degraded near-full context is expensive.
 
 ---
 
@@ -258,9 +255,9 @@ Instead of streaming prose, request structured JSON from complex queries. The fr
 For repeat operations (document parsing, session summaries, daily briefings):
 
 ```typescript
-// Cache the system prompt — pays ~25% of full cost on cache hit
+// Cache the system prompt — cache reads cost ~10% of the base input price
 const response = await anthropic.messages.create({
-  model: "claude-sonnet-4-6",
+  model: "sonnet",
   system: [
     {
       type: "text",
@@ -272,7 +269,7 @@ const response = await anthropic.messages.create({
 })
 ```
 
-The cache TTL is 5 minutes. For operations that repeat within that window (session summaries every 3 turns, daily briefings at a fixed time), cache hits reduce cost by 75-90%.
+The cache TTL is 5 minutes. For operations that repeat within that window (session summaries every few turns, daily briefings at a fixed time), a cache hit costs ~10% of the base input price — roughly a 90% saving on the cached tokens.
 
 ---
 
@@ -304,35 +301,16 @@ Running all strategies:
 
 | Strategy | Savings |
 |----------|---------|
-| Model routing (93% local) | 85-93% of AI cost |
+| Model routing (bulk to a free local model) | 85-93% of product AI cost |
 | Haiku for repetitive tasks | 10-20x cheaper per task |
 | Vault-first (no re-explaining) | Fewer tokens per session |
 | CLAUDE.md ≤200 lines | Capped load cost |
 | /caveman in long sessions | 75% compression |
-| Local Qwen for documents/summaries | 100% of that cost |
-| Prompt caching | 75-90% on cached hits |
+| Local models for documents/summaries | 100% of that cost |
+| Prompt caching | ~90% on cached input |
 
-**Real monthly cost for a portfolio of 2-3 active apps: ~₹50-100 (~$0.60-1.20)**
-
-Without these strategies, the same portfolio would cost ₹500-2000/month in Claude API calls.
+Stacked, these cut a multi-app AI bill by roughly an order of magnitude versus sending everything to a frontier model.
 
 ---
 
-## Cost Monitoring
-
-Log every AI call:
-```
-[ROUTING] query="Analyze portfolio" → COMPLEX → Claude (template 3) | session=42
-[RESULT]  COMPLEX → Claude | 31000ms | 3957chars | ~₹5.05 | JSON_STRUCTURED
-[ROUTING] query="How many stocks?" → SIMPLE → Qwen local (template 4)
-[RESULT]  SIMPLE → Qwen local | STREAMING_MARKDOWN | cost=₹0.00
-```
-
-View cost breakdown:
-```bash
-docker logs -f portfolio_tracker_api 2>&1 | grep "\[RESULT\]" | grep "₹" | awk -F'₹' '{print $2}' | paste -sd+ | bc
-```
-
----
-
-*See also: `docs/AI-ROUTING.md` for the implementation pattern, `PLAYBOOK.md` Part 2 for model selection by task.*
+*See also: `PLAYBOOK.md` Part 2 for model selection by task, `docs/SWARM-ORCHESTRATION.md` for per-swarm-role model routing.*

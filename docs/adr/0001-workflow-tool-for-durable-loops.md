@@ -59,4 +59,4 @@ opt-in (the keyword "workflow", or ultracode), the command surfaces that it is r
 
 - `docs/SWARM-ORCHESTRATION.md` › *Two substrates for Mode 3*
 - `starter-kit/reference/commands/orchestrate-loops.md` › *Choose the substrate*
-- `docs/AI-ROUTING.md` › loop-role model routing
+- `docs/AI-ROUTING.md` › loop-role model routing *(doc moved to the private overlay in v3.0 — see `docs/TOKEN-EFFICIENCY.md` Strategy 2)*

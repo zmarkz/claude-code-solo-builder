@@ -13,12 +13,11 @@
 # What it does NOT touch: your live ~/.claude/settings.json and ~/.claude/CLAUDE.md
 # (those are yours to edit). It prints guidance if they lack the recommended wiring.
 #
-# Override targets via env: CLAUDE_HOME=... PLATFORM_SCRIPTS=...
+# Override target via env: CLAUDE_HOME=...
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEST="${CLAUDE_HOME:-$HOME/.claude}"
-PLATFORM="${PLATFORM_SCRIPTS:-$HOME/builds/_platform/scripts}"
 
 MODE="install"
 [[ "${1:-}" == "--check" ]] && MODE="check"
@@ -52,8 +51,8 @@ sync() {
 
 [[ "$MODE" == "install" ]] && echo "Syncing $REPO -> $DEST ..."
 
-# 1. The scaffold skill (we own this dir fully; exclude platform-scripts — those go to $PLATFORM).
-sync "scaffold-skill" "$REPO/starter-kit" "$DEST/skills/ai-project-scaffold" 1 --exclude 'platform-scripts/'
+# 1. The scaffold skill (we own this dir fully).
+sync "scaffold-skill" "$REPO/starter-kit" "$DEST/skills/ai-project-scaffold" 1
 
 # 2. sync-skills command (we own it; prune cruft like old .bak files).
 sync "sync-skills" "$REPO/skills/sync-skills" "$DEST/skills/sync-skills" 1
@@ -64,8 +63,9 @@ sync "agents" "$REPO/starter-kit/reference/agents" "$DEST/agents" 0
 sync "commands" "$REPO/starter-kit/reference/commands" "$DEST/commands" 0
 sync "workflows" "$REPO/starter-kit/reference/workflows" "$DEST/workflows" 0 --exclude 'README.md'
 
-# 4. Platform automation scripts (shared dir — additive).
-sync "platform-scripts" "$REPO/starter-kit/platform-scripts" "$PLATFORM" 0
+# 4. User-level hook scripts (shared dir — additive). Wired by
+#    settings/settings.json.template as `bash "$HOME/.claude/scripts/..."`.
+sync "hook-scripts" "$REPO/scripts" "$DEST/scripts" 0
 
 if [[ "$MODE" == "check" ]]; then
   echo "$TOTAL_DRIFT"
@@ -78,6 +78,10 @@ if ! grep -q "solo-builder-session-check.sh" "$DEST/settings.json" 2>/dev/null; 
   echo "NOTE: your $DEST/settings.json has no solo-builder drift hook."
   echo "      Add the SessionStart hook from settings/settings.json.template to get"
   echo "      a sync reminder at the start of every session."
+elif grep -q "_platform/scripts/.*session-check" "$DEST/settings.json" 2>/dev/null; then
+  echo "NOTE: your $DEST/settings.json still points session-check hooks at the old"
+  echo "      ~/builds/_platform/scripts/ location. As of v3.0 they live in"
+  echo "      $DEST/scripts/ — update the hook paths (see settings/settings.json.template)."
 fi
 if ! grep -q "Behavioral Principles" "$DEST/CLAUDE.md" 2>/dev/null; then
   echo "NOTE: your $DEST/CLAUDE.md has no 'Behavioral Principles' section."

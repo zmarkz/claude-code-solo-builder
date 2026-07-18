@@ -55,7 +55,7 @@ const REVIEWERS = Array.isArray(A.reviewers) ? A.reviewers : []
 const QA = Array.isArray(A.qa) ? A.qa : []
 const DO_FINAL = A.final !== false
 const FINAL_VERIFY = A.finalVerify || 'make quality'
-const FINAL_MODEL = SAVER ? 'claude-sonnet-4-6' : 'claude-opus-4-8'
+const FINAL_MODEL = SAVER ? 'sonnet' : 'opus'
 
 const REVIEW_SCHEMA = { type: 'object', additionalProperties: false, required: ['verdict', 'findings', 'summary'], properties: {
   verdict: { type: 'string', enum: ['pass', 'changes', 'block'] },
@@ -101,7 +101,7 @@ async function reviewLane(items, phaseName, fixPhaseName) {
 
 async function commitWave(name, msg) {
   if (!A.commit) return null
-  return agent(`Repo ${REPO}${A.branch ? ` on branch ${A.branch}` : ''}. COMMIT "${name}". Run: \`git add -A && git reset -q -- .claude 2>/dev/null; git commit -m "<<<MSG>>>"\` where the message is exactly:\n${msg}\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>\nDo NOT stage .claude or any *.temp. If a pre-commit hook blocks (secret-scan/typecheck), report what blocked; do NOT use --no-verify. Return a one-line status.`,
+  return agent(`Repo ${REPO}${A.branch ? ` on branch ${A.branch}` : ''}. COMMIT "${name}". Run: \`git add -A && git reset -q -- .claude 2>/dev/null; git commit -m "<<<MSG>>>"\` where the message is exactly:\n${msg}\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nDo NOT stage .claude or any *.temp. If a pre-commit hook blocks (secret-scan/typecheck), report what blocked; do NOT use --no-verify. Return a one-line status.`,
     { label: `commit:${name}`, phase: name })
 }
 

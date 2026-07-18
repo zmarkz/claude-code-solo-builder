@@ -63,7 +63,7 @@ If they chose **custom specialist**, ask:
 ---
 name: <renamed-slug>
 description: Domain knowledge specialist for <domain>. Invoke whenever copy, logic, or feature decisions reference <domain>-specific concepts, regulations, or terminology. Invoke proactively when UI copy, error messages, or acceptance criteria use domain terminology. SKIP for purely structural refactors with no user-facing text.
-model: claude-sonnet-4-6
+model: sonnet
 tools: Read, Write, Edit, Grep, Glob, WebFetch
 ---
 
@@ -125,7 +125,7 @@ Never write or accept these phrasings:
 ---
 name: <role-name>
 description: <responsibilities summary>. Invoke proactively when <trigger conditions>. SKIP for <anti-trigger conditions>.
-model: <claude-opus-4-8 | claude-sonnet-4-6 | claude-haiku-4-5-20251001>
+model: <opus | sonnet | haiku>
 tools: <Read, Write, Edit, Grep, Glob, Bash, WebFetch — select only what's needed>
 ---
 

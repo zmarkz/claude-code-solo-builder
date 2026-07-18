@@ -1,7 +1,7 @@
 ---
 name: devops-engineer
 description: Use for Docker, Docker Compose, Terraform/Pulumi, CI workflows, Makefile, observability (metrics, logs, traces), and deployment to the chosen cloud target. Invoke for infra changes, CI breakage, or developer-experience improvements. Invoke proactively when any Dockerfile, CI workflow, or infrastructure config changes. SKIP for application business-logic changes.
-model: claude-sonnet-4-6
+model: sonnet
 tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 

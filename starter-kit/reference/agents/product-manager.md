@@ -1,7 +1,7 @@
 ---
 name: product-manager
 description: Use for scoping features, writing user stories, defining acceptance criteria, validating proposals against the personas in PROJECT_CONTEXT.md, and trimming scope. Invoke when a new feature is being considered or current work feels too big to finish in one sprint. Invoke proactively before any feature is specced or sized. SKIP for bug fixes with a clear reproduction path.
-model: claude-haiku-4-5-20251001
+model: haiku
 tools: Read, Write, Edit, Grep, Glob
 ---
 
