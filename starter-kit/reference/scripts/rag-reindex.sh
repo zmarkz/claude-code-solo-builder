@@ -43,7 +43,7 @@ touch "$LOCK_FILE"
     # it helps code retrieval). NOTE: can hit ARG_MAX on very large repos —
     # if that happens, switch to --docs . and curate excludes.
     # shellcheck disable=SC2046
-    leann build "$INDEX_NAME" --docs $(git ls-files | grep -ivE '\.(png|jpe?g|gif|svg|ico|icns|webp|bmp|mp3|wav|m4a|ogg|flac|mp4|mov|avi|webm|mkv|xls|xlsx|ppt|pptx|csv|zip|gz|tgz|tar|7z|rar|woff2?|ttf|otf|eot|jar|class|pyc|so|dylib|bin|sqlite|db)$') \
+    leann build "$INDEX_NAME" --docs $(git ls-files | grep -vE '(^|/)(node_modules|vendor|dist|build|\.next|__pycache__)/' | grep -ivE '\.(png|jpe?g|gif|svg|ico|icns|webp|bmp|mp3|wav|m4a|ogg|flac|mp4|mov|avi|webm|mkv|xls|xlsx|ppt|pptx|csv|zip|gz|tgz|tar|7z|rar|woff2?|ttf|otf|eot|jar|class|pyc|so|dylib|bin|sqlite|db)$') \
       --file-types "$RAG_FILE_TYPES" \
       --embedding-mode "${RAG_EMBEDDING_MODE:-ollama}" \
       --embedding-model "${RAG_EMBEDDING_MODEL:-nomic-embed-text}" \

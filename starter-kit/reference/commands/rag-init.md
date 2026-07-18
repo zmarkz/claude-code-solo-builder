@@ -37,7 +37,7 @@ claude mcp list 2>/dev/null | grep -q leann-server || echo "MISS mcp     → cla
 
 ```bash
 INDEX_NAME="$(basename "$PWD" | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')"
-leann build "$INDEX_NAME" --docs $(git ls-files | grep -ivE '\.(png|jpe?g|gif|svg|ico|icns|webp|bmp|mp3|wav|m4a|ogg|flac|mp4|mov|avi|webm|mkv|xls|xlsx|ppt|pptx|csv|zip|gz|tgz|tar|7z|rar|woff2?|ttf|otf|eot|jar|class|pyc|so|dylib|bin|sqlite|db)$') \
+leann build "$INDEX_NAME" --docs $(git ls-files | grep -vE '(^|/)(node_modules|vendor|dist|build|\.next|__pycache__)/' | grep -ivE '\.(png|jpe?g|gif|svg|ico|icns|webp|bmp|mp3|wav|m4a|ogg|flac|mp4|mov|avi|webm|mkv|xls|xlsx|ppt|pptx|csv|zip|gz|tgz|tar|7z|rar|woff2?|ttf|otf|eot|jar|class|pyc|so|dylib|bin|sqlite|db)$') \
   --file-types ".md,.mdx,.txt,.ts,.tsx,.js,.jsx,.mjs,.cjs,.json,.py,.java,.kt,.go,.rs,.rb,.php,.swift,.c,.h,.cpp,.hpp,.cs,.sh,.bash,.fish,.zsh,.yaml,.yml,.toml,.ini,.cfg,.sql,.html,.css,.scss,.vue,.svelte,.xml,.gradle,.properties,.tf,.proto,.graphql,.prisma" \
   --embedding-mode "${RAG_EMBEDDING_MODE:-ollama}" \
   --embedding-model "${RAG_EMBEDDING_MODEL:-nomic-embed-text}" \
