@@ -3,7 +3,9 @@
 > An operating system for solo developers building a multi-app portfolio with AI agents.
 > Token-efficient, vault-grounded, security-first, and compounding over time.
 
-**Version 3.0 — July 2026**
+**Version 3.2 — July 2026**
+
+> **What's new** · **v3.2** — "Opus at the gates" model retune (Opus runs only on gate lanes; near-Opus Sonnet 5 takes synthesis / proposal / discovery) + Mode-3 substrate re-scope + mattpocock skills migrated to the plugin marketplace. · **v3.1** — per-project local RAG (LEANN) + cross-project module reuse. · **v3.0** — public/private overlay split (fully generic, portable kit). Full rationale in `docs/adr/INDEX.md`.
 
 ---
 
@@ -105,7 +107,8 @@ The core setup above is fully self-contained. These modules are opt-in — turn 
   `~/.claude/solo-builder.config` (template at `settings/solo-builder.config.template`). Guide:
   `docs/VAULT.md`.
 - **Third-party skill suites** — gstack (~30 shipping / QA / review / SEO skills) and
-  mattpocock/skills (atomic daily-workflow skills). Install only what you use. Guide:
+  mattpocock/skills (atomic daily-workflow session skills, installed via the Claude Code
+  plugin marketplace — `mattpocock-skills@mattpocock`). Install only what you use. Guide:
   `docs/SKILLS-ECOSYSTEM.md`.
 - **Local-model routing** — send simple AI calls to a free local model (e.g. Qwen via Ollama) and
   reserve Claude for complex work. A recommended generic pattern, written up in `PLAYBOOK.md` §3.10.
@@ -136,7 +139,7 @@ claude-code-solo-builder/
 │   ├── SETTINGS-AND-THEMES.md        ← Claude Code config, dark theme, hooks
 │   ├── COMPARISON-mattpocock.md      ← Best-of-both hybrid analysis
 │   ├── COMPARISON-karpathy.md        ← Karpathy CLAUDE.md benchmark + what we adopted
-│   └── adr/                          ← ADRs (0001 Workflow substrate · 0002 recipe library)
+│   └── adr/                          ← ADRs 0001–0006 (workflow substrate · recipe library · public/private split · local RAG · Opus-at-the-gates · Mode-3 re-scope)
 ├── starter-kit/                      ← The ai-project-scaffold skill
 │   ├── SKILL.md                      ← Skill specification (invoke with /ai-project-scaffold)
 │   ├── CHANGELOG.md                  ← Version history
@@ -220,7 +223,7 @@ Saved `Workflow()` recipes in `.claude/workflows/` fan work across many agents f
 | `release-readiness` | *(by name)* | parallel lenses + completeness critic | pre-release go/no-go gate |
 | `fast-dag-build` | *(by name)* | DAG fan-out + self-verify + review lane | build a multi-domain feature, quality-first |
 
-On Max plans the binding constraint is the weekly Opus cap, not token cost — so even Best keeps bulk leaves (skeptics, grind) on Sonnet/Haiku to preserve it. See `starter-kit/reference/workflows/README.md` and `docs/SWARM-ORCHESTRATION.md`.
+**"Opus at the gates" (v3.2):** on Max plans the binding constraint is the weekly Opus cap, not token cost — so even Best runs Opus only on *gate* lanes (security lenses, integration reviewer, go/no-go, final verdict) and routes synthesis / proposal / discovery lanes to near-Opus Sonnet 5. See `docs/adr/0005-opus-at-the-gates-model-retune.md`, `starter-kit/reference/workflows/README.md`, and `docs/SWARM-ORCHESTRATION.md`.
 
 ---
 
@@ -252,7 +255,7 @@ See `docs/TOKEN-EFFICIENCY.md` for the complete strategy.
 
 This playbook merges two approaches:
 - **Ours** — project scaffold (one-time per project) with 11 specialized agents, phase gates, security posture
-- **Matt Pocock's skills** — atomic daily workflow skills (grill-with-docs, diagnose, handoff, etc.)
+- **Matt Pocock's skills** — atomic daily workflow skills (grill-with-docs, diagnosing-bugs, handoff, etc.), installed as a plugin (`mattpocock-skills@mattpocock`)
 
 Neither approach alone is sufficient. The details are in `docs/COMPARISON-mattpocock.md`.
 
@@ -288,4 +291,4 @@ MIT — use freely, adapt to your context, share improvements.
 
 ---
 
-*Built by [Markandey Singh](https://markandey.in) with Claude as co-author. v3.0, July 2026.*
+*Built by [Markandey Singh](https://markandey.in) with Claude as co-author. v3.2, July 2026.*
