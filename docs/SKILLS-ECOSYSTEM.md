@@ -163,11 +163,13 @@ npx skills@latest add nextlevelbuilder/ui-ux-pro-max-skill
 
 ## Layer 2 — mattpocock/skills (Atomic Daily Workflow)
 
-Install:
+Install (now a Claude Code **plugin** — the whole session-skill suite installs at once):
 ```bash
-npx skills@latest add mattpocock/skills
-# Select: grill-with-docs, diagnose, zoom-out, improve-codebase-architecture, handoff, caveman
+claude plugin marketplace add mattpocock/skills      # add the marketplace once
+claude plugin install mattpocock-skills@mattpocock   # installs the suite
+# update later:  claude plugin update mattpocock-skills
 ```
+The suite includes `grill-with-docs`, `diagnosing-bugs`, `improve-codebase-architecture`, `handoff`, and more. `caveman` is **not** in the plugin — mattpocock deleted it upstream, so it's kept as a frozen local skill under `~/.claude/skills/`, invoked by name.
 
 ### The 6 Essential Skills
 
@@ -225,6 +227,8 @@ npx skills@latest add mattpocock/skills
 **Use it:** Long implementation sessions (>2 hours), when context is above 50%.
 
 **Don't use it:** Planning, security review, or any time reasoning needs to be explicit.
+
+**How to get it:** `caveman` is a frozen local skill (mattpocock deleted it upstream in the 2026-07 plugin migration) — it lives under `~/.claude/skills/`, not in the `mattpocock-skills` plugin. Nothing to install; invoke by name.
 
 ---
 

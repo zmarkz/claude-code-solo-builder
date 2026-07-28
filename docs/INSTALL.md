@@ -99,21 +99,23 @@ ls ~/.claude/commands/  # Should show 18 .md files
 
 ### Step 6 — Install mattpocock/skills (optional)
 
+mattpocock's session-layer skills now ship as a **Claude Code plugin** — the whole suite installs at once:
+
 ```bash
-npx skills@latest add mattpocock/skills
+claude plugin marketplace add mattpocock/skills      # add the marketplace once
+claude plugin install mattpocock-skills@mattpocock   # installs the suite
 ```
 
-When prompted, select these skills:
+The suite includes:
 - `grill-with-docs` — pre-implementation interview
-- `diagnose` — structured debug loop
-- `zoom-out` — broader context orientation
+- `diagnosing-bugs` — structured debug loop
 - `improve-codebase-architecture` — weekly refactor ritual
 - `handoff` — human-readable session compaction
-- `caveman` — token compression mode
+
+`caveman` (token compression) is **not** in the plugin — mattpocock deleted it upstream, so it's kept as a frozen local skill under `~/.claude/skills/`, invoked by name.
 
 ```bash
-echo "✓ mattpocock skills installed"
-ls ~/.claude/skills/ | grep -E "grill|diagnose|zoom|improve|handoff|caveman"
+# Verify in Claude Code: run `/plugin` → Installed, and confirm `mattpocock-skills` is listed
 ```
 
 ### Step 7 — Install gstack (optional but recommended)
@@ -292,8 +294,8 @@ make install      # idempotent — re-syncs agents, commands, workflows, scripts
 # Update gstack
 /gstack-upgrade   # in Claude Code
 
-# Update mattpocock skills
-npx skills@latest add mattpocock/skills --update
+# Update mattpocock skills (plugin)
+claude plugin update mattpocock-skills
 ```
 
 ---

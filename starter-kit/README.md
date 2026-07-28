@@ -46,10 +46,11 @@ mkdir -p ~/.claude/agents ~/.claude/commands
 cp ~/.claude/skills/ai-project-scaffold/reference/agents/*.md   ~/.claude/agents/
 cp ~/.claude/skills/ai-project-scaffold/reference/commands/*.md ~/.claude/commands/
 
-# 3. v1.1 — Install Matt Pocock's atomic skills for daily session work
-npx skills@latest add mattpocock/skills
-# Pick at minimum: grill-with-docs, diagnose, zoom-out,
-#                  improve-codebase-architecture, handoff
+# 3. v1.1 — Install Matt Pocock's atomic skills (now a Claude Code plugin)
+claude plugin marketplace add mattpocock/skills      # add the marketplace once
+claude plugin install mattpocock-skills@mattpocock   # installs the session-skill suite
+# Suite includes grill-with-docs, diagnosing-bugs, improve-codebase-architecture, handoff.
+# caveman is NOT in the plugin (deleted upstream) — kept as a frozen local skill.
 ```
 
 Claude Code auto-discovers skills, agents, and commands under `~/.claude/`. Per-project overrides win when both exist; unmodified projects inherit upstream improvements.

@@ -54,7 +54,7 @@ This is a senior engineer's framework, with every claim grounded in a canonical 
 | **Security posture** | Light. `/git-guardrails-claude-code` blocks dangerous git commands. `/setup-pre-commit` for hygiene | Heavy. `security-architect` agent + `/review-security` + 10-point checklist + secret-scan hooks + deny/ask/allow perimeters + tenant-isolation + audit-log discipline |
 | **Multi-tenancy / regulated work** | Not addressed | First-class (security profile = production-grade vs internal-tool vs personal-project; regulated → compliance/frameworks/) |
 | **Parallelism** | Not addressed | Two bounded modes (`/build-phase-autopilot` sequential, `/start-phase-team` parallel teammates) |
-| **Onboarding** | `npx skills@latest add mattpocock/skills` + `/setup-matt-pocock-skills` | Manual `mv` to `~/.claude/skills/` + invoke skill |
+| **Onboarding** | `claude plugin install mattpocock-skills@mattpocock` (plugin marketplace) | Manual `mv` to `~/.claude/skills/` + invoke skill |
 | **Validation** | 82k stars, public, community-tested | Custom-built, not yet field-tested |
 | **Sweet spot** | Any project, any stack, daily workflow | Greenfield projects where discipline pays off (B2B SaaS, fintech, regulated) |
 
@@ -279,7 +279,7 @@ In the order I'd do them:
 4. **Replace `DECISIONS.md`** in `SKILL.md` Step 4 with `docs/adr/0000-template.md`. Update `solution-architect`'s ADR template + 3-test threshold.
 5. **Restructure `/plan-feature`** to invoke `/grill-with-docs` first. (Either embed the grilling logic or call out to the skill if installed.)
 6. **Add the TDD anti-pattern callout** to `/build-feature` (Matt's vertical-tracer-bullet warning + per-cycle checklist).
-7. **Install 5 of Matt's skills user-wide** via `npx skills@latest add mattpocock/skills`, picking: grill-with-docs, diagnose, zoom-out, improve-codebase-architecture, handoff.
+7. **Install Matt's session skills** via the plugin marketplace — `claude plugin marketplace add mattpocock/skills` then `claude plugin install mattpocock-skills@mattpocock` (installs the suite: grill-with-docs, diagnosing-bugs, improve-codebase-architecture, handoff, …).
 8. **Add `/prototype`** as a user-level skill from Matt's repo (don't bundle into project scaffolds).
 9. **Make scaffold components dual-resident** — also install the 11 agents + 6 scripts at user level so future kit improvements propagate.
 10. **Update `PLAYBOOK.md`** with these decisions as an ADR in the playbook's own changelog.

@@ -272,9 +272,10 @@ Unmodified projects inherit upstream improvements automatically. Projects that h
 This kit owns the *project layer* (scaffold once, get discipline). Pair it with **atomic session-layer skills from mattpocock/skills** for daily work:
 
 ```bash
-npx skills@latest add mattpocock/skills
+claude plugin marketplace add mattpocock/skills      # once
+claude plugin install mattpocock-skills@mattpocock   # installs the suite
 ```
 
-Pick at minimum: `grill-with-docs`, `diagnose`, `zoom-out`, `improve-codebase-architecture`, `handoff`. Optionally `caveman` (token compression) and `prototype` (throwaway exploration before scaffolding for real).
+The plugin installs the session-skill suite: `grill-with-docs`, `diagnosing-bugs`, `improve-codebase-architecture`, `handoff`, and more. `caveman` (token compression) is **not** in the plugin — mattpocock deleted it upstream, so it's kept as a frozen local skill under `~/.claude/skills/`.
 
 See `COMPARISON-mattpocock-vs-ours.md` in the workspace for why this division is principled, not eclectic.

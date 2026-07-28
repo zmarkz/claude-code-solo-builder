@@ -199,7 +199,7 @@ Normal mode: "I've analyzed the codebase and I believe the issue stems from..."
 Caveman mode: "Bug: race condition OrderService line 47. Fix: add mutex. Test: concurrent 100 orders."
 ```
 
-Install from mattpocock/skills: `npx skills@latest add mattpocock/skills` → select `caveman`.
+`caveman` is a **frozen local skill** — mattpocock deleted it upstream during the 2026-07 plugin migration, so it lives locally under `~/.claude/skills/` (not in the `mattpocock-skills` plugin). Nothing to install; invoke it by name.
 
 When to use:
 - Session is >2 hours old
