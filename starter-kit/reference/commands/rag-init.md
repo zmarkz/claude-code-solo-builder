@@ -35,18 +35,21 @@ claude mcp list 2>/dev/null | grep -q leann-server || echo "MISS mcp     → cla
 
 ## 3. Build
 
+The build runs through the same script the PostToolUse hook uses — one code
+path, so project tuning applies to initial builds and hook rebuilds alike:
+
 ```bash
-INDEX_NAME="$(basename "$PWD" | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')"
-leann build "$INDEX_NAME" --docs $(git ls-files | grep -vE '(^|/)(node_modules|vendor|dist|build|\.next|__pycache__)/' | grep -ivE '\.(png|jpe?g|gif|svg|ico|icns|webp|bmp|mp3|wav|m4a|ogg|flac|mp4|mov|avi|webm|mkv|xls|xlsx|ppt|pptx|csv|zip|gz|tgz|tar|7z|rar|woff2?|ttf|otf|eot|jar|class|pyc|so|dylib|bin|sqlite|db)$') \
-  --file-types ".md,.mdx,.txt,.ts,.tsx,.js,.jsx,.mjs,.cjs,.json,.py,.java,.kt,.go,.rs,.rb,.php,.swift,.c,.h,.cpp,.hpp,.cs,.sh,.bash,.fish,.zsh,.yaml,.yml,.toml,.ini,.cfg,.sql,.html,.css,.scss,.vue,.svelte,.xml,.gradle,.properties,.tf,.proto,.graphql,.prisma" \
-  --embedding-mode "${RAG_EMBEDDING_MODE:-ollama}" \
-  --embedding-model "${RAG_EMBEDDING_MODEL:-nomic-embed-text}" \
-  --use-ast-chunking --ast-fallback-traditional
+bash scripts/rag-reindex.sh --now
 ```
 
 - Requires a git repo with tracked files (`git ls-files` non-empty). If the
   project isn't committed yet: `git init && git add -A && git commit` first.
 - Re-running is safe and incremental (Merkle diff — only changed files re-embed).
+- Tuning (all optional): set `RAG_FILE_TYPES`, `RAG_EXCLUDE_DIRS`,
+  `RAG_EXCLUDE_EXTS`, `RAG_EMBEDDING_MODE`, `RAG_EMBEDDING_MODEL` in
+  `scripts/rag-reindex.conf` (project-owned, committed — survives template
+  refreshes). Never patch `rag-reindex.sh` itself; `/sync-project` may
+  refresh it from the kit.
 
 ## 4. Smoke test
 

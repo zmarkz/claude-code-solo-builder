@@ -133,13 +133,34 @@ cp ~/.claude/workflows/*.js .claude/workflows/ 2>/dev/null
 (If the project already has a tuned local recipe of the same name, back it up first — a project
 `.claude/workflows/` recipe overrides the user-level one, so don't clobber a deliberate override.)
 
-**Hooks — 3 core:**
+**Hooks — 3 core (never clobber local patches):**
+
+If the SessionStart drift hook has been warning "~/.claude is N file(s) behind
+the repo", tell the user to sync the kit first (`cd <kit-repo> && ./install.sh`)
+— otherwise this step distributes stale templates.
+
 ```bash
-cp ~/.claude/skills/ai-project-scaffold/reference/scripts/check-secrets-staged.sh scripts/
-cp ~/.claude/skills/ai-project-scaffold/reference/scripts/session-snapshot.sh scripts/
-cp ~/.claude/skills/ai-project-scaffold/reference/scripts/rag-reindex.sh scripts/
+SRC=~/.claude/skills/ai-project-scaffold/reference/scripts
+for s in check-secrets-staged.sh session-snapshot.sh rag-reindex.sh; do
+  if [ ! -f "scripts/$s" ]; then
+    cp "$SRC/$s" "scripts/$s" && echo "installed  scripts/$s"
+  elif cmp -s "$SRC/$s" "scripts/$s"; then
+    echo "up-to-date scripts/$s"
+  else
+    echo "DIFFERS    scripts/$s — left untouched"
+  fi
+done
 chmod +x scripts/*.sh
 ```
+
+For each `DIFFERS` script: show `diff "scripts/$s" "$SRC/$s"` and ask the user —
+**keep the local version** (default; it may carry deliberate project patches),
+**take the template**, or (for `rag-reindex.sh`) **move the local tuning into
+`scripts/rag-reindex.conf`** and then take the template. Never overwrite a
+differing hook script without the user's explicit choice — a silent overwrite
+here re-breaks any RAG index that needed project-specific excludes.
+`scripts/rag-reindex.conf` is project-owned config: never copied, never
+overwritten.
 
 **Planning docs — scaffold stubs for any that are missing:**
 

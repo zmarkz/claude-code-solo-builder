@@ -60,16 +60,26 @@ the kit's reuse loop:
   `patterns` index), so curated reuse hits don't depend on raw code search.
 - `/build-feature`'s reuse guard catches modules that emerge mid-build.
 
-## Apple Silicon / embedding overrides
+## Per-project tuning (`scripts/rag-reindex.conf`)
 
-Default is Ollama + `nomic-embed-text`. Override per session or per build:
+`scripts/rag-reindex.sh` is a kit-owned **template** — `/sync-project` may
+refresh it, so never patch it in place. Durable tuning lives in
+`scripts/rag-reindex.conf`: project-owned, committed with the project, sourced
+by the script, and never overwritten by the kit.
 
 ```bash
-export RAG_EMBEDDING_MODE=mlx        # or: ollama | sentence-transformers | openai
-export RAG_EMBEDDING_MODEL=<model>
+# scripts/rag-reindex.conf — every line optional
+RAG_EXCLUDE_DIRS='node_modules|vendor|dist|build|\.next|__pycache__|legacy'
+RAG_EXCLUDE_EXTS='png|jpe?g|gif|svg|mp3|m4a|mp4|xlsx|zip|pdf'
+RAG_FILE_TYPES='.md,.ts,.tsx,.sql'
+RAG_EMBEDDING_MODE=mlx        # or: ollama | sentence-transformers | openai
+RAG_EMBEDDING_MODEL=<model>
 ```
 
-Both `rag-reindex.sh` and `/rag-init` honor these.
+The same variables work as session env vars for one-off experiments.
+`/rag-init` builds via `bash scripts/rag-reindex.sh --now`, so the initial
+build and the hook's background rebuilds share one code path — tune once,
+applies everywhere.
 
 ## Troubleshooting
 
@@ -78,6 +88,6 @@ Both `rag-reindex.sh` and `/rag-init` honor these.
 - Rebuild from scratch: `rm -rf .leann && /rag-init` (indexes are disposable).
 - Retrieval quality poor (esp. large polyglot/legacy code)? The pre-vetted
   fallback engine is `zilliztech/claude-context` (AST + hybrid BM25, needs a
-  Milvus container). All engine calls live in `scripts/rag-reindex.sh`,
-  `/rag-init`, and one line of `/extract-pattern` — swapping engines is a
-  3-file change. See ADR 0004.
+  Milvus container). All engine calls live in `scripts/rag-reindex.sh` (which
+  `/rag-init` calls via `--now`) and one line of `/extract-pattern` — swapping
+  engines is a 2-file change. See ADR 0004.

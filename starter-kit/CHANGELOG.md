@@ -4,6 +4,34 @@ All notable changes to this skill, newest first. Each entry pairs with an ADR-st
 
 ---
 
+## [2.2] — 2026-07-29
+
+**Theme:** De-fragile the RAG reindex path — template/config split.
+
+### Fixed
+
+- **`/sync-project` silently clobbering a patched `scripts/rag-reindex.sh`** —
+  the active-build retrofit now installs hook scripts copy-if-missing; an
+  existing, differing script is left untouched and surfaced with a diff and an
+  explicit choice (keep local / take template / port tuning to conf).
+  Previously an unconditional `cp` restored the stock reindex logic and the
+  PostToolUse hook then silently rebuilt a broken index on projects that
+  needed local tuning.
+
+### Changed
+
+- **`reference/scripts/rag-reindex.sh`** — now a pure template: exclude lists
+  promoted to `RAG_EXCLUDE_DIRS` / `RAG_EXCLUDE_EXTS` (env-overridable);
+  sources optional `scripts/rag-reindex.conf` (project-owned, committed, never
+  overwritten by the kit) for durable per-project tuning; new `--now` flag
+  runs a foreground build with no debounce/lock.
+- **`reference/commands/rag-init.md`** — step 3 builds via
+  `bash scripts/rag-reindex.sh --now` instead of duplicating the `leann build`
+  pipeline inline — one code path for initial builds and hook rebuilds.
+- **`reference/commands/sync-project.md`** — warns to re-run the kit's
+  `install.sh` first when the SessionStart drift hook reports `~/.claude`
+  behind the repo, so a stale machine can't distribute outdated templates.
+
 ## [2.1] — 2026-07-18
 
 **Theme:** Local RAG + cross-project module reuse (repo v3.1). See `docs/adr/0004-local-rag-leann.md` and `docs/LOCAL-RAG.md`.
