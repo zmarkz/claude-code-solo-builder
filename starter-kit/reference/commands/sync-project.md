@@ -58,10 +58,21 @@ The project already has agents. Refresh them from the user-level store and optio
 
 ```bash
 mkdir -p .claude/agents
-cp ~/.claude/agents/*.md .claude/agents/
+# The 11 kit agents, by name. Never `cp ~/.claude/agents/*.md` — the user-level
+# store also holds unrelated suites (seo-*, etc.) that must not leak into a project.
+for a in ai-engineer backend-engineer devops-engineer domain-expert \
+         frontend-engineer product-manager product-owner-reviewer qa-engineer \
+         security-architect solution-architect technical-writer; do
+  if cp ~/.claude/agents/"$a".md .claude/agents/ 2>/dev/null; then
+    echo "installed  $a"
+  else
+    echo "MISSING    $a — re-run the kit installer (cd <kit-repo> && ./install.sh)"
+  fi
+done
 ```
 
-List the agents that were copied.
+Agents already in `.claude/agents/` that are not on this list are project-local —
+leave them untouched. List the agents that were copied.
 
 **3b-2. Offer command sync**
 
@@ -114,7 +125,17 @@ mkdir -p .claude/agents .claude/commands .claude/workflows scripts docs/adr
 
 **Agents — all 11:**
 ```bash
-cp ~/.claude/agents/*.md .claude/agents/
+# By name, never a glob — the user-level store also holds unrelated suites
+# (seo-*, etc.) that must not leak into a project.
+for a in ai-engineer backend-engineer devops-engineer domain-expert \
+         frontend-engineer product-manager product-owner-reviewer qa-engineer \
+         security-architect solution-architect technical-writer; do
+  if cp ~/.claude/agents/"$a".md .claude/agents/ 2>/dev/null; then
+    echo "installed  $a"
+  else
+    echo "MISSING    $a — re-run the kit installer (cd <kit-repo> && ./install.sh)"
+  fi
+done
 ```
 
 **Commands — 5 core:**

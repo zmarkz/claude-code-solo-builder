@@ -4,6 +4,27 @@ All notable changes to this skill, newest first. Each entry pairs with an ADR-st
 
 ---
 
+## [2.3] — 2026-07-29
+
+**Theme:** Stop `/sync-project` leaking unrelated agent suites into every project.
+
+### Fixed
+
+- **`/sync-project` installing all 28 user-level agents instead of the kit's 11** —
+  both the SYNC path and the RETROFIT `active-build` path ran
+  `cp ~/.claude/agents/*.md .claude/agents/`. Because `~/.claude/agents/` is a
+  shared store that accumulates unrelated suites (17 `seo-*` agents on the
+  reference machine), every synced or retrofitted project received 28 agent
+  definitions — 17 of them irrelevant to the project, polluting the agent picker
+  and every agent-selection prompt. The RETROFIT step was already labelled
+  "Agents — all 11"; only the code was wrong.
+
+  Both sites now iterate an explicit 11-name allowlist and report each agent as
+  `installed` or `MISSING` (the latter pointing at `install.sh`, since a missing
+  kit agent means a stale `~/.claude`). Agents already present in
+  `.claude/agents/` that are not on the list are treated as project-local and
+  left untouched.
+
 ## [2.2] — 2026-07-29
 
 **Theme:** De-fragile the RAG reindex path — template/config split.
