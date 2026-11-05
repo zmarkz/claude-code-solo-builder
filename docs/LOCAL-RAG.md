@@ -91,3 +91,16 @@ applies everywhere.
   Milvus container). All engine calls live in `scripts/rag-reindex.sh` (which
   `/rag-init` calls via `--now`) and one line of `/extract-pattern` — swapping
   engines is a 2-file change. See ADR 0004.
+
+## Rebuild cost on large repos
+
+Every reindex re-embeds the whole repo (see ADR 0007 for why). The hook throttles this to one rebuild
+per `RAG_MIN_INTERVAL_SEC`, default 30 minutes. A repo with thousands of files can take over an hour
+to rebuild, so the default would keep it reindexing almost constantly. Raise the interval in the
+project's `scripts/rag-reindex.conf`:
+
+```bash
+RAG_MIN_INTERVAL_SEC=43200   # at most twice a day
+```
+
+`/rag-status` reports indexed files against tracked files, so an index that has shrunk is visible.
