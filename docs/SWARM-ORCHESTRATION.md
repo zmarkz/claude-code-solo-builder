@@ -14,19 +14,19 @@
                           │
                           ▼
                    ┌─────────────┐
-                   │ Team Lead   │  (Opus 4.8 — planning, decomposition)
+                   │ Team Lead   │  (Opus — planning, decomposition)
                    └──────┬──────┘
                           │ decomposes into DAG
         ┌─────────────────┼─────────────────┐
         ▼                 ▼                 ▼
    ┌─────────┐      ┌─────────┐      ┌─────────┐
-   │Worker A │      │Worker B │      │Worker C │     (Sonnet 4.6 / Haiku 4.5)
+   │Worker A │      │Worker B │      │Worker C │     (Sonnet / Haiku)
    │worktree │      │worktree │      │worktree │
    └────┬────┘      └────┬────┘      └────┬────┘
         └────────────────┼────────────────┘
                          ▼
                    ┌─────────────┐
-                   │ Reviewer    │  (Opus 4.8 — quality gate)
+                   │ Reviewer    │  (Opus — quality gate)
                    └──────┬──────┘
                           ▼
                   Human (you) — final approve & merge
@@ -83,10 +83,10 @@ Launches 3-5 agents working simultaneously in non-overlapping file domains.
 ```
 
 **How it works:**
-1. Team Lead (Opus 4.8) decomposes the phase into independent sub-tasks
+1. Team Lead (Opus) decomposes the phase into independent sub-tasks
 2. Each worker gets exclusive ownership of specific files/directories
 3. Workers run in parallel with separate git worktrees (no conflicts)
-4. Reviewer (Opus 4.8) gates each worker's output before merge
+4. Reviewer (Opus) gates each worker's output before merge
 5. Human approves the final merge
 
 **Example team assignment:**
@@ -277,7 +277,7 @@ git worktree remove ../worktrees/worker-a
 
 ## The Reviewer Role
 
-The Reviewer agent (Opus 4.8) applies:
+The Reviewer agent (Opus) applies:
 1. Security-architect checklist (any auth/storage/LLM changes)
 2. QA-engineer adversarial catalog (edge cases, permissions)
 3. Code style consistency (follows CONTEXT.md ubiquitous language)

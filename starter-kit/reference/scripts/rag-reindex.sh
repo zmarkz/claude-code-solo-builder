@@ -49,12 +49,14 @@ RAG_EXCLUDE_EXTS="${RAG_EXCLUDE_EXTS:-png|jpe?g|gif|svg|ico|icns|webp|bmp|mp3|wa
 [ -f scripts/rag-reindex.conf ] && . scripts/rag-reindex.conf
 
 run_build() {
-  # leann build is idempotent/incremental (Merkle diff: only changed files are
-  # re-embedded). git ls-files keeps the scope gitignore-filtered.
+  # --force is required. Without it, leann 0.3.7 replaces the index with only the
+  # files that changed, so one edit can shrink a whole-repo index to a single file
+  # (measured: 3308 tracked files -> 17 indexed). git ls-files keeps the scope
+  # gitignore-filtered.
   # NOTE: can hit ARG_MAX on very large repos — if that happens, tighten
   # RAG_EXCLUDE_* in scripts/rag-reindex.conf or switch to --docs . there.
   # shellcheck disable=SC2046
-  leann build "$INDEX_NAME" --docs $(git ls-files | grep -vE "(^|/)($RAG_EXCLUDE_DIRS)/" | grep -ivE "\.($RAG_EXCLUDE_EXTS)\$") \
+  nice -n 10 leann build "$INDEX_NAME" --force --docs $(git ls-files | grep -vE "(^|/)($RAG_EXCLUDE_DIRS)/" | grep -ivE "\.($RAG_EXCLUDE_EXTS)\$") \
     --file-types "$RAG_FILE_TYPES" \
     --embedding-mode "${RAG_EMBEDDING_MODE:-ollama}" \
     --embedding-model "${RAG_EMBEDDING_MODEL:-nomic-embed-text}" \
@@ -67,8 +69,15 @@ if [ "$MODE" = "now" ]; then
   exit 0
 fi
 
-# Debounce: one queued/running reindex at a time.
+# Debounce: one queued/running reindex at a time, and a full rebuild at most every
+# RAG_MIN_INTERVAL_SEC. Every rebuild re-embeds the whole repo, so the index may lag
+# by up to this long rather than rebuilding after each burst of edits.
 [ -f "$LOCK_FILE" ] && exit 0
+STAMP_FILE="$LOCK_FILE.last"
+if [ -f "$STAMP_FILE" ]; then
+  last=$(cat "$STAMP_FILE" 2>/dev/null || echo 0)
+  [ $(( $(date +%s) - last )) -lt "${RAG_MIN_INTERVAL_SEC:-1800}" ] && exit 0
+fi
 touch "$LOCK_FILE"
 
 (
@@ -77,6 +86,7 @@ touch "$LOCK_FILE"
     echo "[rag-reindex] $(date '+%Y-%m-%d %H:%M:%S') — starting ($INDEX_NAME)"
     run_build
     echo "[rag-reindex] $(date '+%Y-%m-%d %H:%M:%S') — done"
+    date +%s > "$STAMP_FILE"
   } >> "$LOG_FILE" 2>&1 || echo "[rag-reindex] FAILED — see $LOG_FILE" >> "$LOG_FILE"
   rm -f "$LOCK_FILE"
 ) &

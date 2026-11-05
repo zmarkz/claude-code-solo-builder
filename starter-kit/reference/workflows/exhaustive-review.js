@@ -41,7 +41,7 @@ const LENS_AGENT = {
 }
 const SKEPTICS = SAVER ? 2 : 5
 const SKEPTIC_MODEL = SAVER ? 'haiku' : 'sonnet'
-const SYNTH_MODEL = 'sonnet'  // v3.2: Sonnet 5 is near-Opus — synthesis is not a gate lane (ADR 0005)
+const SYNTH_MODEL = 'sonnet'  // v3.2: the Sonnet tier is near-Opus — synthesis is not a gate lane (ADR 0005)
 
 const FINDING = {
   type: 'object', additionalProperties: false,

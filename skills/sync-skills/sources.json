@@ -5,7 +5,7 @@
       "id": "solo-builder",
       "name": "claude-code-solo-builder (this repo — source of truth)",
       "type": "local-build",
-      "description": "The source of truth for the scaffold skill, 11 agents, 18 commands, 7 workflow recipes, 9 guardrail scripts, user-level hook scripts, and settings templates. ~/.claude is a COPY of this repo.",
+      "description": "The source of truth for the scaffold skill, 11 agents, 22 commands, 7 workflow recipes, 10 guardrail scripts, user-level hook scripts, and settings templates. ~/.claude is a COPY of this repo.",
       "local_path": "<your clone — or set SOLO_BUILDER_REPO>",
       "github_remote": "https://github.com/zmarkz/claude-code-solo-builder.git",
       "install_command": "cd \"$SOLO_BUILDER_REPO\" && git pull && ./install.sh",
@@ -30,7 +30,7 @@
       "name": "mattpocock/skills (plugin)",
       "type": "plugin-marketplace",
       "plugin": "mattpocock-skills@mattpocock",
-      "description": "Session-layer atomic workflow skills (diagnosing-bugs, grill-with-docs, handoff, writing-great-skills, to-spec/to-tickets, etc.), installed via the official plugin marketplace.",
+      "description": "Session-layer atomic workflow skills (diagnosing-bugs, grill-with-docs, wayfinder, implement, writing-great-skills, to-spec/to-tickets, etc.), installed via the official plugin marketplace.",
       "auto_apply": false,
       "note": "Migrated from manual copy 2026-07-19 (old copy archived at ~/.agents/skills-archived-2026-07-19; `caveman` kept as a frozen local skill — upstream deleted it). Update via `claude plugin update mattpocock-skills`."
     },
@@ -94,7 +94,11 @@
         "skill-creator@claude-plugins-official",
         "claude-code-setup@claude-plugins-official",
         "session-report@claude-plugins-official",
-        "security-guidance@claude-plugins-official"
+        "security-guidance@claude-plugins-official",
+        "typescript-lsp@claude-plugins-official",
+        "pyright-lsp@claude-plugins-official",
+        "gopls-lsp@claude-plugins-official",
+        "claude-security@claude-plugins-official"
       ],
       "auto_apply": false,
       "note": "Tracked for freshness reporting only. Versions from ~/.claude/plugins/installed_plugins.json (gitCommitSha/lastUpdated fallback for entries whose version reads 'unknown'). Updates go through `claude plugin update <name>` — sync-skills never modifies plugins."

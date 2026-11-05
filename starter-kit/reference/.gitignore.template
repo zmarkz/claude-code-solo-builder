@@ -127,3 +127,4 @@ Icon
 
 # Local RAG index (LEANN — machine-local, rebuildable)
 .leann/
+.claude/worktrees/

@@ -19,6 +19,18 @@ else
   echo "No .leann/ index in this project — run /rag-init"
 fi
 
+# 2b. Coverage. An index holding far fewer files than the repo was damaged by a
+# pre-2.4 incremental reindex: rebuild it with `bash scripts/rag-reindex.sh --now`.
+p=$(find .leann/indexes -name '*.passages.jsonl' 2>/dev/null | head -1)
+if [ -n "$p" ]; then
+  indexed=$(python3 -c "import json,sys
+s=set()
+for l in open(sys.argv[1]):
+    m=json.loads(l).get('metadata',{}); s.add(m.get('file_path') or m.get('file_name') or m.get('source') or '')
+print(len(s))" "$p" 2>/dev/null)
+  echo "COVERAGE: ${indexed:-?} files indexed of $(git ls-files | wc -l | xargs) tracked"
+fi
+
 # 3. Recent reindex activity + stuck lock
 [ -f .leann/reindex.log ] && tail -5 .leann/reindex.log
 [ -f .leann/reindex.lock ] && echo "NOTE: reindex.lock present — if no reindex is running, remove it: rm .leann/reindex.lock"

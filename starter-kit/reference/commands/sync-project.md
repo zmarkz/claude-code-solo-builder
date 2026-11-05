@@ -91,6 +91,17 @@ Ask: "Also sync workflow recipes from `~/.claude/workflows/`? (`yes` / `no`)"
   user-level one; don't clobber a deliberate override.)
 - `no` → skip
 
+**3b-2.6. Make the project ready for parallel and remote sessions**
+
+```bash
+# Worktree sessions must not show up as untracked files.
+grep -qxF '.claude/worktrees/' .gitignore 2>/dev/null || echo '.claude/worktrees/' >> .gitignore
+# Carry local env files into worktrees. Never overwrite a project's own list.
+[ -f .worktreeinclude ] || cp ~/.claude/skills/ai-project-scaffold/reference/.worktreeinclude.template .worktreeinclude
+# Replace a pinned full model ID with its tier alias, which cannot go stale.
+[ -f .claude/settings.json ] && sed -i '' -E 's/"model"([[:space:]]*:[[:space:]]*)"claude-(opus|sonnet|haiku)[^"]*"/"model"\1"\2"/' .claude/settings.json
+```
+
 **3b-3. Offer domain-expert fill-in**
 
 Ask: "Run `/write-an-agent` to fill in `domain-expert.md` for this project's domain? (`yes` / `skip`)"

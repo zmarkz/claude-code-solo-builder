@@ -16,7 +16,7 @@ over the deterministic `args.mode` channel:
    - **best** (default) — `/model opus` + turn `/fast` on + `/effort xhigh` (or `/effort ultracode` to
      let workflows auto-trigger). Recipes use full fan-out with 5 Sonnet skeptics/finding. **Opus runs
      only at the gates** (security lenses, integration review, go/no-go, final verdict — ADR 0005);
-     near-Opus Sonnet 5 handles synthesis and proposals. Token cost is *not* the constraint on Max
+     near-Opus Sonnet handles synthesis and proposals. Token cost is *not* the constraint on Max
      plans — the **weekly Opus cap** is, so every non-gate lane stays off Opus even in best.
    - **saver** — `/model sonnet` + `/effort high` (+ `/caveman` if you want compression). Recipes use
      narrow fan-out, 1–2 Haiku skeptics, Sonnet synthesis.

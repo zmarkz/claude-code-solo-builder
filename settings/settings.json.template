@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "model": "sonnet",
   "effortLevel": "xhigh",
   "env": {
@@ -18,7 +19,12 @@
     "skill-creator@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true,
     "session-report@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true
+    "security-guidance@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "claude-security@claude-plugins-official": true,
+    "mattpocock-skills@mattpocock": true
   },
   "hooks": {
     "SessionStart": [
@@ -36,5 +42,14 @@
         ]
       }
     ]
+  },
+  "alwaysThinkingEnabled": true,
+  "extraKnownMarketplaces": {
+    "mattpocock": {
+      "source": {
+        "source": "github",
+        "repo": "mattpocock/skills"
+      }
+    }
   }
 }
