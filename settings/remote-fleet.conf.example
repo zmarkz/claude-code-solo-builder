@@ -1,0 +1,16 @@
+# Remote Control fleet config — copy to ~/.claude/remote-fleet.conf and edit.
+# Shell-sourced by scripts/remote-fleet.sh. See docs/REMOTE-OPS.md.
+
+# default asks before risky actions. bypassPermissions never asks, so anyone who
+# reaches your Claude account can run anything here. Choose it deliberately.
+FLEET_PERMISSION_MODE="default"
+
+FLEET_CHROME=0            # 1 = spawned sessions may drive Chrome on this machine
+FLEET_CAPACITY=8          # max concurrent sessions per server
+FLEET_KEEP_AWAKE=1        # 1 = hold the machine and display awake while supervising
+FLEET_KEEP_CHROME=0       # 1 = the watchdog reopens Chrome if it was quit
+FLEET_KEEP_TAILSCALE=0    # 1 = the watchdog reconnects Tailscale if it was stopped
+
+# repo <path> <name shown in the app> <worktree|same-dir>
+repo "$HOME/projects"         machine   same-dir
+repo "$HOME/projects/my-app"  my-app    worktree

@@ -25,12 +25,12 @@ prunes only the dirs this repo fully owns (the scaffold skill, `sync-skills`).
 
 ---
 
-## 2. Model & speed (Opus 4.8 era)
+## 2. Model & speed
 
-- **Opus 4.8 + `/fast` is the daily driver.** Fast mode is Opus-class reasoning at higher
+- **Opus + `/fast` is the daily driver.** Fast mode is Opus-class reasoning at higher
   throughput *without* downgrading the model. The old "sit on Sonnet to dodge latency" rule is
   retired.
-- **Reserve Sonnet 5 for wide parallel leaves** (token economy on fan-outs); **Haiku 4.5 / local
+- **Reserve Sonnet for wide parallel leaves** (token economy on fan-outs); **Haiku / local
   Qwen for grind** (migrations, boilerplate, renames).
 - Keep the two routing axes separate:
   - *Product routing* — your app's runtime AI calls: `classifyQuery` → local Qwen (free) vs Claude

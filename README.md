@@ -3,9 +3,9 @@
 > An operating system for solo developers building a multi-app portfolio with AI agents.
 > Token-efficient, vault-grounded, security-first, and compounding over time.
 
-**Version 3.2 — July 2026**
+**Version 3.3 — November 2026**
 
-> **What's new** · **v3.2** — "Opus at the gates" model retune (Opus runs only on gate lanes; near-Opus Sonnet 5 takes synthesis / proposal / discovery) + Mode-3 substrate re-scope + mattpocock skills migrated to the plugin marketplace. · **v3.1** — per-project local RAG (LEANN) + cross-project module reuse. · **v3.0** — public/private overlay split (fully generic, portable kit). Full rationale in `docs/adr/INDEX.md`.
+> **What's new** · **v3.3** — native-first routing (`docs/NATIVE-FIRST.md`), always-on remote operation from a phone (`docs/REMOTE-OPS.md`), a RAG reindex fix (it was silently shrinking indexes), and freshness checks that actually warn. · **v3.2** — "Opus at the gates" model retune (Opus runs only on gate lanes; near-Opus Sonnet takes synthesis / proposal / discovery) + Mode-3 substrate re-scope + mattpocock skills migrated to the plugin marketplace. · **v3.1** — per-project local RAG (LEANN) + cross-project module reuse. · **v3.0** — public/private overlay split (fully generic, portable kit). Full rationale in `docs/adr/INDEX.md`.
 
 ---
 
@@ -237,7 +237,7 @@ Saved `Workflow()` recipes in `.claude/workflows/` fan work across many agents f
 | /caveman for long sessions | ~75% token compression |
 | Swarms vs monolith sessions | Each worker has isolated small context |
 | PreCompact session snapshot | State survives compaction |
-| Haiku 4.5 for repetitive tasks | 10-20x cheaper than Sonnet |
+| Haiku for repetitive tasks | 10-20x cheaper than Sonnet |
 
 See `docs/TOKEN-EFFICIENCY.md` for the complete strategy.
 

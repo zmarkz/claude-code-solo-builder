@@ -107,7 +107,7 @@ When producing outputs:
 
 **Project scaffold**: `ai-project-scaffold` — scaffold a new project with 11 agents + 18 commands + 7 workflow recipes + 9 hook scripts.
 
-**Daily workflow (mattpocock plugin)**: `grill-with-docs`, `diagnosing-bugs`, `improve-codebase-architecture`, `handoff` (+ `caveman` — frozen local copy, upstream deleted it)
+**Daily workflow (mattpocock plugin)**: `grill-with-docs`, `diagnosing-bugs`, `improve-codebase-architecture`, `to-spec`, `to-tickets`, `wayfinder`, `implement`, `pr`, `retro`, `handoff` (+ `caveman` — frozen local copy, upstream deleted it)
 
 ## Skill routing (which suite wins per job)
 
@@ -117,7 +117,8 @@ When producing outputs:
 | Ship / QA / browse / investigate | gstack (`/ship`, `/qa`, `/browse`, `/investigate`) | — |
 | Project lifecycle (scaffold, phases, reviews, RAG, ADRs) | solo-builder kit (`/plan-feature`, `/build-feature`, `/phase-review`, `/rag-init`, `/write-adr`, `/extract-pattern`) | — |
 | Skill authoring | `skill-creator` plugin | `writing-great-skills` (reference reading) |
-| Code review | `/review-exhaustive` (deep) or pr-review-toolkit (PR-shaped) | gstack `/review` (quick) |
+| Code review | native `/code-review` by default; `/review-exhaustive` when you want the project's agents | gstack `/review` (quick) |
+| Native vs kit | `docs/NATIVE-FIRST.md` in the kit repo | Building what Claude Code already ships |
 
 **Seed skills**: `bootstrap-new-app`, `add-stripe-product`, `add-supabase-table`, `ship-landing-page`, `kill-app`
 

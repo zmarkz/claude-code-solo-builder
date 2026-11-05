@@ -101,7 +101,7 @@ A solo AI-augmented builder runs four layers concurrently, like a tiny holding c
 - Rolling **5-hour usage windows** (doubled for Pro/Max/Team).
 - **Weekly active-hours cap** — counts only when models are processing.
 - **200K context window** (500K Enterprise). Output quality measurably degrades above 70% utilization.
-- **Server-side compaction** available in beta on Opus 4.8/4.7/4.6 and Sonnet 5.
+- **Server-side compaction** available in beta on current Opus and Sonnet models.
 
 Implications:
 
@@ -120,19 +120,19 @@ Implications:
                           │
                           ▼
                    ┌─────────────┐
-                   │ Team Lead   │  (Opus 4.8 — planning, decomposition)
+                   │ Team Lead   │  (Opus — planning, decomposition)
                    └──────┬──────┘
                           │ decomposes into DAG
         ┌─────────────────┼─────────────────┐
         ▼                 ▼                 ▼
    ┌─────────┐      ┌─────────┐      ┌─────────┐
-   │Worker A │      │Worker B │      │Worker C │     (Sonnet 5 / Haiku 4.5)
+   │Worker A │      │Worker B │      │Worker C │     (Sonnet / Haiku)
    │worktree │      │worktree │      │worktree │
    └────┬────┘      └────┬────┘      └────┬────┘
         └────────────────┼────────────────┘
                          ▼
                    ┌─────────────┐
-                   │ Reviewer    │  (Opus 4.8 — quality gate)
+                   │ Reviewer    │  (Opus — quality gate)
                    └──────┬──────┘
                           ▼
                   Human (you) — final approve & merge
@@ -150,9 +150,9 @@ Implications:
 
 | Task | Model |
 |------|-------|
-| Planning, architecture, code review | Opus 4.8 |
-| Parallel feature execution | Sonnet 5 |
-| Repetitive / structured work | Haiku 4.5 |
+| Planning, architecture, code review | Opus |
+| Parallel feature execution | Sonnet |
+| Repetitive / structured work | Haiku |
 | Local / private / cost-sensitive | Qwen3-Coder 32B via MLX |
 
 ---
@@ -1280,7 +1280,7 @@ The playbook is wrong about your reality the moment ingestion exposes it. This i
 
 ## D.2 The refinement prompt
 
-Run this with Opus 4.8 and the playbook + vault in context:
+Run this with Opus and the playbook + vault in context:
 
 ```
 You are refining the Solo Builder Playbook (v2.0) against my actual portfolio.

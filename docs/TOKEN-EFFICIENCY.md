@@ -82,15 +82,15 @@ Don't always reach for Sonnet. Match the model to the task:
 
 | Task | Model | Cost Multiplier |
 |------|-------|----------------|
-| Planning, architecture, code review | Opus 4.8 | 5x |
-| Parallel feature execution | Sonnet 4.6 | 1x (baseline) |
-| Repetitive / structured work (tests, boilerplate) | Haiku 4.5 | 0.05-0.1x |
+| Planning, architecture, code review | Opus | 5x |
+| Parallel feature execution | Sonnet | 1x (baseline) |
+| Repetitive / structured work (tests, boilerplate) | Haiku | 0.05-0.1x |
 | Local / private / cost-sensitive | Qwen3-Coder 32B via MLX | 0x |
 
 **Pattern for swarm teams:**
-- Team Lead (planning, decomposition) → Opus 4.8
-- Workers (parallel feature execution) → Sonnet 4.6
-- Repetitive tasks (type stubs, test fixtures) → Haiku 4.5
+- Team Lead (planning, decomposition) → Opus
+- Workers (parallel feature execution) → Sonnet
+- Repetitive tasks (type stubs, test fixtures) → Haiku
 
 ---
 
@@ -219,11 +219,11 @@ When NOT to use:
 
 | Session type | Typical length | Model | Purpose |
 |-------------|---------------|-------|---------|
-| Planning | 30-60 min | Opus 4.8 | Architecture, ADRs, phase planning |
-| Feature build | 2-4 hours | Sonnet 4.6 | Vertical-slice implementation |
-| Bug fix | 30-90 min | Sonnet 4.6 | /diagnose loop |
-| Review | 30-60 min | Opus 4.8 | PR review, security review |
-| QA | 1-2 hours | Haiku 4.5 | Test generation, fixture work |
+| Planning | 30-60 min | Opus | Architecture, ADRs, phase planning |
+| Feature build | 2-4 hours | Sonnet | Vertical-slice implementation |
+| Bug fix | 30-90 min | Sonnet | /diagnose loop |
+| Review | 30-60 min | Opus | PR review, security review |
+| QA | 1-2 hours | Haiku | Test generation, fixture work |
 
 Break features into focused sub-tasks, each in its own session. A "restart with fresh context" is free — a degraded near-full context is expensive.
 

@@ -31,7 +31,7 @@ const N = SAVER ? 2 : 4
 const ANGLES = ['the simplest thing that could work', 'the most robust / scalable design', 'the fastest to ship safely', 'the most different, first-principles approach']
 const JUDGES = SAVER ? ['solution-architect', 'qa-engineer'] : ['solution-architect', 'security-architect', 'qa-engineer', 'product-manager']
 const RUBRIC = ['fit', 'simplicity', 'risk', 'reversibility', 'effort']
-const SYNTH_MODEL = 'sonnet'  // v3.2: Sonnet 5 is near-Opus — synthesis is not a gate lane (ADR 0005)
+const SYNTH_MODEL = 'sonnet'  // v3.2: the Sonnet tier is near-Opus — synthesis is not a gate lane (ADR 0005)
 
 if (!PROBLEM) {
   log('design-panel: no args.problem provided — nothing to design.')

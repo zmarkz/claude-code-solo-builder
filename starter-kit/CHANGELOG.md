@@ -4,6 +4,32 @@ All notable changes to this skill, newest first. Each entry pairs with an ADR-st
 
 ---
 
+## [2.4] — 2026-11-06
+
+**Theme:** Stop silent staleness, stop shrinking RAG indexes, run from a phone. See ADR 0007.
+
+### Fixed
+
+- **`rag-reindex.sh` destroyed indexes.** `leann build` without `--force` replaces an index with only
+  the changed files (measured: 3,308 tracked files, 17 indexed). Rebuilds now use `--force`, at most once
+  per `RAG_MIN_INTERVAL_SEC` (default 30 minutes). Rebuild damaged indexes with `rag-reindex.sh --now`.
+- **`/sync-skills` reminder never fired** when its stamp file was missing. That now counts as overdue.
+
+### Added
+
+- `scripts/remote-fleet.sh`: always-on Remote Control servers per repo, with a supervisor and watchdog.
+- `/rag-status` reports indexed files against tracked files.
+- `/sync-project` adds `.worktreeinclude`, ignores `.claude/worktrees/`, and replaces full model pins with aliases.
+- The session check warns when a project pins a full model ID.
+- Settings template enables the LSP plugins and `claude-security`.
+
+### Changed
+
+- Docs name model tiers rather than versions, so they stop going stale.
+- `/code-review` is the default review route; `/review-exhaustive` stays for project-agent reviews.
+
+---
+
 ## [2.3] — 2026-07-29
 
 **Theme:** Stop `/sync-project` leaking unrelated agent suites into every project.

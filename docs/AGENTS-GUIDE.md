@@ -196,9 +196,9 @@ Every agent now declares a `model:` field in its frontmatter. This pins the righ
 | `technical-writer` | `haiku` | Doc formatting, low cognitive load (~10-20x cheaper) |
 
 > **Why aliases, not pinned IDs.** `opus` / `sonnet` / `haiku` resolve to the
-> latest model of each tier (currently Opus 4.8 / Sonnet 5 / Haiku 4.5) and
+> latest model of each tier (currently Opus 5.5 / Sonnet 5.5 / Haiku 5.5) and
 > advance automatically with Claude Code releases. Pinned IDs
-> (`claude-sonnet-4-6`-style) hard-fail when a model is retired — the kit
+> (`claude-sonnet-5-5`-style) hard-fail when a model is retired — the kit
 > switched to aliases in v3.0 to eliminate that failure class. Pin a full ID in
 > a project override only if you need snapshot stability.
 
