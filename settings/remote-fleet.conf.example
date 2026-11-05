@@ -11,6 +11,7 @@ FLEET_KEEP_AWAKE=1        # 1 = hold the machine and display awake while supervi
 FLEET_KEEP_CHROME=0       # 1 = the watchdog reopens Chrome if it was quit
 FLEET_KEEP_TAILSCALE=0    # 1 = the watchdog reconnects Tailscale if it was stopped
 
-# repo <path> <name shown in the app> <worktree|same-dir>
+# repo <path> <name for logs and status> <worktree|same-dir>
+# The Claude app labels each environment by its folder name.
 repo "$HOME/projects"         machine   same-dir
 repo "$HOME/projects/my-app"  my-app    worktree
