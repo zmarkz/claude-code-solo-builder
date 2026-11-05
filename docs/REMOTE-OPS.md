@@ -21,7 +21,8 @@ bash ~/.claude/scripts/remote-fleet.sh install
 bash ~/.claude/scripts/remote-fleet.sh status
 ```
 
-Each config line is `repo <path> <name> <spawn>`:
+Each config line is `repo <path> <name> <spawn>`. The name is for logs and `status`; the Claude app
+labels the environment by its folder name.
 
 - **`worktree`** gives each session its own git worktree, so parallel sessions cannot
   collide. Use it for active repos.
